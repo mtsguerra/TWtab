@@ -4,6 +4,10 @@
     <meta charset="utf-8" />
     <title>Tâb</title>
     <link href="sty.css" rel="stylesheet"/>
+    <script src="account-panel.js" defer></script>
+    <script src="buttonRulesScript.js" defer></script>
+    <script src="startingGameScript.js" defer></script>
+
 </head>
 <body>
     <header id="site-header">
@@ -51,202 +55,269 @@
 
     <!-- changed id -> class "container" so CSS matches -->
     <div class="container" id="main-content">
-        <aside class="sidebar" id="left-bar" tabindex="0" aria-labelledby="rules-title">
-            <h2 id="rules-title">Regras completas — Tâb</h2>
-
-            <!-- Sumário (links internos para pular às seções) -->
-            <nav class="rules-toc" aria-label="Sumário das regras">
-                <strong>Sumário</strong>
+        <aside class="sidebar collapsed" id="left-bar" tabindex="0" aria-labelledby="rules-title" aria-hidden="true">
+            <!-- minimized button shown when collapsed -->
+            <div class="rules-minimized" aria-hidden="false">
+                <h2>Teste</h2>
                 <ul>
-                    <li><a href="#introducao">Introdução</a></li>
-                    <li><a href="#tabuleiro">Tabuleiro</a></li>
-                    <li><a href="#pecas">Peças e colocação inicial</a></li>
-                    <li><a href="#objetivo">Objetivo</a></li>
-                    <li><a href="#equipamento">Equipamento (varetas)</a></li>
-                    <li><a href="#lancamento">Lançamento e valores</a></li>
-                    <li><a href="#ativacao">Ativação: o lançamento "tâb"</a></li>
-                    <li><a href="#movimento">Movimento normal das peças</a></li>
-                    <li><a href="#caminho">Caminho das peças</a></li>
-                    <li><a href="#captura">Captura</a></li>
-                    <li><a href="#empilhamento">Empilhamento / deslocamento em grupo</a></li>
-                    <li><a href="#separacao">Separação de pilhas</a></li>
-                    <li><a href="#turno">Sequência de turno</a></li>
-                    <li><a href="#vitoria">Condição de vitória</a></li>
-                    <li><a href="#variacoes">Variações regionais</a></li>
-                    <li><a href="#fontes">Fontes</a></li>
+                    <li><button id="rules-toggle" class="rules-toggle" aria-controls="left-bar" aria-expanded="false" title="Abrir regras">
+                        Regras
+                    </button></li>
                 </ul>
-            </nav>
+            </div>
 
-            <!-- Conteúdo detalhado -->
-            <section id="introducao">
-                <h3>Introdução</h3>
-                <p>
-                    Tâb é um jogo de corrida / captura tradicional do norte da África e da Península Arábica,
-                    jogado por duas pessoas. As regras variam regionalmente; abaixo segue uma versão
-                    abrangente das regras tradicionais tal como descritas nas fontes históricas e modernas.
-                </p>
-            </section>
+            <!-- full content hidden when collapsed -->
+            <div class="rules-content" id="rules-content" hidden>
+                <h2 id="rules-title">Regras completas — Tâb</h2>
 
-            <section id="tabuleiro">
-                <h3>Tabuleiro</h3>
-                <p>
-                    O tabuleiro típico tem 4 linhas (duas linhas exteriores — uma para cada jogador — e duas
-                    linhas do meio) e um número ímpar de colunas, frequentemente entre 7 e 15. As colunas
-                    determinam o percurso que as peças seguem. Em algumas variantes o número de colunas é fixo.
-                </p>
-            </section>
+                <!-- Sumário (links internos para pular às seções) -->
+                <nav class="rules-toc" aria-label="Sumário das regras">
+                    <strong>Sumário</strong>
+                    <ol>
+                        <li><a href="#introducao">Introdução</a></li>
+                        <li><a href="#tabuleiro">Tabuleiro</a></li>
+                        <li><a href="#pecas">Peças e colocação inicial</a></li>
+                        <li><a href="#objetivo">Objetivo</a></li>
+                        <li><a href="#equipamento">Equipamento (varetas)</a></li>
+                        <li><a href="#lancamento">Lançamento e valores</a></li>
+                        <li><a href="#ativacao">Ativação: o lançamento "tâb"</a></li>
+                        <li><a href="#movimento">Movimento normal das peças</a></li>
+                        <li><a href="#caminho">Caminho das peças</a></li>
+                        <li><a href="#captura">Captura</a></li>
+                        <li><a href="#empilhamento">Empilhamento / deslocamento em grupo</a></li>
+                        <li><a href="#separacao">Separação de pilhas</a></li>
+                        <li><a href="#turno">Sequência de turno</a></li>
+                        <li><a href="#vitoria">Condição de vitória</a></li>
+                        <li><a href="#variacoes">Variações regionais</a></li>
+                        <li><a href="#fontes">Fontes</a></li>
+                    </ol>
+                </nav>
 
-            <section id="pecas">
-                <h3>Peças e colocação inicial</h3>
-                <ul>
-                    <li>Cada jogador tem peças idênticas (normalmente 1 peça por casa) colocadas em cada casa da sua linha inicial (linha exterior mais próxima do jogador).</li>
-                    <li>Assim, numa configuração 4×7, o jogador A ocupa todas as 7 casas da primeira linha; o jogador B ocupa as 7 casas da última linha, em oposição.</li>
-                </ul>
-            </section>
+                <!-- Conteúdo detalhado -->
+                <section id="introducao">
+                    <h3>Introdução</h3>
+                    <p>
+                        Tâb é um jogo de corrida / captura tradicional do norte da África e da Península Arábica,
+                        jogado por duas pessoas. As regras variam regionalmente; abaixo segue uma versão
+                        abrangente das regras tradicionais tal como descritas nas fontes históricas e modernas.
+                    </p>
+                </section>
 
-            <section id="objetivo">
-                <h3>Objetivo</h3>
-                <p>O objetivo é capturar todas as peças do adversário, removendo-as do tabuleiro.</p>
-            </section>
+                <section id="tabuleiro">
+                    <h3>Tabuleiro</h3>
+                    <p>
+                        O tabuleiro típico tem 4 linhas (duas linhas exteriores — uma para cada jogador — e duas
+                        linhas do meio) e um número ímpar de colunas, frequentemente entre 7 e 15. As colunas
+                        determinam o percurso que as peças seguem. Em algumas variantes o número de colunas é fixo.
+                    </p>
+                </section>
 
-            <section id="equipamento">
-                <h3>Equipamento (varetas)</h3>
-                <p>
-                    Em vez de dados usa‑se um conjunto de 4 varetas de lançamento (casting sticks). Cada vareta tem dois lados distintos:
-                    um lado 'plano' (geralmente a face clara) e um lado 'arqueado' (a face escura). O resultado do lançamento é o número de faces planas voltadas para cima.
-                </p>
-            </section>
+                <section id="pecas">
+                    <h3>Peças e colocação inicial</h3>
+                    <ul>
+                        <li>Cada jogador tem peças idênticas (normalmente 1 peça por casa) colocadas em cada casa da sua linha inicial (linha exterior mais próxima do jogador).</li>
+                        <li>Assim, numa configuração 4×7, o jogador A ocupa todas as 7 casas da primeira linha; o jogador B ocupa as 7 casas da última linha, em oposição.</li>
+                    </ul>
+                </section>
 
-            <section id="lancamento">
-                <h3>Lançamento e valores</h3>
-                <p>
-                    Ao lançar as 4 varetas conta‑se quantas faces planas (ou "caras") ficaram para cima:
-                </p>
-                <ul>
-                    <li>0 planas (todas arqueadas): costuma ser chamado de "0" ou ter efeito especial em algumas variantes.</li>
-                    <li>1 plana: movimento de 1 casa.</li>
-                    <li>2 planas: movimento de 2 casas.</li>
-                    <li>3 planas: movimento de 3 casas.</li>
-                    <li>4 planas: movimento de 4 casas (às vezes também chamado "rápido").</li>
-                </ul>
-                <p>
-                    Em muitas descrições, alguns resultados (especialmente o lançamento que dá origem ao termo "tâb")
-                    têm efeitos adicionais — ver a seção de ativação e regras especiais.
-                </p>
-            </section>
+                <section id="objetivo">
+                    <h3>Objetivo</h3>
+                    <p>O objetivo é capturar todas as peças do adversário, removendo-as do tabuleiro.</p>
+                </section>
 
-            <section id="ativacao">
-                <h3>Ativação: o lançamento "tâb"</h3>
-                <p>
-                    Uma regra central é que as peças na linha inicial não podem normalmente mover-se livremente até serem "ativadas".
-                    A ativação costuma exigir um resultado específico no lançamento — tradicionalmente chamado de "tâb".
-                    Dependendo da variante, um "tâb" pode ser:
-                </p>
-                <ul>
-                    <li>um resultado particular das varetas (por exemplo, 0 planas ou 4 planas em algumas variantes),</li>
-                    <li>ou uma combinação especial (por exemplo, duas varetas de cada lado) que permite tirar peças da linha inicial.</li>
-                </ul>
-                <p>
-                    Quando uma peça é ativada, ela passa a poder entrar no percurso pelo qual as peças circulam.
-                    Em muitas regras, a ativação também permite dividir pilhas ou mover uma peça individualmente.
-                </p>
-            </section>
+                <section id="equipamento">
+                    <h3>Equipamento (varetas)</h3>
+                    <p>
+                        Em vez de dados usa‑se um conjunto de 4 varetas de lançamento (casting sticks). Cada vareta tem dois lados distintos:
+                        um lado 'plano' (geralmente a face clara) e um lado 'arqueado' (a face escura). O resultado do lançamento é o número de faces planas voltadas para cima.
+                    </p>
+                </section>
 
-            <section id="movimento">
-                <h3>Movimento normal das peças</h3>
-                <p>
-                    - O jogador lança as 4 varetas e escolhe uma (ou mais, conforme variantes) peça(s) para mover pelo número obtido.
-                    - O movimento segue um percurso determinado pelo desenho do tabuleiro (veja "Caminho das peças").
-                    - Apenas peças ativadas podem iniciar o percurso a partir da linha inicial; peças no percurso movem-se conforme o resultado do lançamento.
-                    - Se uma peça terminar a jogada em uma casa ocupada pelo adversário, a peça adversária é capturada e removida do tabuleiro.
-                </p>
-            </section>
+                <section id="lancamento">
+                    <h3>Lançamento e valores</h3>
+                    <p>
+                        Ao lançar as 4 varetas conta‑se quantas faces planas (ou "caras") ficaram para cima:
+                    </p>
+                    <ul>
+                        <li>0 planas (todas arqueadas): costuma ser chamado de "0" ou ter efeito especial em algumas variantes.</li>
+                        <li>1 plana: movimento de 1 casa.</li>
+                        <li>2 planas: movimento de 2 casas.</li>
+                        <li>3 planas: movimento de 3 casas.</li>
+                        <li>4 planas: movimento de 4 casas (às vezes também chamado "rápido").</li>
+                    </ul>
+                    <p>
+                        Em muitas descrições, alguns resultados (especialmente o lançamento que dá origem ao termo "tâb")
+                        têm efeitos adicionais — ver a seção de ativação e regras especiais.
+                    </p>
+                </section>
 
-            <section id="caminho">
-                <h3>Caminho das peças</h3>
-                <p>
-                    As peças geralmente circulam das linhas iniciais, atravessam as duas linhas do meio em forma de circuito e podem, em algumas regras,
-                    entrar na linha inicial do adversário. Regras comuns sobre o percurso:
-                </p>
-                <ul>
-                    <li>As peças não voltam à própria linha inicial depois de a deixarem (ou só o podem fazer em variantes específicas).</li>
-                    <li>Ao alcançarem a linha inicial adversária, as peças podem ser capturadas lá ou podem sair do tabuleiro dependendo da variante.</li>
-                    <li>O percurso pode ser serpenteante: por exemplo, da linha inicial vá para a linha intermediária mais próxima, percorra colunas, depois para a outra linha intermediária e finalmente para a linha inicial adversária.</li>
-                </ul>
-                <p>Consulte o desenho do seu tabuleiro local para definir o caminho exato; as regras de movimento aplicam‑se ao traçado definido.</p>
-            </section>
+                <section id="ativacao">
+                    <h3>Ativação: o lançamento "tâb"</h3>
+                    <p>
+                        Uma regra central é que as peças na linha inicial não podem normalmente mover-se livremente até serem "ativadas".
+                        A ativação costuma exigir um resultado específico no lançamento — tradicionalmente chamado de "tâb".
+                        Dependendo da variante, um "tâb" pode ser:
+                    </p>
+                    <ul>
+                        <li>um resultado particular das varetas (por exemplo, 0 planas ou 4 planas em algumas variantes),</li>
+                        <li>ou uma combinação especial (por exemplo, duas varetas de cada lado) que permite tirar peças da linha inicial.</li>
+                    </ul>
+                    <p>
+                        Quando uma peça é ativada, ela passa a poder entrar no percurso pelo qual as peças circulam.
+                        Em muitas regras, a ativação também permite dividir pilhas ou mover uma peça individualmente.
+                    </p>
+                </section>
 
-            <section id="captura">
-                <h3>Captura</h3>
-                <p>
-                    - Pousar numa casa ocupada por uma peça adversária remove a peça adversária do tabuleiro (captura).
-                    - Se houver uma pilha de peças adversárias, regras podem variar: normalmente pousar na mesma casa captura toda a pilha inimiga.
-                    - O jogador captura usando a peça que chega; não há captura por salto (exceto em variantes específicas).
-                </p>
-            </section>
+                <section id="movimento">
+                    <h3>Movimento normal das peças</h3>
+                    <p>
+                        - O jogador lança as 4 varetas e escolhe uma (ou mais, conforme variantes) peça(s) para mover pelo número obtido.
+                        - O movimento segue um percurso determinado pelo desenho do tabuleiro (veja "Caminho das peças").
+                        - Apenas peças ativadas podem iniciar o percurso a partir da linha inicial; peças no percurso movem-se conforme o resultado do lançamento.
+                        - Se uma peça terminar a jogada em uma casa ocupada pelo adversário, a peça adversária é capturada e removida do tabuleiro.
+                    </p>
+                </section>
 
-            <section id="empilhamento">
-                <h3>Empilhamento / deslocamento em grupo</h3>
-                <p>
-                    - Se uma peça pousa numa casa onde já existem peças do mesmo jogador, as peças formam uma pilha (stack).
-                    - Pilhas movem‑se como uma unidade: ao mover a peça de cima, toda a pilha desloca‑se pelo número indicado.
-                    - Pilhas são vulneráveis: se uma pilha pousar numa casa com peças adversárias, a pilha adversária é capturada.
-                </p>
-            </section>
+                <section id="caminho">
+                    <h3>Caminho das peças</h3>
+                    <p>
+                        As peças geralmente circulam das linhas iniciais, atravessam as duas linhas do meio em forma de circuito e podem, em algumas regras,
+                        entrar na linha inicial do adversário. Regras comuns sobre o percurso:
+                    </p>
+                    <ul>
+                        <li>As peças não voltam à própria linha inicial depois de a deixarem (ou só o podem fazer em variantes específicas).</li>
+                        <li>Ao alcançarem a linha inicial adversária, as peças podem ser capturadas lá ou podem sair do tabuleiro dependendo da variante.</li>
+                        <li>O percurso pode ser serpenteante: por exemplo, da linha inicial vá para a linha intermediária mais próxima, percorra colunas, depois para a outra linha intermediária e finalmente para a linha inicial adversária.</li>
+                    </ul>
+                    <p>Consulte o desenho do seu tabuleiro local para definir o caminho exato; as regras de movimento aplicam‑se ao traçado definido.</p>
+                </section>
 
-            <section id="separacao">
-                <h3>Separação de pilhas</h3>
-                <p>
-                    - Em muitas variantes, a separação (dividir uma pilha em duas) só é permitida se o jogador obtiver um lançamento especial
-                    (por exemplo, o resultado "tâb") ou seguir regra local que permita quebrar a pilha.
-                    - Quando a separação é permitida, o jogador escolhe quantas peças separam do topo para mover independentemente.
-                </p>
-            </section>
+                <section id="captura">
+                    <h3>Captura</h3>
+                    <p>
+                        - Pousar numa casa ocupada por uma peça adversária remove a peça adversária do tabuleiro (captura).
+                        - Se houver uma pilha de peças adversárias, regras podem variar: normalmente pousar na mesma casa captura toda a pilha inimiga.
+                        - O jogador captura usando a peça que chega; não há captura por salto (exceto em variantes específicas).
+                    </p>
+                </section>
 
-            <section id="turno">
-                <h3>Sequência de turno</h3>
-                <ol>
-                    <li>O jogador lança as 4 varetas.</li>
-                    <li>Interpreta o resultado (nº de planas, possíveis efeitos especiais).</li>
-                    <li>Escolhe peça(s) ativadas ou pilha(s) para mover conforme o valor.</li>
-                    <li>Executa o movimento; aplica capturas e regras de empilhamento/separação.</li>
-                    <li>Em variantes, certos resultados concedem jogadas adicionais — aplique conforme a regra local.</li>
-                </ol>
-            </section>
+                <section id="empilhamento">
+                    <h3>Empilhamento / deslocamento em grupo</h3>
+                    <p>
+                        - Se uma peça pousa numa casa onde já existem peças do mesmo jogador, as peças formam uma pilha (stack).
+                        - Pilhas movem‑se como uma unidade: ao mover a peça de cima, toda a pilha desloca‑se pelo número indicado.
+                        - Pilhas são vulneráveis: se uma pilha pousar numa casa com peças adversárias, a pilha adversária é capturada.
+                    </p>
+                </section>
 
-            <section id="vitoria">
-                <h3>Condição de vitória</h3>
-                <p>
-                    O jogo termina quando um jogador captura todas as peças do adversário. Em algumas variantes existem condições alternativas (por exemplo,
-                    expulsar todas as peças do adversário para fora do tabuleiro ou atingir uma posição final).
-                </p>
-            </section>
+                <section id="separacao">
+                    <h3>Separação de pilhas</h3>
+                    <p>
+                        - Em muitas variantes, a separação (dividir uma pilha em duas) só é permitida se o jogador obtiver um lançamento especial
+                        (por exemplo, o resultado "tâb") ou seguir regra local que permita quebrar a pilha.
+                        - Quando a separação é permitida, o jogador escolhe quantas peças separam do topo para mover independentemente.
+                    </p>
+                </section>
 
-            <section id="variacoes">
-                <h3>Variações regionais</h3>
-                <p>
-                    Há muitas variantes regionais: diferenças podem incluir o número exato de colunas, o significado exato do lançamento "tâb",
-                    regras para 0 ou 4 planas, se pilhas capturam parcialmente ou totalmente, e se peças podem sair do tabuleiro ao chegar à linha adversária.
-                </p>
-                <p>
-                    Recomenda‑se combinar as regras com o adversário antes de começar (por exemplo: qual lançamento ativa peças; 0 planas é penalidade ou bônus; regras para dividir pilhas).
-                </p>
-            </section>
+                <section id="turno">
+                    <h3>Sequência de turno</h3>
+                    <ol>
+                        <li>O jogador lança as 4 varetas.</li>
+                        <li>Interpreta o resultado (nº de planas, possíveis efeitos especiais).</li>
+                        <li>Escolhe peça(s) ativadas ou pilha(s) para mover conforme o valor.</li>
+                        <li>Executa o movimento; aplica capturas e regras de empilhamento/separação.</li>
+                        <li>Em variantes, certos resultados concedem jogadas adicionais — aplique conforme a regra local.</li>
+                    </ol>
+                </section>
 
-            <section id="fontes">
-                <h3>Fontes</h3>
-                <p>
-                    Resumo baseado em descrições históricas e modernas do jogo (Wikipedia e guias de regras). Consulte:
-                    <a href="https://en.wikipedia.org/wiki/T%C3%A2b" target="_blank" rel="noopener">Wikipedia — Tâb</a>
-                    e adaptações modernas para detalhes e variantes.
-                </p>
-            </section>
+                <section id="vitoria">
+                    <h3>Condição de vitória</h3>
+                    <p>
+                        O jogo termina quando um jogador captura todas as peças do adversário. Em algumas variantes existem condições alternativas (por exemplo,
+                        expulsar todas as peças do adversário para fora do tabuleiro ou atingir uma posição final).
+                    </p>
+                </section>
 
-            <p class="back-to-top"><a href="#rules-title">Voltar ao topo ↑</a></p>
+                <section id="variacoes">
+                    <h3>Variações regionais</h3>
+                    <p>
+                        Há muitas variantes regionais: diferenças podem incluir o número exato de colunas, o significado exato do lançamento "tâb",
+                        regras para 0 ou 4 planas, se pilhas capturam parcialmente ou totalmente, e se peças podem sair do tabuleiro ao chegar à linha adversária.
+                    </p>
+                    <p>
+                        Recomenda‑se combinar as regras com o adversário antes de começar (por exemplo: qual lançamento ativa peças; 0 planas é penalidade ou bônus; regras para dividir pilhas).
+                    </p>
+                </section>
+
+                <section id="fontes">
+                    <h3>Fontes</h3>
+                    <p>
+                        Resumo baseado em descrições históricas e modernas do jogo (Wikipedia e guias de regras). Consulte:
+                        <a href="https://en.wikipedia.org/wiki/T%C3%A2b" target="_blank" rel="noopener">Wikipedia — Tâb</a>
+                        e adaptações modernas para detalhes e variantes.
+                    </p>
+                </section>
+
+                <p class="back-to-top"><a href="#rules-title">Voltar ao topo ↑</a></p>
+            </div>
         </aside>
 
-        <main class="main">
-            <div class="game-area" role="grid" aria-label="game options">test</div>
+        <main>
+            <!-- The play "button" div -->
+            <div id="playBtn" class="play-button" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="playDialog" aria-expanded="false" title="Play">
+                <span class="visually-hidden">Play</span>
+            </div>
+
+            <!-- Modal dialog / menu -->
+            <div id="overlay" class="overlay hidden" data-hidden="true">
+                <div id="playDialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+                    <h2 id="dialogTitle">New Game</h2>
+
+                    <form id="playForm" autocomplete="off">
+                        <!-- Board size -->
+                        <label for="boardSize">Board size</label>
+                        <select id="boardSize" name="boardSize">
+                            <option value="3">3 × 3</option>
+                            <option value="4">4 × 4</option>
+                            <option value="5">5 × 5</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+
+                        <!-- Opponent type -->
+                        <fieldset>
+                            <legend>Opponent</legend>
+                            <label>
+                                <input type="radio" name="opponent" value="human" checked /> Human
+                            </label>
+                            <label>
+                                <input type="radio" name="opponent" value="pc" /> Computer
+                            </label>
+                        </fieldset>
+
+                        <!-- PC-only options (hidden when opponent=human) -->
+                        <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
+                            <label for="difficulty">Difficulty</label>
+                            <select id="difficulty" name="difficulty">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+
+                            <label for="starter">Who starts</label>
+                            <select id="starter" name="starter">
+                                <option value="player" selected>Player</option>
+                                <option value="pc">Computer</option>
+                                <option value="random">Random</option>
+                            </select>
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
+                            <button type="submit" id="confirmBtn" class="btn btn-primary">Confirm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
 
         <aside class="sidebar" id="right-bar">Right column</aside>
