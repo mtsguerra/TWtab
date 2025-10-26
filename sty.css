@@ -25,13 +25,6 @@
     --sidebar-width: 220px;
     --header-height: 80px;
     --footer-height: 30px; /* adjust as you like (px, vh, etc.) */
-
-    --bg: #0f1724;
-    --card: #0b1220;
-    --accent: #2dd4bf;
-    --muted: #94a3b8;
-    --white: #ffffff;
-    --radius: 12px;
 }
 
 /* base: fix page scrolling and ensure viewport sizing */
@@ -98,6 +91,7 @@ header{
     justify-content: center;
     cursor: pointer;
 }
+
 .icon-btn img {
     width: 30px;
     height: 30px;
@@ -141,7 +135,9 @@ header{
     margin-bottom: 2px;
     color: #333;
 }
+
 .account-panel input[type="text"],
+
 .account-panel input[type="password"] {
     width: 100%;
     padding: 8px 10px;
@@ -169,12 +165,15 @@ header{
     display: flex;
     justify-content: center;
 }
+
 .create-link {
     color: var(--c1-color);
     text-decoration: none;
     font-weight: 600;
 }
+
 .create-link:hover,
+
 .create-link:focus {
     text-decoration: underline;
 }
@@ -195,17 +194,6 @@ header{
     align-items: stretch;
     background: transparent; /* or give a background if you want the container visible */
     overflow: hidden; /* prevent page scroll; use internal scrolling on children where needed */
-}
-
-
-.main {
-    flex: 4;
-    background: var(--c4-color);
-    padding: 10px;
-    font-size: clamp(0.95rem, 0.9rem + 0.6vw, 1.25rem);
-    box-sizing: border-box;
-    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
-    overflow: auto; /* allow main content to scroll internally if it grows */
 }
 
 /* sidebars: keep them full height inside the fixed container */
@@ -305,49 +293,75 @@ header{
     font-size: 0.95em;         /* keep text readable while fitting in the height */
 }
 
-main {
+main,
+.main {
+    flex: 4;
     width: 100%;
     max-width: 900px;
-    background-color: var(--c4-color);
-    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
+    background: var(--c4-color);
+    padding: 1.5%;
+    font-size: clamp(0.95rem, 0.9rem + 0.6vw, 1.25rem);
+    box-sizing: border-box;
+    height: calc(100% - 28px); /* adjust if needed for container padding */
+    overflow: auto; /* allow internal scrolling if content grows */
+
+    /* Flex layout for internal elements */
     display: flex;
-    gap: 24px;
     flex-direction: column;
     align-items: center;
-    overflow: auto;
-    justify-content: center;
+    justify-content: flex-start; /* 🟢 ensures .message-box stays at top */
+    gap: 24px;
+}
+
+.message-box{
+    background-color: var(--c6-color);
+    color: var(--c3-color);
+    padding: 12px 16px;
+    border-radius: 8px;
+    width: 92%;
+    height: 10%;
+    font-size: clamp(0.9rem, 0.85rem + 0.4vw, 1.1rem);
+    display: flex;
+    gap: var(--gap);
+}
+
+.message-box h3 {
+    align-self: center;
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+    width: 15%;
+}
+
+.message{
+    margin: 0;
+    padding: 0;
+    background: var(--c7-color);
+    width: 85%;
+    height: 100%;
+    border-radius: 15px;
+    display: flex;
+}
+
+.message p {
+    align-self: center;
+    margin: 2%;
+    font-size: clamp(0.95rem, 0.9rem + 0.35vw, 1.3rem);
 }
 
 /* Play button */
 .play-button {
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, var(--accent), #06b6d4);
+    margin-top: 20%;
+    margin-bottom: 32%;
+    width: 15%;
+    height: 20%;
+    border-radius:15px;
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
+    color: var(--c3-color);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(3, 7, 18, 0.6);
     position: relative;
-    outline: none;
-    border: none;
-}
-
-.play-button::before {
-    content: "";
-    display: block;
-    width: 0;
-    height: 0;
-    border-left: 26px solid var(--card);
-    border-top: 16px solid transparent;
-    border-bottom: 16px solid transparent;
-    margin-left: 6px;
-    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.03));
-}
-
-.play-button:focus {
-    box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.18), 0 8px 24px rgba(3, 7, 18, 0.6);
 }
 
 .visually-hidden {
@@ -374,6 +388,10 @@ main {
     z-index: 1000;
 }
 
+.overlay h2 {
+    color: var(--c3-color);
+}
+
 .hidden {
     display: none;
 }
@@ -381,11 +399,9 @@ main {
 .dialog {
     width: 320px;
     max-width: 96%;
-    background: linear-gradient(180deg, var(--card), #081425);
+    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
     padding: 18px;
-    border-radius: var(--radius);
-    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
 }
 
 /* Form layout */
@@ -396,8 +412,8 @@ form {
 }
 
 label {
-    font-size: 13px;
-    color: var(--muted);
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+    color: var(--c3-color);
 }
 
 select,
@@ -406,9 +422,9 @@ input[type="text"],
     width: 100%;
     padding: 8px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    background: #041224;
-    color: var(--white);
+    border: 1px solid var(--c4-color);
+    background: var(--c8-color);
+    color: var(--c3-color);
 }
 
 fieldset {
@@ -424,8 +440,12 @@ fieldset label {
     display: flex;
     gap: 6px;
     align-items: center;
-    font-size: 14px;
-    color: var(--white);
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+    color: var(--c3-color);
+}
+
+fieldset legend {
+    color: var(--c3-color);
 }
 
 .actions {
@@ -444,14 +464,13 @@ fieldset label {
 }
 
 .btn-primary {
-    background: var(--accent);
-    color: #042;
-    box-shadow: 0 6px 12px rgba(45, 212, 191, 0.12);
+    background: var(--c6-color);
+    color: var(--c3-color);
 }
 
 .btn-secondary {
-    background: #0b1220;
-    color: var(--muted);
+    background: var(--c8-color);
+    color: color-mix(in srgb, var(--c3-color) 75%, black 25%);
     border: 1px solid rgba(255, 255, 255, 0.03);
 }
 

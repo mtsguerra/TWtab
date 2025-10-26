@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <title>Tâb</title>
     <link href="sty.css" rel="stylesheet"/>
-    <script src="account-panel.js" defer></script>
-    <script src="buttonRulesScript.js" defer></script>
-    <script src="startingGameScript.js" defer></script>
+    <script src="scripts/account-panel.js" defer></script>
+    <script src="scripts/buttonRulesScript.js" defer></script>
+    <script src="scripts/startingGameScript.js" defer></script>
 
 </head>
 <body>
@@ -263,53 +263,62 @@
         </aside>
 
         <main>
+
+            <div class="message-box" id="msg-box">
+                <h3>Relátorio de jogo:</h3>
+                <div class="message" id="msg">
+                    <p>Bem-vindo ao Tâb! Clique em "Jogar" para iniciar um novo jogo.</p>
+                </div>
+            </div>
+
             <!-- The play "button" div -->
             <div id="playBtn" class="play-button" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="playDialog" aria-expanded="false" title="Play">
+                Jogar
                 <span class="visually-hidden">Play</span>
             </div>
 
             <!-- Modal dialog / menu -->
             <div id="overlay" class="overlay hidden" data-hidden="true">
                 <div id="playDialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
-                    <h2 id="dialogTitle">New Game</h2>
+                    <h2 id="dialogTitle">Novo Jogo</h2>
 
                     <form id="playForm" autocomplete="off">
                         <!-- Board size -->
-                        <label for="boardSize">Board size</label>
+                        <label for="boardSize">Numero de colunas</label>
                         <select id="boardSize" name="boardSize">
-                            <option value="3">3 × 3</option>
-                            <option value="4">4 × 4</option>
-                            <option value="5">5 × 5</option>
+                            <option value="3">7</option>
+                            <option value="4">9</option>
+                            <option value="5">11</option>
                             <option value="custom">Custom...</option>
                         </select>
 
                         <!-- Opponent type -->
                         <fieldset>
-                            <legend>Opponent</legend>
+                            <legend>Adversário</legend>
                             <label>
-                                <input type="radio" name="opponent" value="human" checked /> Human
+                                <input type="radio" name="opponent" value="human" checked /> Humano
                             </label>
                             <label>
-                                <input type="radio" name="opponent" value="pc" /> Computer
+                                <input type="radio" name="opponent" value="pc" /> Computador
                             </label>
                         </fieldset>
 
                         <!-- PC-only options (hidden when opponent=human) -->
                         <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
-                            <label for="difficulty">Difficulty</label>
+                            <label for="difficulty">Dificuldade</label>
                             <select id="difficulty" name="difficulty">
-                                <option value="easy">Easy</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-
-                            <label for="starter">Who starts</label>
-                            <select id="starter" name="starter">
-                                <option value="player" selected>Player</option>
-                                <option value="pc">Computer</option>
-                                <option value="random">Random</option>
+                                <option value="easy">Fácil</option>
+                                <option value="medium" selected>Médio</option>
+                                <option value="hard">Difícil</option>
                             </select>
                         </div>
+                        <!-- Who starts -->
+                        <label for="starter">Quem começa</label>
+                        <select id="starter" name="starter">
+                            <option value="player" selected>Jogador 1</option>
+                            <option value="pc">Jogador 2</option>
+                            <option value="random">Aleatório</option>
+                        </select>
 
                         <div class="actions">
                             <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
