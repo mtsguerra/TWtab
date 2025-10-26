@@ -1,0 +1,191 @@
+:root{
+    --c0-color: #99582a;
+    --c1-color: #bc6c25;
+    --c2-color: #dda15e;
+    --c3-color: #fefae0;
+    --c4-color: #a3b18a;
+    --c6-color: #588157;
+    --c7-color: #3a5a40;
+    --c8-color: #283618;
+
+    --red-pieces-color: #c1121f;
+    --blue-pieces-color: #4361ee;
+    --board-color: #99582a;
+
+    --text-color: var(--c8-color);
+    --link-color: var(--c6-color);
+    --link-hover-color: var(--c8-color);
+
+    --font-family: 'Futura', sans-serif;
+    --font-size: 16px;
+    --font-weight: 400;
+
+    /* layout */
+    --sidebar-width: 220px;
+    --gap: 20px;
+    --header-height: 80px;
+    --footer-height: 30px; /* adjust as you like (px, vh, etc.) */
+}
+
+/* base: fix page scrolling and ensure viewport sizing */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--c3-color);
+    font: var(--font-weight) / 1 var(--font-family);
+    font-size: var(--font-size);
+    font-family: var(--font-family), sans-serif;
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+
+    /* prevent the whole page from scrolling — only internal areas will scroll if needed */
+    overflow: hidden;
+}
+
+header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--c1-color);
+    color: var(--c3-color);
+    box-sizing: border-box;
+}
+
+.navbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* keeps the title centered */
+    position: relative;      /* allows header-actions to be positioned at right */
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+#header-title{
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.header-actions {
+    position: absolute;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Main container fixed and glued to viewport edges (below the header) */
+.container {
+    /* fix the container to the viewport, below the header, glued to left/right/bottom */
+    position: fixed;
+    top: var(--header-height); /* sits right under the fixed header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    gap: var(--gap);
+    padding: 20px;
+    box-sizing: border-box;
+    align-items: stretch;
+    background: transparent; /* or give a background if you want the container visible */
+    overflow: hidden; /* prevent page scroll; use internal scrolling on children where needed */
+}
+
+/* sidebars: keep them full height inside the fixed container */
+.sidebar {
+    background: var(--c2-color);
+    width: var(--sidebar-width);
+    min-width: 160px;
+    padding: 10px;
+    box-sizing: border-box;
+
+    /* full height relative to container (accounting for container padding) */
+    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
+    overflow: auto; /* allow sidebar content to scroll internally if it grows */
+}
+
+/* Atualizações para a sidebar de regras (left-bar)
+   - garante rolagem interna, tamanho generoso e índice com scroll suave */
+#left-bar {
+    overflow: auto;               /* permite scroll interno grande */
+    padding: 20px;                /* espaço interno generoso para leitura */
+    font-size: 0.95rem;           /* legível, mas cabe bastante texto */
+    line-height: 1.4;
+    scroll-behavior: smooth;      /* links internos rolam suavemente */
+}
+
+/* Sumário / TOC */
+#left-bar .rules-toc {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+#left-bar .rules-toc ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 6px 0 0 0;
+}
+#left-bar .rules-toc li {
+    margin: 6px 0;
+}
+#left-bar .rules-toc a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+#left-bar .rules-toc a:hover,
+#left-bar .rules-toc a:focus {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+}
+
+/* Cabeçalhos e links internos */
+#left-bar h2, #left-bar h3 {
+    margin: 8px 0;
+}
+#left-bar a {
+    color: var(--link-color);
+}
+
+/* Botão 'voltar ao topo' */
+#left-bar .back-to-top {
+    margin-top: 14px;
+    font-size: 0.9rem;
+}
+
+/* Se quiser a sidebar ainda maior visualmente, aumente width: */
+.container .sidebar#left-bar {
+    width: 320px; /* aumentei para acomodar conteúdo longo; ajuste se preferir */
+    min-width: 240px;
+}
+
+.main {
+    flex: 1;
+    background: var(--c4-color);
+    padding: 10px;
+    box-sizing: border-box;
+    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
+    overflow: auto; /* allow main content to scroll internally if it grows */
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--footer-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--c6-color);
+    color: var(--c7-color);
+    box-sizing: border-box;
+    z-index: 1000;              /* between header (1100) and container (900) */
+    font-size: 0.95em;         /* keep text readable while fitting in the height */
+}
