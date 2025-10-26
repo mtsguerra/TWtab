@@ -10,16 +10,41 @@
         <nav class="navbar">
             <h1 id="header-title">Tâb</h1>
             <!-- Header actions aligned to the far right -->
+            <!-- Header actions aligned to the far right -->
             <div class="header-actions" role="group" aria-label="Conta">
+                <h4>Conta</h4>
                 <!-- Icon button: replace img src with your image later -->
                 <button id="account-btn"
                         class="icon-btn"
-                        aria-haspopup="dialog"
-                        aria-controls="account-modal"
+                        aria-haspopup="true"
+                        aria-controls="account-panel"
                         aria-expanded="false"
                         title="Entrar / Criar conta">
-                    <img src="img/account-placeholder.svg" alt="Ícone de conta (substitua por sua imagem)"/>
+                    <img src="media/loginIcon.png" alt="Ícone de conta (substitua)"/>
                 </button>
+
+                <!-- Small dropdown panel that appears below the button -->
+                <div id="account-panel" class="account-panel" role="dialog" aria-modal="false" aria-labelledby="account-panel-title" hidden>
+                    <div class="panel-inner" role="document">
+                        <h3 id="account-panel-title">Entrar</h3>
+
+                        <form id="login-form" action="/login" method="post" novalidate>
+                            <label for="username">Username</label>
+                            <input id="username" name="username" type="text" autocomplete="username" required />
+
+                            <label for="password">Senha</label>
+                            <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+                            <div class="panel-row">
+                                <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
+                            </div>
+
+                            <div class="panel-create">
+                                <a href="/signup" class="create-link" id="create-account">Criar conta</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>

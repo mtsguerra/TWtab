@@ -21,8 +21,8 @@
     --font-weight: 400;
 
     /* layout */
+    --gap: 1.5%;
     --sidebar-width: 220px;
-    --gap: 20px;
     --header-height: 80px;
     --footer-height: 30px; /* adjust as you like (px, vh, etc.) */
 }
@@ -81,6 +81,98 @@ header{
     align-items: center;
 }
 
+.icon-btn {
+    background: transparent;
+    border: 1px solid var(--c0-color);
+    padding: 6px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.icon-btn img {
+    width: 30px;
+    height: 30px;
+    display: block;
+}
+
+/* ===== Account panel styles (dropdown below the icon) ===== */
+.account-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px); /* places panel below header */
+    width: 270px;
+    background: var(--c3-color);
+    color: var(--text-color);
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+    padding: 10px;
+    z-index: 2100;
+    font-size: 0.95rem;
+}
+
+/* visually hidden when [hidden] is set; JS toggles hidden attribute */
+.account-panel[hidden] {
+    display: none;
+}
+
+.account-panel .panel-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-panel h3 {
+    margin: 4px 0 6px 0;
+    font-size: 1rem;
+}
+
+/* inputs */
+.account-panel label {
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+    color: #333;
+}
+.account-panel input[type="text"],
+.account-panel input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--text-color);
+}
+
+/* panel rows */
+.panel-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+/* create account link */
+.panel-create {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: center;
+}
+.create-link {
+    color: var(--c1-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+.create-link:hover,
+.create-link:focus {
+    text-decoration: underline;
+}
+
+
 /* Main container fixed and glued to viewport edges (below the header) */
 .container {
     /* fix the container to the viewport, below the header, glued to left/right/bottom */
@@ -91,19 +183,31 @@ header{
     bottom: 0;
     display: flex;
     gap: var(--gap);
-    padding: 20px;
+    padding: 1.5%;
     box-sizing: border-box;
     align-items: stretch;
     background: transparent; /* or give a background if you want the container visible */
     overflow: hidden; /* prevent page scroll; use internal scrolling on children where needed */
 }
 
+
+.main {
+    flex: 3;
+    background: var(--c4-color);
+    padding: 10px;
+    font-size: clamp(0.95rem, 0.9rem + 0.6vw, 1.25rem);
+    box-sizing: border-box;
+    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
+    overflow: auto; /* allow main content to scroll internally if it grows */
+}
+
 /* sidebars: keep them full height inside the fixed container */
 .sidebar {
     background: var(--c2-color);
     width: var(--sidebar-width);
-    min-width: 160px;
+    flex: 1;
     padding: 10px;
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
     box-sizing: border-box;
 
     /* full height relative to container (accounting for container padding) */
@@ -116,8 +220,6 @@ header{
 #left-bar {
     overflow: auto;               /* permite scroll interno grande */
     padding: 20px;                /* espaço interno generoso para leitura */
-    font-size: 0.95rem;           /* legível, mas cabe bastante texto */
-    line-height: 1.4;
     scroll-behavior: smooth;      /* links internos rolam suavemente */
 }
 
@@ -163,15 +265,6 @@ header{
 .container .sidebar#left-bar {
     width: 320px; /* aumentei para acomodar conteúdo longo; ajuste se preferir */
     min-width: 240px;
-}
-
-.main {
-    flex: 1;
-    background: var(--c4-color);
-    padding: 10px;
-    box-sizing: border-box;
-    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
-    overflow: auto; /* allow main content to scroll internally if it grows */
 }
 
 .footer {
