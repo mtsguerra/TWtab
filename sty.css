@@ -251,7 +251,7 @@ header{
     text-align: center;
     font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
     font-weight: bold;
-    margin-bottom: 2rem;
+    padding-bottom: 1rem;
 }
 
 #class-table-items {
