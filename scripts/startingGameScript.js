@@ -1,8 +1,4 @@
-// Simple behavior for the play button menu.
-// - Toggle dialog visibility
-// - Show/hide PC-only options when opponent is "pc"
-// - Confirm returns a settings object (replace console.log with your game start function)
-
+// elementos existentes
 const playBtn = document.getElementById('playBtn');
 const overlay = document.getElementById('overlay');
 const dialog = document.getElementById('playDialog');
@@ -14,9 +10,7 @@ function openDialog() {
     overlay.classList.remove('hidden');
     overlay.dataset.hidden = "false";
     playBtn.setAttribute('aria-expanded', 'true');
-    // focus first control
     document.getElementById('boardSize').focus();
-    // trap focus could be added for stronger accessibility
 }
 
 function closeDialog() {
@@ -26,17 +20,6 @@ function closeDialog() {
     playBtn.focus();
 }
 
-// function togglePcOptions(show) {
-//     if (show) {
-//         pcOptions.classList.remove('hidden');
-//         pcOptions.setAttribute('aria-hidden', 'false');
-//     } else {
-//         pcOptions.classList.add('hidden');
-//         pcOptions.setAttribute('aria-hidden', 'true');
-//     }
-// }
-
-// Click / keyboard handlers for play-button
 playBtn.addEventListener('click', openDialog);
 playBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -45,46 +28,76 @@ playBtn.addEventListener('keydown', (e) => {
     }
 });
 
-// // Close when clicking overlay background (outside the dialog)
-// overlay.addEventListener('click', (e) => {
-//     if (e.target === overlay) closeDialog();
-// });
-
-// Cancel button
 cancelBtn.addEventListener('click', (e) => {
     e.preventDefault();
     closeDialog();
 });
 
+// Valida e normaliza o tamanho vindo do input type="number"
+function normalizeBoardSize(value) {
+    const min = 7;
+    const max = 51;
+    let n = parseInt(value, 10);
+    if (Number.isNaN(n)) n = min;
 
-// // Keyboard: close on Escape
-// document.addEventListener('keydown', (e) => {
-//     if (e.key === 'Escape' && overlay.dataset.hidden === "false") {
-//         closeDialog();
-//     }
-// });
+    // força dentro do intervalo
+    if (n < min) n = min;
+    if (n > max) n = max;
 
-// Form submission (confirm)
+    // força ímpar (se for par, soma 1)
+    if (n % 2 === 0) n = n + 1;
+
+    // garante que está dentro do max depois de ajustar para ímpar
+    if (n > max) n = max - (max % 2 === 0 ? 1 : 0);
+
+    return n;
+}
+
 playForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // Build settings object
     const form = new FormData(playForm);
+    // pega o valor diretamente do input (ex: 7, 9, 11...)
+    let boardSize = form.get('boardSize');
+
+    // normaliza/valida
+    boardSize = normalizeBoardSize(boardSize);
+
+    // Se o seu backend ainda espera o índice antigo (3,4,5...), converta:
+    // const boardIndex = Math.floor((boardSize - 1) / 2);
+
     const settings = {
-        boardSize: form.get('boardSize'),
+        boardSize: boardSize,
         opponent: form.get('opponent'),
-        // Only include PC options when opponent is pc
         ...(form.get('opponent') === 'pc' ? {
             difficulty: form.get('difficulty')
         } : {}),
         starter: form.get('starter')
     };
 
-    // Example: start game (replace with your actual function)
     console.log('Game settings chosen:', settings);
 
-    // Example callback: if you have a function startGame(settings), call it here:
-    // window.startGame && window.startGame(settings);
-
     closeDialog();
+    createBoard(settings.boardSize);
 });
+
+function createBoard(columns) {
+    const board = document.getElementById('game-board');
+    board.innerHTML = '';
+    board.classList.remove('hidden');
+
+    board.style.gridTemplateRows = `repeat(4, auto)`;
+    board.style.gridTemplateColumns = `repeat(${columns}, auto)`;
+
+    for (let row = 0; row < 4; row++) {
+        for (let col = 0; col < columns; col++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+
+            if (row === 0) cell.classList.add('red');
+            if (row === 3) cell.classList.add('blue');
+
+            board.appendChild(cell);
+        }
+    }
+}

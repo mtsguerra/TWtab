@@ -620,14 +620,47 @@ fieldset {
     gap: 8px;
 }
 
+/* garantir que o painel do tabuleiro ocupe toda a largura do main */
 .game-board {
-    background-color: var(--board-color);
+    width: 80%;
+    box-sizing: border-box;
     padding: 2%;
     border-radius: var(--border-radius);
+    background-color: var(--board-color);
     display: grid;
     gap: 8px;
-    justify-content: center;
+    /* não centralizar o conteúdo por conta do flex pai — deixar o grid repartir o espaço */
+    justify-items: stretch; /* cada célula ocupa a sua coluna */
+    align-items: stretch;
+}
+
+/* grid das células (mantém comportamento responsivo) */
+#game-board {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 8px;
+    transition: opacity 0.3s ease;
+    max-width: 100%;
+    padding: 2%;
+    border-radius: var(--border-radius);
+
+    /* cada coluna cresce igualmente e tem um mínimo de 40px */
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    /* altura das linhas: ajustar para preservar aspecto quadrado da célula */
+    grid-auto-rows: 1fr;
+}
+
+.cell {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    background: var(--c1-color);
+    border: 2px solid color-mix(in srgb, var(--c2-color) 90%, black 10%);
+    box-sizing: border-box;
 }
 
 .board-row {
@@ -635,42 +668,12 @@ fieldset {
     gap: 8px;
 }
 
-.cell {
-    width: 100%;
-    aspect-ratio: 1;
-    min-width: 20px;
-    max-width: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--c1-color);
-    border: 2px solid color-mix(in srgb, var(--c2-color) 90%, black 10%);
-}
-
-
 .cell.red {
     background: var(--red-pieces-color);
 }
 
 .cell.blue {
     background: var(--blue-pieces-color);
-}
-
-#game-board {
-    margin-top: 1.5rem;
-    display: grid;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.3s ease;
-    max-width: 100%; /* nunca ultrapassa o main */
-    padding: 2%;
-    border-radius: var(--border-radius);
-
-    /* grid responsivo para colunas e linhas */
-    grid-template-columns: repeat(auto-fit, minmax(40px, auto));
-    grid-auto-rows: 1fr;
 }
 
 
