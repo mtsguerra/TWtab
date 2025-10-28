@@ -11,6 +11,9 @@
     --red-pieces-color: #c1121f;
     --blue-pieces-color: #4361ee;
     --board-color: #99582a;
+    --gold-color: 255, 209, 0;
+    --silver-color: 229, 229, 229;
+    --bronze-color: 205, 127, 50;
 
     --text-color: var(--c8-color);
     --link-color: var(--c6-color);
@@ -25,6 +28,7 @@
     --sidebar-width: 220px;
     --header-height: 80px;
     --footer-height: 30px; /* adjust as you like (px, vh, etc.) */
+    --border-radius: 15px;
 }
 
 /* base: fix page scrolling and ensure viewport sizing */
@@ -85,7 +89,7 @@ header{
     background: transparent;
     border: 1px solid var(--c0-color);
     padding: 6px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -106,7 +110,7 @@ header{
     width: 270px;
     background: var(--c3-color);
     color: var(--text-color);
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     box-shadow: 0 8px 30px rgba(0,0,0,0.18);
     padding: 10px;
     z-index: 2100;
@@ -218,7 +222,7 @@ header{
     scroll-behavior: smooth;      /* links internos rolam suavemente */
 }
 
-#rules-toggle{
+.left-bar-toggles{
     background: none;
     border: none;
     padding: 0;
@@ -232,6 +236,77 @@ header{
     -webkit-appearance: none;
     appearance: none;
 }
+
+.class-content {
+    flex-direction: column;
+    align-items: center;       /* centraliza o conteúdo (#class-table) */
+    justify-content: flex-start;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+#class-table {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 85%;                 /* ocupa 90% da largura do container */
+    color: var(--c3-color);
+    border-radius: var(--border-radius);
+    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
+    padding: 1rem;
+}
+
+#class-table h3 {
+    text-align: center;
+}
+
+#class-table-items {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;     /* alinha os itens à esquerda */
+    gap: 1.2rem;                 /* aumenta o espaçamento entre linhas */
+    width: 100%;                 /* usa toda a largura da caixa verde */
+    margin: 0;
+    padding-left: 2rem;          /* leve recuo da borda esquerda */
+    list-style: decimal;
+}
+
+#first-place {
+    background-color: rgba(var(--gold-color), 0.8);
+    color: var(--c8-color);
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    list-style: decimal;
+}
+
+#second-place {
+    background-color: rgba(var(--silver-color), 0.8);
+    color: var(--c8-color);
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    list-style: decimal;
+}
+
+#third-place {
+    background-color: rgba(var(--bronze-color), 0.8);
+    color: var(--c8-color);
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    list-style: decimal;
+}
+
+#remaining-place {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--c8-color);
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    list-style: decimal;
+}
+
 
 /* Sumário / TOC */
 #left-bar .rules-toc {
@@ -317,7 +392,7 @@ main,
     background-color: var(--c6-color);
     color: var(--c3-color);
     padding: 12px 16px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     width: 92%;
     height: 10%;
     font-size: clamp(0.9rem, 0.85rem + 0.4vw, 1.1rem);
@@ -337,7 +412,7 @@ main,
     background: var(--c7-color);
     width: 85%;
     height: 100%;
-    border-radius: 15px;
+    border-radius: var(--border-radius);
     display: flex;
 }
 
@@ -353,7 +428,7 @@ main,
     margin-bottom: 32%;
     width: 15%;
     height: 20%;
-    border-radius:15px;
+    border-radius:var(--border-radius);
     font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
     background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
     color: var(--c3-color);
@@ -401,7 +476,7 @@ main,
     max-width: 96%;
     background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
     padding: 18px;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
 }
 
 /* Form layout */
@@ -421,7 +496,7 @@ input[type="text"],
 .pc-options select {
     width: 100%;
     padding: 8px 10px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     border: 1px solid var(--c4-color);
     background: var(--c8-color);
     color: var(--c3-color);
@@ -457,7 +532,7 @@ fieldset legend {
 
 .btn {
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     border: 0;
     cursor: pointer;
     font-weight: 600;
