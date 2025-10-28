@@ -26,15 +26,15 @@ function closeDialog() {
     playBtn.focus();
 }
 
-function togglePcOptions(show) {
-    if (show) {
-        pcOptions.classList.remove('hidden');
-        pcOptions.setAttribute('aria-hidden', 'false');
-    } else {
-        pcOptions.classList.add('hidden');
-        pcOptions.setAttribute('aria-hidden', 'true');
-    }
-}
+// function togglePcOptions(show) {
+//     if (show) {
+//         pcOptions.classList.remove('hidden');
+//         pcOptions.setAttribute('aria-hidden', 'false');
+//     } else {
+//         pcOptions.classList.add('hidden');
+//         pcOptions.setAttribute('aria-hidden', 'true');
+//     }
+// }
 
 // Click / keyboard handlers for play-button
 playBtn.addEventListener('click', openDialog);
@@ -45,10 +45,10 @@ playBtn.addEventListener('keydown', (e) => {
     }
 });
 
-// Close when clicking overlay background (outside the dialog)
-overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeDialog();
-});
+// // Close when clicking overlay background (outside the dialog)
+// overlay.addEventListener('click', (e) => {
+//     if (e.target === overlay) closeDialog();
+// });
 
 // Cancel button
 cancelBtn.addEventListener('click', (e) => {
@@ -56,19 +56,13 @@ cancelBtn.addEventListener('click', (e) => {
     closeDialog();
 });
 
-// Hide/show PC-specific options when opponent changes
-playForm.opponent.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        togglePcOptions(e.target.value === 'pc');
-    });
-});
 
-// Keyboard: close on Escape
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.dataset.hidden === "false") {
-        closeDialog();
-    }
-});
+// // Keyboard: close on Escape
+// document.addEventListener('keydown', (e) => {
+//     if (e.key === 'Escape' && overlay.dataset.hidden === "false") {
+//         closeDialog();
+//     }
+// });
 
 // Form submission (confirm)
 playForm.addEventListener('submit', (e) => {
@@ -81,9 +75,9 @@ playForm.addEventListener('submit', (e) => {
         opponent: form.get('opponent'),
         // Only include PC options when opponent is pc
         ...(form.get('opponent') === 'pc' ? {
-            difficulty: form.get('difficulty'),
-            starter: form.get('starter')
-        } : {})
+            difficulty: form.get('difficulty')
+        } : {}),
+        starter: form.get('starter')
     };
 
     // Example: start game (replace with your actual function)
@@ -93,10 +87,4 @@ playForm.addEventListener('submit', (e) => {
     // window.startGame && window.startGame(settings);
 
     closeDialog();
-});
-
-// Optional: initialize PC options visibility based on default selected radio
-document.addEventListener('DOMContentLoaded', () => {
-    const initialPc = Array.from(playForm.opponent).find(r => r.checked)?.value === 'pc';
-    togglePcOptions(initialPc);
 });
