@@ -7,6 +7,7 @@
     <script src="scripts/account-panel.js" defer></script>
     <script src="scripts/togglesLeftBarScript.js" defer></script>
     <script src="scripts/startingGameScript.js" defer></script>
+    <script src="scripts/rollScript.js" defer></script>
 
 </head>
 <body>
@@ -345,7 +346,13 @@
         <aside class="sidebar" id="right-bar">
             <h2>Comandos</h2>
             <div class="dice-area">
-                dado
+                <button id="roll-dice">Jogar</button>
+                <div class="dice-result">
+                    <div class="dice-images">
+                        <!-- imagens aparecerão aqui -->
+                    </div>
+                    <div class="dice-total">Resultado: —</div>
+                </div>
             </div>
             <div class="skip" id="skip-button" role="button">
                 pular a vez

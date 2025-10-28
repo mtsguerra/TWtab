@@ -364,6 +364,11 @@ header{
     position: relative;
 }
 
+.skip:hover {
+    background: var(--c6-color);
+    transform: scale(1.05);
+}
+
 .forfeit {
     margin-top: 5%;
     width: 100%;
@@ -379,6 +384,58 @@ header{
     cursor: pointer;
     position: relative;
 }
+
+.forfeit:hover {
+    background: var(--c8-color);
+    transform: scale(1.05);
+}
+
+#roll-dice {
+    padding: 0.6rem 1.2rem;
+    background: var(--c6-color);
+    color: var(--c3-color);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease;
+}
+
+#roll-dice:hover {
+    transform: scale(1.05);
+    background: var(--c8-color);
+}
+
+.dice-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.dice-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+    justify-items: center;
+    align-items: center;
+}
+
+
+.dice-images img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    border: 1px solid var(--c3-color);
+}
+
+.dice-total {
+    font-weight: bold;
+    color: var(--c3-color);
+    font-size: 1rem;
+}
+
 
 .footer {
     position: fixed;
