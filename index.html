@@ -59,7 +59,7 @@
             <!-- minimized button shown when collapsed -->
             <div class="rules-minimized" aria-hidden="false">
                 <h2>Teste</h2>
-                <ul>
+                <ul class="rules-list">
                     <li><button class="left-bar-toggles" id="rules-toggle" aria-controls="left-bar" aria-expanded="false" title="Abrir regras">
                         Regras
                     </button></li>
@@ -74,9 +74,9 @@
                 <div class="class-content" id="class-table">
                     <h3 style="align-self: center">Ranking</h3>
                     <ol id="class-table-items">
-                        <li id="first-place">player1234</li>
-                        <li id="second-place">player727</li>
-                        <li id="third-place">player09098</li>
+                        <li id="first-place">player1234 - 1000pts</li>
+                        <li id="second-place">player727 - 900pts</li>
+                        <li id="third-place">player09098 - 800pts</li>
                         <li id="remaining-place">...</li>
                     </ol>
                 </div>
@@ -273,8 +273,6 @@
                         e adaptações modernas para detalhes e variantes.
                     </p>
                 </section>
-
-                <p class="back-to-top"><a href="#rules-title">Voltar ao topo ↑</a></p>
             </div>
         </aside>
 
@@ -290,7 +288,6 @@
             <!-- The play "button" div -->
             <div id="playBtn" class="play-button" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="playDialog" aria-expanded="false" title="Play">
                 Jogar
-                <span class="visually-hidden">Play</span>
             </div>
 
             <!-- Modal dialog / menu -->
@@ -345,7 +342,18 @@
             </div>
         </main>
 
-        <aside class="sidebar" id="right-bar">Right column</aside>
+        <aside class="sidebar" id="right-bar">
+            <h2>Comandos</h2>
+            <div class="dice-area">
+                dado
+            </div>
+            <div class="skip" id="skip-button" role="button">
+                pular a vez
+            </div>
+            <div class="forfeit" id="forfeit-button" role="button">
+                desistir
+            </div>
+        </aside>
     </div>
     <div class="footer">
         <h1>footer</h1>

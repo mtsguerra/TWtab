@@ -4,6 +4,7 @@
     --c2-color: #dda15e;
     --c3-color: #fefae0;
     --c4-color: #a3b18a;
+    --c5-color: #7E9971;
     --c6-color: #588157;
     --c7-color: #3a5a40;
     --c8-color: #283618;
@@ -102,11 +103,10 @@ header{
     display: block;
 }
 
-/* ===== Account panel styles (dropdown below the icon) ===== */
 .account-panel {
     position: absolute;
     right: 0;
-    top: calc(100% + 10px); /* places panel below header */
+    top: calc(100% + 10px);
     width: 270px;
     background: var(--c3-color);
     color: var(--text-color);
@@ -117,7 +117,6 @@ header{
     font-size: 0.95rem;
 }
 
-/* visually hidden when [hidden] is set; JS toggles hidden attribute */
 .account-panel[hidden] {
     display: none;
 }
@@ -133,7 +132,6 @@ header{
     font-size: 1rem;
 }
 
-/* inputs */
 .account-panel label {
     font-size: 0.85rem;
     margin-bottom: 2px;
@@ -153,7 +151,6 @@ header{
     color: var(--text-color);
 }
 
-/* panel rows */
 .panel-row {
     display: flex;
     justify-content: flex-start;
@@ -161,11 +158,9 @@ header{
     margin-top: 4px;
 }
 
-/* create account link */
 .panel-create {
     margin-top: 6px;
     padding-top: 6px;
-    border-top: 1px solid rgba(0,0,0,0.06);
     display: flex;
     justify-content: center;
 }
@@ -177,17 +172,13 @@ header{
 }
 
 .create-link:hover,
-
 .create-link:focus {
     text-decoration: underline;
 }
 
-
-/* Main container fixed and glued to viewport edges (below the header) */
 .container {
-    /* fix the container to the viewport, below the header, glued to left/right/bottom */
     position: fixed;
-    top: var(--header-height); /* sits right under the fixed header */
+    top: var(--header-height);
     left: 0;
     right: 0;
     bottom: 0;
@@ -196,11 +187,10 @@ header{
     padding: 1.5%;
     box-sizing: border-box;
     align-items: stretch;
-    background: transparent; /* or give a background if you want the container visible */
-    overflow: hidden; /* prevent page scroll; use internal scrolling on children where needed */
+    background: transparent;
+    overflow: hidden;
 }
 
-/* sidebars: keep them full height inside the fixed container */
 .sidebar {
     background: var(--c2-color);
     width: var(--sidebar-width);
@@ -209,17 +199,21 @@ header{
     font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
     box-sizing: border-box;
 
-    /* full height relative to container (accounting for container padding) */
-    height: calc(100% - 28px); /* container padding top+bottom = 20px + 20px = 40px */
-    overflow: auto; /* allow sidebar content to scroll internally if it grows */
+    height: calc(100% - 28px);
+    overflow: auto;
 }
 
-/* Atualizações para a sidebar de regras (left-bar)
-   - garante rolagem interna, tamanho generoso e índice com scroll suave */
-#left-bar {
-    overflow: auto;               /* permite scroll interno grande */
-    padding: 20px;                /* espaço interno generoso para leitura */
-    scroll-behavior: smooth;      /* links internos rolam suavemente */
+#left-bar, #right-bar {
+    overflow: auto;
+    padding: 20px;
+    scroll-behavior: smooth;
+}
+
+.rules-list{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
 }
 
 .left-bar-toggles{
@@ -232,14 +226,11 @@ header{
     font-size: clamp(1.15rem, 1rem + 0.6vw, 1.75rem);
     text-decoration: underline;
     cursor: pointer;
-    line-height: inherit;
-    -webkit-appearance: none;
-    appearance: none;
 }
 
 .class-content {
+    align-self: flex-start;
     flex-direction: column;
-    align-items: center;       /* centraliza o conteúdo (#class-table) */
     justify-content: flex-start;
     width: 100%;
     padding: 1rem 0;
@@ -252,12 +243,15 @@ header{
     width: 85%;                 /* ocupa 90% da largura do container */
     color: var(--c3-color);
     border-radius: var(--border-radius);
-    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
+    background: linear-gradient(180deg, var(--c5-color) 0%, var(--c6-color) 100%);
     padding: 1rem;
 }
 
 #class-table h3 {
     text-align: center;
+    font-size: clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+    font-weight: bold;
+    margin-bottom: 2rem;
 }
 
 #class-table-items {
@@ -271,44 +265,33 @@ header{
     list-style: decimal;
 }
 
-#first-place {
-    background-color: rgba(var(--gold-color), 0.8);
+#first-place, #second-place, #third-place, #remaining-place {
     color: var(--c8-color);
     font-weight: bold;
     padding: 0.25rem 0.5rem;
     border-radius: 0.5rem;
     list-style: decimal;
+    font-size: 85%;
+    margin-left: -1.5rem;
+}
+
+#first-place {
+    background-color: rgba(var(--gold-color), 0.8);
 }
 
 #second-place {
     background-color: rgba(var(--silver-color), 0.8);
-    color: var(--c8-color);
-    font-weight: bold;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    list-style: decimal;
 }
 
 #third-place {
     background-color: rgba(var(--bronze-color), 0.8);
-    color: var(--c8-color);
-    font-weight: bold;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    list-style: decimal;
 }
 
 #remaining-place {
     background-color: rgba(255, 255, 255, 0.1);
-    color: var(--c8-color);
-    font-weight: bold;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    list-style: decimal;
 }
 
 
-/* Sumário / TOC */
 #left-bar .rules-toc {
     margin-bottom: 12px;
     padding-bottom: 8px;
@@ -332,24 +315,69 @@ header{
     text-decoration: underline;
 }
 
-/* Cabeçalhos e links internos */
 #left-bar h2, #left-bar h3 {
     margin: 8px 0;
 }
-#left-bar a {
-    color: var(--link-color);
+
+#right-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-/* Botão 'voltar ao topo' */
-#left-bar .back-to-top {
-    margin-top: 14px;
-    font-size: 0.9rem;
+#right-bar h2 {
+    margin-top: 0;
+    align-self: center;
+    display: flex;
 }
 
-/* Se quiser a sidebar ainda maior visualmente, aumente width: */
-.container .sidebar#left-bar {
-    width: 320px; /* aumentei para acomodar conteúdo longo; ajuste se preferir */
-    min-width: 240px;
+.dice-area{
+    background: var(--c7-color);
+    color: var(--c3-color);
+    margin-top: 20%;
+    margin-bottom: 4rem;
+    width: 100%;
+    height: 50%;
+    border-radius: var(--border-radius);
+    display: flex;
+    flex: 3;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.skip{
+    margin-top: 10%;
+    width: 100%;
+    height: 10%;
+    border-radius:var(--border-radius);
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+    font-weight: bold;
+    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
+    color: var(--c3-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.forfeit {
+    margin-top: 5%;
+    width: 100%;
+    height: 10%;
+    border-radius:var(--border-radius);
+    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+    font-weight: bold;
+    background: linear-gradient(180deg, var(--c8-color) 0%, var(--c7-color) 100%);
+    color: var(--c3-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
 }
 
 .footer {
@@ -422,7 +450,6 @@ main,
     font-size: clamp(0.95rem, 0.9rem + 0.35vw, 1.3rem);
 }
 
-/* Play button */
 .play-button {
     margin-top: 20%;
     margin-bottom: 32%;
@@ -439,19 +466,6 @@ main,
     position: relative;
 }
 
-.visually-hidden {
-    position: absolute !important;
-    height: 1px;
-    width: 1px;
-    overflow: hidden;
-    clip: rect(1px, 1px, 1px, 1px);
-    white-space: nowrap;
-    border: 0;
-    padding: 0;
-    margin: -1px;
-}
-
-/* Overlay & dialog */
 .overlay {
     position: fixed;
     inset: 0;
@@ -479,7 +493,6 @@ main,
     border-radius: var(--border-radius);
 }
 
-/* Form layout */
 form {
     display: flex;
     flex-direction: column;
@@ -509,17 +522,6 @@ fieldset {
     display: flex;
     gap: 12px;
     align-items: center;
-}
-
-fieldset label {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
-    color: var(--c3-color);
-}
-
-fieldset legend {
     color: var(--c3-color);
 }
 
@@ -549,7 +551,6 @@ fieldset legend {
     border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-/* PC-specific options */
 .pc-options {
     display: flex;
     flex-direction: column;
