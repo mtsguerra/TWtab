@@ -422,7 +422,6 @@ header{
     align-items: center;
 }
 
-
 .dice-images img {
     width: 40px;
     height: 40px;
@@ -435,7 +434,6 @@ header{
     color: var(--c3-color);
     font-size: 1rem;
 }
-
 
 .footer {
     position: fixed;
@@ -462,10 +460,8 @@ main,
     padding: 1.5%;
     font-size: clamp(0.95rem, 0.9rem + 0.6vw, 1.25rem);
     box-sizing: border-box;
-    height: calc(100% - 28px); /* adjust if needed for container padding */
-    overflow: auto; /* allow internal scrolling if content grows */
-
-    /* Flex layout for internal elements */
+    height: calc(100% - 28px);
+    overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -508,8 +504,6 @@ main,
 }
 
 .play-button {
-    margin-top: 20%;
-    margin-bottom: 32%;
     width: 15%;
     height: 20%;
     border-radius:var(--border-radius);
@@ -556,10 +550,22 @@ form {
     gap: 12px;
 }
 
-label {
-    font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
+main label, main legend {
+    font-size: clamp(1rem, 1rem + 0.35vw, 1.5rem);
     color: var(--c3-color);
 }
+
+#boardSize {
+    background: var(--c8-color);
+    color: var(--c3-color);
+    padding: 10px 14px;                /* aumenta o espaçamento interno */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--c4-color);
+    font-size: 1rem;
+    width: 100%;                       /* opcional, faz ocupar toda a largura do container */
+    box-sizing: border-box;
+}
+
 
 select,
 input[type="text"],
@@ -612,4 +618,63 @@ fieldset {
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.game-board {
+    background-color: var(--board-color);
+    padding: 2%;
+    border-radius: var(--border-radius);
+    display: grid;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.board-row {
+    display: grid;
+    gap: 8px;
+}
+
+.cell {
+    width: 100%;
+    aspect-ratio: 1;
+    min-width: 20px;
+    max-width: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--c1-color);
+    border: 2px solid color-mix(in srgb, var(--c2-color) 90%, black 10%);
+}
+
+
+.cell.red {
+    background: var(--red-pieces-color);
+}
+
+.cell.blue {
+    background: var(--blue-pieces-color);
+}
+
+#game-board {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+    max-width: 100%; /* nunca ultrapassa o main */
+    padding: 2%;
+    border-radius: var(--border-radius);
+
+    /* grid responsivo para colunas e linhas */
+    grid-template-columns: repeat(auto-fit, minmax(40px, auto));
+    grid-auto-rows: 1fr;
+}
+
+
+#game-board.hidden {
+    opacity: 0;
+    pointer-events: none;
 }

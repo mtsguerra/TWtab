@@ -279,6 +279,7 @@
 
         <main>
 
+            <!-- Caixa de mensagens -->
             <div class="message-box" id="msg-box">
                 <h3>Relátorio de jogo:</h3>
                 <div class="message" id="msg">
@@ -286,27 +287,39 @@
                 </div>
             </div>
 
-            <!-- The play "button" div -->
-            <div id="playBtn" class="play-button" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="playDialog" aria-expanded="false" title="Play">
+            <!-- 👇 Tabuleiro logo abaixo da message box -->
+            <section id="game-board" class="game-board hidden">teste123</section>
+
+            <!-- Botão para abrir o menu -->
+            <div id="playBtn" class="play-button" role="button" tabindex="0"
+                 aria-haspopup="dialog" aria-controls="playDialog"
+                 aria-expanded="false" title="Play">
                 Jogar
             </div>
 
             <!-- Modal dialog / menu -->
             <div id="overlay" class="overlay hidden" data-hidden="true">
-                <div id="playDialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+                <div id="playDialog" class="dialog" role="dialog"
+                     aria-modal="true" aria-labelledby="dialogTitle">
+
                     <h2 id="dialogTitle">Novo Jogo</h2>
 
                     <form id="playForm" autocomplete="off">
-                        <!-- Board size -->
-                        <label for="boardSize">Numero de colunas</label>
-                        <select id="boardSize" name="boardSize">
-                            <option value="3">7</option>
-                            <option value="4">9</option>
-                            <option value="5">11</option>
-                            <option value="custom">Custom...</option>
-                        </select>
 
-                        <!-- Opponent type -->
+                        <!-- Tamanho do tabuleiro -->
+                        <label for="boardSize">Tamanho do tabuleiro</label>
+                        <input
+                                id="boardSize"
+                                name="boardSize"
+                                type="number"
+                                min="7"
+                                max="51"
+                                step="2"
+                                value="7"
+                                title="Escolha um tamanho ímpar (7, 9, 11...)"
+                        />
+
+                        <!-- Tipo de adversário -->
                         <fieldset>
                             <legend>Adversário</legend>
                             <label>
@@ -317,7 +330,7 @@
                             </label>
                         </fieldset>
 
-                        <!-- PC-only options (hidden when opponent=human) -->
+                        <!-- Opções adicionais para computador -->
                         <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
                             <label for="difficulty">Dificuldade</label>
                             <select id="difficulty" name="difficulty">
@@ -326,11 +339,12 @@
                                 <option value="hard">Difícil</option>
                             </select>
                         </div>
-                        <!-- Who starts -->
+
+                        <!-- Quem começa -->
                         <label for="starter">Quem começa</label>
                         <select id="starter" name="starter">
-                            <option value="player" selected>Jogador 1</option>
-                            <option value="pc">Jogador 2</option>
+                            <option value="player" selected>Vermelho</option>
+                            <option value="pc">Azul</option>
                             <option value="random">Aleatório</option>
                         </select>
 
@@ -341,7 +355,9 @@
                     </form>
                 </div>
             </div>
+
         </main>
+
 
         <aside class="sidebar" id="right-bar">
             <h2>Comandos</h2>
