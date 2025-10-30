@@ -52,7 +52,8 @@ function initializePieces(boardSize) {
             row: 0,
             col: col,
             active: false,
-            cellIndex: cellIndex
+            cellIndex: cellIndex,
+            inEnemyTerritory: false
         });
         placePieceOnCell(cellIndex, 'red', false);
     }
@@ -64,7 +65,8 @@ function initializePieces(boardSize) {
             row: 3,
             col: col,
             active: false,
-            cellIndex: cellIndex
+            cellIndex: cellIndex,
+            inEnemyTerritory: false
         });
         placePieceOnCell(cellIndex, 'blue', false);
     }
@@ -93,6 +95,50 @@ function placePieceOnCell(cellIndex, color, isActive) {
     cell.appendChild(piece);
 }
 
+// Check if player has pieces in their initial row
+function hasNoPiecesInInitialRow(playerColor) {
+    const initialRow = playerColor === 'red' ? 0 : 3;
+
+    return !gameState.pieces[playerColor].some(piece => piece.row === initialRow);
+}
+
+// Check if enemy has pieces in their initial row
+function enemyHasPiecesInInitialRow(playerColor) {
+    const enemyColor = playerColor === 'red' ? 'blue' : 'red';
+    const enemyInitialRow = enemyColor === 'red' ? 0 : 3;
+
+    return gameState.pieces[enemyColor].some(piece => piece.row === enemyInitialRow);
+}
+
+// Check if piece is in enemy territory
+function isInEnemyTerritory(piece, playerColor) {
+    if (playerColor === 'red') {
+        return piece.row === 3; // Red's enemy territory is row 3
+    } else {
+        return piece.row === 0; // Blue's enemy territory is row 0
+    }
+}
+
+// Check if a position is in enemy territory
+function isPositionInEnemyTerritory(row, playerColor) {
+    if (playerColor === 'red') {
+        return row === 3; // Red's enemy territory is row 3
+    } else {
+        return row === 0; // Blue's enemy territory is row 0
+    }
+}
+
+// Check if piece can move (not frozen in enemy territory)
+function canPieceMove(piece, playerColor) {
+    // If piece is in enemy territory, check if all allies left initial row
+    if (isInEnemyTerritory(piece, playerColor)) {
+        return hasNoPiecesInInitialRow(playerColor);
+    }
+
+    // Piece is not in enemy territory, can move normally
+    return true;
+}
+
 // Get valid moves for a piece based on Tâb rules
 function getValidMoves(piece, diceValue, playerColor) {
     const moves = [];
@@ -100,6 +146,11 @@ function getValidMoves(piece, diceValue, playerColor) {
     const columns = gameState.boardSize;
 
     if (!piece.active) return moves; // Inactive pieces can't move
+
+    // Check if piece is frozen in enemy territory
+    if (!canPieceMove(piece, playerColor)) {
+        return moves; // Return empty array - piece is frozen
+    }
 
     // Calculate possible positions based on movement rules
     if (playerColor === 'blue') {
@@ -109,10 +160,22 @@ function getValidMoves(piece, diceValue, playerColor) {
     }
 
     // Filter out moves that land on same team pieces
-    return moves.filter(move => {
+    const validMoves = moves.filter(move => {
         const pieceAtDestination = findPieceAt(move.row, move.col, playerColor);
         return !pieceAtDestination; // Only allow if no same-team piece
     });
+
+    // Filter out moves to enemy territory if enemy has no pieces there
+    const finalMoves = validMoves.filter(move => {
+        // Check if move is to enemy territory
+        if (isPositionInEnemyTerritory(move.row, playerColor)) {
+            // Only allow if enemy has pieces in their initial row
+            return enemyHasPiecesInInitialRow(playerColor);
+        }
+        return true; // Allow moves outside enemy territory
+    });
+
+    return finalMoves;
 }
 
 // Check if piece can be activated (has valid move after activation)
@@ -137,7 +200,15 @@ function canActivatePiece(piece, playerColor) {
         return !pieceAtDestination;
     });
 
-    return validMoves.length > 0;
+    // Filter out moves to enemy territory if enemy has no pieces there
+    const finalMoves = validMoves.filter(move => {
+        if (isPositionInEnemyTerritory(move.row, playerColor)) {
+            return enemyHasPiecesInInitialRow(playerColor);
+        }
+        return true;
+    });
+
+    return finalMoves.length > 0;
 }
 
 // Blue piece movement logic - CORRECTED WITH CHOICE AT row 1, col N-1
@@ -420,6 +491,12 @@ function handlePieceClick(cellIndex) {
         return;
     }
 
+    // Check if piece is frozen in enemy territory
+    if (!canPieceMove(piece, gameState.currentPlayer)) {
+        updateMessage("Esta peça está em território inimigo e não pode se mover até que todas as suas peças saiam da linha inicial!");
+        return;
+    }
+
     // Select piece and show valid moves (for already active pieces)
     gameState.selectedPiece = piece;
     highlightSelectedPiece(cellIndex);
@@ -496,6 +573,9 @@ function movePiece(piece, newRow, newCol) {
     piece.row = newRow;
     piece.col = newCol;
     piece.cellIndex = newCellIndex;
+
+    // Mark if piece entered enemy territory
+    piece.inEnemyTerritory = isInEnemyTerritory(piece, gameState.currentPlayer);
 
     // Place on new cell
     placePieceOnCell(newCellIndex, gameState.currentPlayer, true);
