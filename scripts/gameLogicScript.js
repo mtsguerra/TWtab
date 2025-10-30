@@ -53,9 +53,10 @@ function initializePieces(boardSize) {
             col: col,
             active: false,
             cellIndex: cellIndex,
-            inEnemyTerritory: false
+            inEnemyTerritory: false,
+            hasCompletedEnemyTerritory: false
         });
-        placePieceOnCell(cellIndex, 'red', false);
+        placePieceOnCell(cellIndex, 'red', false, false);
     }
 
     // Place blue pieces on row 3 (bottom row)
@@ -66,9 +67,10 @@ function initializePieces(boardSize) {
             col: col,
             active: false,
             cellIndex: cellIndex,
-            inEnemyTerritory: false
+            inEnemyTerritory: false,
+            hasCompletedEnemyTerritory: false
         });
-        placePieceOnCell(cellIndex, 'blue', false);
+        placePieceOnCell(cellIndex, 'blue', false, false);
     }
 
     gameState.gameActive = true;
@@ -76,7 +78,7 @@ function initializePieces(boardSize) {
 }
 
 // Place a visual piece on a cell
-function placePieceOnCell(cellIndex, color, isActive) {
+function placePieceOnCell(cellIndex, color, isActive, hasCompleted) {
     const cells = document.querySelectorAll('.cell');
     const cell = cells[cellIndex];
 
@@ -90,6 +92,10 @@ function placePieceOnCell(cellIndex, color, isActive) {
 
     if (!isActive) {
         piece.classList.add('inactive');
+    }
+
+    if (hasCompleted) {
+        piece.classList.add('completed');
     }
 
     cell.appendChild(piece);
@@ -126,6 +132,19 @@ function isPositionInEnemyTerritory(row, playerColor) {
     } else {
         return row === 0; // Blue's enemy territory is row 0
     }
+}
+
+// Check if piece is at the exit point of enemy territory
+function isAtEnemyTerritoryExit(piece, playerColor) {
+    // Red exits enemy territory at row 3, col 0 (start of row 3)
+    if (playerColor === 'red' && piece.row === 3 && piece.col === 0) {
+        return true;
+    }
+    // Blue exits enemy territory at row 0, col 0 (start of row 0)
+    if (playerColor === 'blue' && piece.row === 0 && piece.col === 0) {
+        return true;
+    }
+    return false;
 }
 
 // Check if piece can move (not frozen in enemy territory)
@@ -174,6 +193,11 @@ function getValidMoves(piece, diceValue, playerColor) {
 
         // If move is to enemy territory
         if (moveIsToEnemyTerritory) {
+            // If piece has already completed enemy territory, CANNOT re-enter
+            if (piece.hasCompletedEnemyTerritory) {
+                return false; // Block re-entry
+            }
+
             // If piece is already in enemy territory, allow movement within it
             if (pieceAlreadyInEnemyTerritory) {
                 return true; // Allow movement within enemy territory
@@ -221,6 +245,9 @@ function canActivatePiece(piece, playerColor) {
         const moveIsToEnemyTerritory = isPositionInEnemyTerritory(move.row, playerColor);
 
         if (moveIsToEnemyTerritory) {
+            if (piece.hasCompletedEnemyTerritory) {
+                return false;
+            }
             if (pieceAlreadyInEnemyTerritory) {
                 return true;
             } else {
@@ -466,7 +493,7 @@ function handlePieceClick(cellIndex) {
             }
 
             piece.active = true;
-            updatePieceDisplay(cellIndex, gameState.currentPlayer, true);
+            updatePieceDisplay(cellIndex, gameState.currentPlayer, true, piece.hasCompletedEnemyTerritory);
 
             // Calculate valid moves for 1 step (activation + movement)
             const validMoves = getValidMoves(piece, 1, gameState.currentPlayer);
@@ -586,6 +613,15 @@ function movePiece(piece, newRow, newCol) {
     const oldCellIndex = getCellIndex(piece.row, piece.col, gameState.boardSize);
     const newCellIndex = getCellIndex(newRow, newCol, gameState.boardSize);
 
+    // Check if piece was in enemy territory and is now leaving it
+    const wasInEnemyTerritory = isInEnemyTerritory(piece, gameState.currentPlayer);
+    const willBeInEnemyTerritory = isPositionInEnemyTerritory(newRow, gameState.currentPlayer);
+
+    // If leaving enemy territory after being inside, mark as completed
+    if (wasInEnemyTerritory && !willBeInEnemyTerritory) {
+        piece.hasCompletedEnemyTerritory = true;
+    }
+
     // Clear old cell
     const cells = document.querySelectorAll('.cell');
     cells[oldCellIndex].innerHTML = '';
@@ -599,8 +635,8 @@ function movePiece(piece, newRow, newCol) {
     // Mark if piece entered enemy territory
     piece.inEnemyTerritory = isInEnemyTerritory(piece, gameState.currentPlayer);
 
-    // Place on new cell
-    placePieceOnCell(newCellIndex, gameState.currentPlayer, true);
+    // Place on new cell with updated visual state
+    placePieceOnCell(newCellIndex, gameState.currentPlayer, true, piece.hasCompletedEnemyTerritory);
 
     clearSelection();
 }
@@ -659,14 +695,26 @@ function clearSelection() {
 }
 
 // Update piece display
-function updatePieceDisplay(cellIndex, color, isActive) {
+function updatePieceDisplay(cellIndex, color, isActive, hasCompleted) {
     const cells = document.querySelectorAll('.cell');
     const cell = cells[cellIndex];
-    const piece = cell.querySelector('.piece');
 
-    if (piece && isActive) {
-        piece.classList.remove('inactive');
+    // Remove old piece
+    cell.innerHTML = '';
+
+    // Create new piece with updated state
+    const piece = document.createElement('div');
+    piece.classList.add('piece', `${color}-piece`);
+
+    if (!isActive) {
+        piece.classList.add('inactive');
     }
+
+    if (hasCompleted) {
+        piece.classList.add('completed');
+    }
+
+    cell.appendChild(piece);
 }
 
 // Switch turn to other player

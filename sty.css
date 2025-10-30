@@ -866,3 +866,15 @@ fieldset {
         transform: scale(1.02);
     }
 }
+
+.red-piece.completed {
+    background: radial-gradient(circle at 30% 30%, #ff8b94, #ff6b7a) !important;
+    border: 2px solid #b85a5a !important;
+    opacity: 0.85;
+}
+
+.blue-piece.completed {
+    background: radial-gradient(circle at 30% 30%, #8fa5ff, #6c8eff) !important;
+    border: 2px solid #4a67c4 !important;
+    opacity: 0.85;
+}
