@@ -165,14 +165,27 @@ function getValidMoves(piece, diceValue, playerColor) {
         return !pieceAtDestination; // Only allow if no same-team piece
     });
 
-    // Filter out moves to enemy territory if enemy has no pieces there
+    // Check if piece is already in enemy territory
+    const pieceAlreadyInEnemyTerritory = isInEnemyTerritory(piece, playerColor);
+
+    // Filter out moves to enemy territory based on conditions
     const finalMoves = validMoves.filter(move => {
-        // Check if move is to enemy territory
-        if (isPositionInEnemyTerritory(move.row, playerColor)) {
-            // Only allow if enemy has pieces in their initial row
-            return enemyHasPiecesInInitialRow(playerColor);
+        const moveIsToEnemyTerritory = isPositionInEnemyTerritory(move.row, playerColor);
+
+        // If move is to enemy territory
+        if (moveIsToEnemyTerritory) {
+            // If piece is already in enemy territory, allow movement within it
+            if (pieceAlreadyInEnemyTerritory) {
+                return true; // Allow movement within enemy territory
+            }
+            // If piece is NOT in enemy territory, only allow entry if enemy has pieces there
+            else {
+                return enemyHasPiecesInInitialRow(playerColor);
+            }
         }
-        return true; // Allow moves outside enemy territory
+
+        // Move is not to enemy territory - always allow
+        return true;
     });
 
     return finalMoves;
@@ -200,10 +213,19 @@ function canActivatePiece(piece, playerColor) {
         return !pieceAtDestination;
     });
 
+    // Piece in initial row can't be already in enemy territory
+    const pieceAlreadyInEnemyTerritory = false;
+
     // Filter out moves to enemy territory if enemy has no pieces there
     const finalMoves = validMoves.filter(move => {
-        if (isPositionInEnemyTerritory(move.row, playerColor)) {
-            return enemyHasPiecesInInitialRow(playerColor);
+        const moveIsToEnemyTerritory = isPositionInEnemyTerritory(move.row, playerColor);
+
+        if (moveIsToEnemyTerritory) {
+            if (pieceAlreadyInEnemyTerritory) {
+                return true;
+            } else {
+                return enemyHasPiecesInInitialRow(playerColor);
+            }
         }
         return true;
     });
