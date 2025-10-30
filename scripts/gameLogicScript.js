@@ -115,6 +115,31 @@ function getValidMoves(piece, diceValue, playerColor) {
     });
 }
 
+// Check if piece can be activated (has valid move after activation)
+function canActivatePiece(piece, playerColor) {
+    const { row, col } = piece;
+    const columns = gameState.boardSize;
+
+    // Temporarily mark as active to check moves
+    const tempPiece = { ...piece, active: true };
+
+    // Calculate possible positions for 1 step
+    let possibleMoves = [];
+    if (playerColor === 'blue') {
+        possibleMoves = getBlueValidMoves(row, col, 1, columns);
+    } else {
+        possibleMoves = getRedValidMoves(row, col, 1, columns);
+    }
+
+    // Filter out moves that land on same team pieces
+    const validMoves = possibleMoves.filter(move => {
+        const pieceAtDestination = findPieceAt(move.row, move.col, playerColor);
+        return !pieceAtDestination;
+    });
+
+    return validMoves.length > 0;
+}
+
 // Blue piece movement logic - CORRECTED WITH CHOICE AT row 1, col N-1
 // Pattern:
 // Row 3: >>>>>> (down to row 2)
@@ -338,24 +363,64 @@ function handlePieceClick(cellIndex) {
         return;
     }
 
-    // Only allow activation with dice value 1
+    // Handle activation with dice value 1 - ACTIVATE AND MOVE (only if can move)
     if (!piece.active) {
         if (gameState.diceValue === 1) {
+            // Check if piece can be activated (has valid moves)
+            if (!canActivatePiece(piece, gameState.currentPlayer)) {
+                updateMessage("Esta peça não pode ser ativada - está bloqueada e não tem movimentos válidos!");
+                return;
+            }
+
             piece.active = true;
             updatePieceDisplay(cellIndex, gameState.currentPlayer, true);
-            updateMessage("Peça ativada! Você pode jogar novamente.");
 
-            // Since 1 gives bonus roll, reset dice for next roll
-            gameState.diceValue = 0;
-            gameState.bonusRoll = false;
-            document.querySelector('.dice-total').textContent = 'Resultado: —';
+            // Calculate valid moves for 1 step (activation + movement)
+            const validMoves = getValidMoves(piece, 1, gameState.currentPlayer);
+
+            // If only one valid move, move automatically
+            if (validMoves.length === 1) {
+                const move = validMoves[0];
+
+                // Check for capture
+                const enemyColor = gameState.currentPlayer === 'red' ? 'blue' : 'red';
+                const enemyPiece = findPieceAt(move.row, move.col, enemyColor);
+
+                if (enemyPiece) {
+                    capturePiece(enemyPiece, enemyColor);
+                }
+
+                // Move the piece
+                movePiece(piece, move.row, move.col);
+
+                // Check win condition
+                if (checkWinCondition()) {
+                    endGame(gameState.currentPlayer);
+                    return;
+                }
+
+                updateMessage("Peça ativada e movida 1 casa! Você pode jogar novamente.");
+                gameState.diceValue = 0;
+                gameState.bonusRoll = false;
+                document.querySelector('.dice-total').textContent = 'Resultado: —';
+            } else {
+                // Multiple valid moves - let player choose
+                gameState.selectedPiece = piece;
+                highlightSelectedPiece(cellIndex);
+                gameState.possibleMoves = validMoves;
+                showPossibleMoves(validMoves);
+
+                const cells = document.querySelectorAll('.cell');
+                cells[cellIndex].classList.add('selectable');
+                updateMessage("Peça ativada! Escolha para onde movê-la (1 casa).");
+            }
         } else {
             updateMessage(`Esta peça está bloqueada! Você precisa tirar 1 nos dados para ativar (você tirou ${gameState.diceValue}).`);
         }
         return;
     }
 
-    // Select piece and show valid moves
+    // Select piece and show valid moves (for already active pieces)
     gameState.selectedPiece = piece;
     highlightSelectedPiece(cellIndex);
 
