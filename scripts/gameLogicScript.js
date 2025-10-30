@@ -1,603 +1,607 @@
-// Game state management
+// gameLogicScript.js - Complete Tâb game logic with corrected movement
+
+// Game state
 let gameState = {
     boardSize: 7,
-    currentPlayer: 'red',
-    diceRoll: 0,
-    selectedPiece: null,
-    possibleMoves: [],
-    repeatTurn: false,
+    currentPlayer: 'red', // 'red' or 'blue'
+    diceValue: 0,
+    bonusRoll: false,
     pieces: {
         red: [],
         blue: []
     },
-    gameActive: false
+    selectedPiece: null,
+    possibleMoves: [],
+    gameActive: false,
+    piecesActivated: {
+        red: false,
+        blue: false
+    }
 };
 
-// Initialize game
-function initializeGame(boardSize, starter) {
-    gameState.boardSize = boardSize;
-    gameState.currentPlayer = starter === 'player' ? 'red' : starter === 'pc' ? 'blue' : (Math.random() < 0.5 ? 'red' : 'blue');
-    gameState.diceRoll = 0;
-    gameState.selectedPiece = null;
-    gameState.possibleMoves = [];
-    gameState.repeatTurn = false;
-    gameState.gameActive = true;
+// Board position mapping (row 0-3, col 0-n)
+function getCellIndex(row, col, columns) {
+    return row * columns + col;
+}
 
+function getRowCol(index, columns) {
+    return {
+        row: Math.floor(index / columns),
+        col: index % columns
+    };
+}
+
+// Initialize pieces on the board
+function initializePieces(boardSize) {
+    gameState.boardSize = boardSize;
     gameState.pieces.red = [];
     gameState.pieces.blue = [];
 
-    // Red pieces: row 0, columns 0 to size-1 (left to right)
-    // Exit order: right to left (rightmost exits first)
+    const cells = document.querySelectorAll('.cell');
+
+    // Clear all cells first
+    cells.forEach(cell => {
+        cell.innerHTML = '';
+        cell.classList.remove('has-piece', 'selectable', 'possible-move', 'capture-move', 'selected');
+    });
+
+    // Place red pieces on row 0 (top row)
     for (let col = 0; col < boardSize; col++) {
+        const cellIndex = getCellIndex(0, col, boardSize);
         gameState.pieces.red.push({
             row: 0,
             col: col,
-            id: `red-${col}`,
-            activated: false,
-            hasBeenInEnemyRow: false,
-            exitOrder: boardSize - 1 - col // rightmost = 0, leftmost = size-1
+            active: false,
+            cellIndex: cellIndex
         });
+        placePieceOnCell(cellIndex, 'red', false);
     }
 
-    // Blue pieces: row 3, columns 0 to size-1 (left to right)
-    // Exit order: left to right (leftmost exits first)
+    // Place blue pieces on row 3 (bottom row)
     for (let col = 0; col < boardSize; col++) {
+        const cellIndex = getCellIndex(3, col, boardSize);
         gameState.pieces.blue.push({
             row: 3,
             col: col,
-            id: `blue-${col}`,
-            activated: false,
-            hasBeenInEnemyRow: false,
-            exitOrder: col // leftmost = 0, rightmost = size-1
+            active: false,
+            cellIndex: cellIndex
         });
+        placePieceOnCell(cellIndex, 'blue', false);
     }
 
-    renderBoard();
-    updateMessage(`Jogo iniciado! ${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'} começa. Lance os dados!`);
+    gameState.gameActive = true;
+    updateMessage("Jogo iniciado! Jogador Vermelho começa. Role os dados!");
 }
 
-// Get piece at position
-function getPieceAt(row, col) {
-    for (let piece of gameState.pieces.red) {
-        if (piece.row === row && piece.col === col) {
-            return { piece, color: 'red' };
-        }
+// Place a visual piece on a cell
+function placePieceOnCell(cellIndex, color, isActive) {
+    const cells = document.querySelectorAll('.cell');
+    const cell = cells[cellIndex];
+
+    if (!cell) return;
+
+    cell.innerHTML = '';
+    cell.classList.add('has-piece');
+
+    const piece = document.createElement('div');
+    piece.classList.add('piece', `${color}-piece`);
+
+    if (!isActive) {
+        piece.classList.add('inactive');
     }
-    for (let piece of gameState.pieces.blue) {
-        if (piece.row === row && piece.col === col) {
-            return { piece, color: 'blue' };
-        }
-    }
-    return null;
+
+    cell.appendChild(piece);
 }
 
-// Check if player has pieces on starting row
-function hasStartingRowPieces(color) {
-    const startRow = color === 'red' ? 0 : 3;
-    return gameState.pieces[color].some(p => p.row === startRow);
-}
-
-// Check if enemy has pieces on their starting row
-function hasEnemyPiecesOnTheirStartRow(color) {
-    const enemyColor = color === 'red' ? 'blue' : 'red';
-    const enemyStartRow = enemyColor === 'red' ? 0 : 3;
-    return gameState.pieces[enemyColor].some(p => p.row === enemyStartRow);
-}
-
-// Check if piece can move (exit order on starting row)
-function canPieceMove(piece, color) {
-    const startRow = color === 'red' ? 0 : 3;
-
-    if (piece.activated) return true;
-    if (piece.row !== startRow) return true;
-
-    // Check if all pieces with lower exit order have already moved
-    const pieces = gameState.pieces[color];
-    for (let p of pieces) {
-        if (p.exitOrder < piece.exitOrder && p.row === startRow) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Calculate possible moves
-function calculatePossibleMoves(piece, color, steps) {
+// Get valid moves for a piece based on Tâb rules
+function getValidMoves(piece, diceValue, playerColor) {
     const moves = [];
-    const size = gameState.boardSize;
-    const startRow = color === 'red' ? 0 : 3;
-    const enemyStartRow = color === 'red' ? 3 : 0;
+    const { row, col } = piece;
+    const columns = gameState.boardSize;
 
-    if (!canPieceMove(piece, color)) {
-        return [];
+    if (!piece.active) return moves; // Inactive pieces can't move
+
+    // Calculate possible positions based on movement rules
+    if (playerColor === 'blue') {
+        moves.push(...getBlueValidMoves(row, col, diceValue, columns));
+    } else {
+        moves.push(...getRedValidMoves(row, col, diceValue, columns));
     }
 
-    // Inactive piece needs a 1 to activate
-    if (!piece.activated) {
-        if (steps !== 1) return [];
+    // Filter out moves that land on same team pieces
+    return moves.filter(move => {
+        const pieceAtDestination = findPieceAt(move.row, move.col, playerColor);
+        return !pieceAtDestination; // Only allow if no same-team piece
+    });
+}
 
-        // Check if at exit position
-        const isAtExit = color === 'red'
-            ? piece.col === size - 1  // Red exits from rightmost
-            : piece.col === 0;         // Blue exits from leftmost
+// Blue piece movement logic - CORRECTED WITH CHOICE AT row 1, col N-1
+// Pattern:
+// Row 3: >>>>>> (down to row 2)
+// Row 2: <<<<<< (down to row 1)
+// Row 1: >>>>>> (at col N-1: choice → row 0 OR row 2) ← CHOICE HERE
+function getBlueValidMoves(row, col, steps, columns) {
+    const moves = [];
 
-        if (isAtExit) {
-            // Exit to second row
-            const nextRow = color === 'red' ? 1 : 2;
-            const nextCol = color === 'red' ? size - 1 : 0;
-            const occupant = getPieceAt(nextRow, nextCol);
+    // Generate all possible paths
+    const paths = getBlueAllPaths(row, col, steps, columns);
 
-            if (!occupant || occupant.color !== color) {
-                moves.push({
-                    row: nextRow,
-                    col: nextCol,
-                    canCapture: occupant && occupant.color !== color,
-                    activates: true
-                });
-            }
-        } else {
-            // Activate in place
-            moves.push({
-                row: piece.row,
-                col: piece.col,
-                canCapture: false,
-                activates: true
-            });
-        }
-        return moves;
-    }
-
-    // Can't move from enemy row if we have pieces on our starting row
-    if (piece.row === enemyStartRow && hasStartingRowPieces(color)) {
-        return [];
-    }
-
-    // Simulate exact movement
-    let targetRow = piece.row;
-    let targetCol = piece.col;
-    let remainingSteps = steps;
-
-    while (remainingSteps > 0) {
-        let moved = false;
-
-        if (color === 'red') {
-            // RED MOVEMENT:
-            // Row 0: L→R, exit right to Row 1
-            // Row 1: R→L, exit left to Row 2
-            // Row 2: L→R, exit right to Row 3 or back to Row 1
-            // Row 3: R→L, exit left to Row 2
-
-            if (targetRow === 0) {
-                if (targetCol + 1 < size) {
-                    targetCol++;
-                    moved = true;
-                } else {
-                    targetRow = 1;
-                    targetCol = size - 1;
-                    moved = true;
-                }
-            } else if (targetRow === 1) {
-                if (targetCol - 1 >= 0) {
-                    targetCol--;
-                    moved = true;
-                } else {
-                    targetRow = 2;
-                    targetCol = 0;
-                    moved = true;
-                }
-            } else if (targetRow === 2) {
-                if (targetCol + 1 < size) {
-                    targetCol++;
-                    moved = true;
-                } else {
-                    // End of row 2
-                    if (hasEnemyPiecesOnTheirStartRow(color) && !piece.hasBeenInEnemyRow) {
-                        targetRow = 3;
-                        targetCol = size - 1;
-                        moved = true;
-                    } else {
-                        targetRow = 1;
-                        targetCol = size - 1;
-                        moved = true;
-                    }
-                }
-            } else if (targetRow === 3) {
-                if (targetCol - 1 >= 0) {
-                    targetCol--;
-                    moved = true;
-                } else {
-                    targetRow = 2;
-                    targetCol = 0;
-                    moved = true;
-                }
-            }
-        } else { // BLUE
-            // BLUE MOVEMENT:
-            // Row 3: R→L, exit left to Row 2
-            // Row 2: L→R, exit right to Row 1
-            // Row 1: R→L, exit left to Row 0 or back to Row 2
-            // Row 0: L→R, exit right to Row 1
-
-            if (targetRow === 3) {
-                if (targetCol - 1 >= 0) {
-                    targetCol--;
-                    moved = true;
-                } else {
-                    targetRow = 2;
-                    targetCol = 0;
-                    moved = true;
-                }
-            } else if (targetRow === 2) {
-                if (targetCol + 1 < size) {
-                    targetCol++;
-                    moved = true;
-                } else {
-                    targetRow = 1;
-                    targetCol = size - 1;
-                    moved = true;
-                }
-            } else if (targetRow === 1) {
-                if (targetCol - 1 >= 0) {
-                    targetCol--;
-                    moved = true;
-                } else {
-                    // End of row 1
-                    if (hasEnemyPiecesOnTheirStartRow(color) && !piece.hasBeenInEnemyRow) {
-                        targetRow = 0;
-                        targetCol = 0;
-                        moved = true;
-                    } else {
-                        targetRow = 2;
-                        targetCol = 0;
-                        moved = true;
-                    }
-                }
-            } else if (targetRow === 0) {
-                if (targetCol + 1 < size) {
-                    targetCol++;
-                    moved = true;
-                } else {
-                    targetRow = 1;
-                    targetCol = size - 1;
-                    moved = true;
-                }
+    // Add all unique end positions
+    paths.forEach(path => {
+        if (path.length > 0) {
+            const endPos = path[path.length - 1];
+            // Check if this position is not already in moves
+            if (!moves.some(m => m.row === endPos.row && m.col === endPos.col)) {
+                moves.push(endPos);
             }
         }
-
-        if (!moved) break;
-
-        remainingSteps--;
-
-        // Check for blocking by own piece (not at final destination)
-        if (remainingSteps > 0) {
-            const occupant = getPieceAt(targetRow, targetCol);
-            if (occupant && occupant.color === color) {
-                return [];
-            }
-        }
-    }
-
-    // Valid move if we used all steps
-    if (remainingSteps === 0) {
-        if (targetRow !== piece.row || targetCol !== piece.col) {
-            const occupant = getPieceAt(targetRow, targetCol);
-            if (!occupant || occupant.color !== color) {
-                moves.push({
-                    row: targetRow,
-                    col: targetCol,
-                    canCapture: occupant && occupant.color !== color
-                });
-            }
-        }
-    }
+    });
 
     return moves;
 }
 
-// Move piece
-function movePieceTo(piece, color, targetRow, targetCol, activates) {
-    const enemyStartRow = color === 'red' ? 3 : 0;
+// Get all possible paths for blue pieces (handles choice at row 1, col N-1)
+function getBlueAllPaths(row, col, steps, columns, currentPath = []) {
+    if (steps === 0) {
+        return [currentPath];
+    }
 
-    // Capture
-    const targetPiece = getPieceAt(targetRow, targetCol);
-    if (targetPiece && targetPiece.color !== color) {
-        const enemyPieces = gameState.pieces[targetPiece.color];
-        const index = enemyPieces.indexOf(targetPiece.piece);
-        if (index > -1) {
-            enemyPieces.splice(index, 1);
-            updateMessage(`${color === 'red' ? 'Vermelho' : 'Azul'} capturou uma peça!`);
+    const allPaths = [];
+
+    // Special case: at junction point (row 1, col N-1)
+    if (row === 1 && col === columns - 1) {
+        // Option 1: Go UP to row 0, col N-1 (enemy territory)
+        const path1 = getBlueAllPaths(0, columns - 1, steps - 1, columns, [...currentPath, { row: 0, col: columns - 1 }]);
+        allPaths.push(...path1);
+
+        // Option 2: Go UP to row 2, col N-1 (continue loop)
+        const path2 = getBlueAllPaths(2, columns - 1, steps - 1, columns, [...currentPath, { row: 2, col: columns - 1 }]);
+        allPaths.push(...path2);
+
+        return allPaths;
+    }
+
+    // Normal movement
+    const nextPos = getNextBluePosition(row, col, columns);
+    if (nextPos) {
+        return getBlueAllPaths(nextPos.row, nextPos.col, steps - 1, columns, [...currentPath, nextPos]);
+    }
+
+    return [currentPath];
+}
+
+// Get next position for blue piece - CORRECTED
+function getNextBluePosition(row, col, columns) {
+    // Row 3 (initial): LEFT TO RIGHT >>>>>>>
+    if (row === 3) {
+        if (col < columns - 1) {
+            return { row: 3, col: col + 1 }; // Move right
+        } else {
+            // At end of row 3, move UP to row 2 (rightmost position)
+            return { row: 2, col: columns - 1 };
         }
     }
 
-    piece.row = targetRow;
-    piece.col = targetCol;
-
-    if (activates) {
-        piece.activated = true;
+    // Row 2: RIGHT TO LEFT <<<<<<<
+    if (row === 2) {
+        if (col > 0) {
+            return { row: 2, col: col - 1 }; // Move left
+        } else {
+            // At start of row 2, move DOWN to row 1 (leftmost position)
+            return { row: 1, col: 0 };
+        }
     }
 
-    if (targetRow === enemyStartRow) {
-        piece.hasBeenInEnemyRow = true;
+    // Row 1: LEFT TO RIGHT >>>>>>>
+    if (row === 1) {
+        if (col < columns - 1) {
+            return { row: 1, col: col + 1 }; // Move right
+        } else {
+            // At end of row 1 (col N-1) - JUNCTION POINT
+            // This should be handled by getBlueAllPaths
+            return null; // Signal that we're at a choice point
+        }
     }
 
-    return true;
+    // Row 0 (enemy territory): RIGHT TO LEFT <<<<<<<
+    if (row === 0) {
+        if (col > 0) {
+            return { row: 0, col: col - 1 }; // Move left in enemy territory
+        } else {
+            // At start of row 0, move DOWN to row 1 (leftmost position)
+            return { row: 1, col: 0 };
+        }
+    }
+
+    return null;
 }
 
-// Render board
-function renderBoard() {
-    const board = document.getElementById('game-board');
-    const cells = board.querySelectorAll('.cell');
+// Red piece movement logic - CORRECTED WITH CHOICE AT row 2, col 0
+// Pattern:
+// Row 0: <<<<<< (down to row 1)
+// Row 1: >>>>>> (down to row 2)
+// Row 2: <<<<<< (at col 0: choice → row 1 OR row 3) ← CHOICE HERE
+// Row 3: >>>>>> (up to row 2)
+function getRedValidMoves(row, col, steps, columns) {
+    const moves = [];
 
-    cells.forEach(cell => {
-        cell.classList.remove('has-piece', 'selectable', 'selected', 'possible-move', 'capture-move', 'inactive-piece');
-        cell.innerHTML = '';
-        cell.style.cursor = 'default';
+    // Generate all possible paths
+    const paths = getRedAllPaths(row, col, steps, columns);
+
+    // Add all unique end positions
+    paths.forEach(path => {
+        if (path.length > 0) {
+            const endPos = path[path.length - 1];
+            // Check if this position is not already in moves
+            if (!moves.some(m => m.row === endPos.row && m.col === endPos.col)) {
+                moves.push(endPos);
+            }
+        }
     });
 
-    // Highlight possible moves
-    for (let move of gameState.possibleMoves) {
-        const index = move.row * gameState.boardSize + move.col;
-        const cell = cells[index];
-        if (cell) {
-            cell.classList.add(move.canCapture ? 'capture-move' : 'possible-move');
-            cell.style.cursor = 'pointer';
-        }
-    }
-
-    // Place red pieces
-    for (let piece of gameState.pieces.red) {
-        const index = piece.row * gameState.boardSize + piece.col;
-        const cell = cells[index];
-        if (cell) {
-            cell.classList.add('has-piece');
-            const pieceDiv = document.createElement('div');
-            pieceDiv.className = 'piece red-piece';
-            if (!piece.activated) pieceDiv.classList.add('inactive');
-            cell.appendChild(pieceDiv);
-
-            if (gameState.currentPlayer === 'red' && gameState.diceRoll > 0 && !gameState.selectedPiece) {
-                const moves = calculatePossibleMoves(piece, 'red', gameState.diceRoll);
-                if (moves.length > 0) {
-                    cell.classList.add('selectable');
-                    cell.style.cursor = 'pointer';
-                } else {
-                    cell.classList.add('inactive-piece');
-                }
-            }
-        }
-    }
-
-    // Place blue pieces
-    for (let piece of gameState.pieces.blue) {
-        const index = piece.row * gameState.boardSize + piece.col;
-        const cell = cells[index];
-        if (cell) {
-            cell.classList.add('has-piece');
-            const pieceDiv = document.createElement('div');
-            pieceDiv.className = 'piece blue-piece';
-            if (!piece.activated) pieceDiv.classList.add('inactive');
-            cell.appendChild(pieceDiv);
-
-            if (gameState.currentPlayer === 'blue' && gameState.diceRoll > 0 && !gameState.selectedPiece) {
-                const moves = calculatePossibleMoves(piece, 'blue', gameState.diceRoll);
-                if (moves.length > 0) {
-                    cell.classList.add('selectable');
-                    cell.style.cursor = 'pointer';
-                } else {
-                    cell.classList.add('inactive-piece');
-                }
-            }
-        }
-    }
-
-    if (gameState.selectedPiece) {
-        const index = gameState.selectedPiece.row * gameState.boardSize + gameState.selectedPiece.col;
-        cells[index]?.classList.add('selected');
-    }
-
-    checkGameOver();
+    return moves;
 }
 
-// Handle cell clicks
-function handleCellClick(row, col) {
+// Get all possible paths for red pieces (handles choice at row 2, col 0)
+function getRedAllPaths(row, col, steps, columns, currentPath = []) {
+    if (steps === 0) {
+        return [currentPath];
+    }
+
+    const allPaths = [];
+
+    // Special case: at junction point (row 2, col 0)
+    if (row === 2 && col === 0) {
+        // Option 1: Go UP to row 1, col 0 (continue loop)
+        const path1 = getRedAllPaths(1, 0, steps - 1, columns, [...currentPath, { row: 1, col: 0 }]);
+        allPaths.push(...path1);
+
+        // Option 2: Go DOWN to row 3, col 0 (enemy territory)
+        const path2 = getRedAllPaths(3, 0, steps - 1, columns, [...currentPath, { row: 3, col: 0 }]);
+        allPaths.push(...path2);
+
+        return allPaths;
+    }
+
+    // Normal movement
+    const nextPos = getNextRedPosition(row, col, columns);
+    if (nextPos) {
+        return getRedAllPaths(nextPos.row, nextPos.col, steps - 1, columns, [...currentPath, nextPos]);
+    }
+
+    return [currentPath];
+}
+
+// Get next position for red piece - CORRECTED
+function getNextRedPosition(row, col, columns) {
+    // Row 0 (initial): RIGHT TO LEFT <<<<<<<
+    if (row === 0) {
+        if (col > 0) {
+            return { row: 0, col: col - 1 }; // Move left
+        } else {
+            // At start of row 0, move DOWN to row 1 (leftmost position)
+            return { row: 1, col: 0 };
+        }
+    }
+
+    // Row 1: LEFT TO RIGHT >>>>>>>
+    if (row === 1) {
+        if (col < columns - 1) {
+            return { row: 1, col: col + 1 }; // Move right
+        } else {
+            // At end of row 1, move DOWN to row 2 (rightmost position)
+            return { row: 2, col: columns - 1 };
+        }
+    }
+
+    // Row 2: RIGHT TO LEFT <<<<<<<
+    if (row === 2) {
+        if (col > 0) {
+            return { row: 2, col: col - 1 }; // Move left
+        } else {
+            // At start of row 2 (col 0) - JUNCTION POINT
+            // This should be handled by getRedAllPaths
+            return null; // Signal that we're at a choice point
+        }
+    }
+
+    // Row 3 (enemy territory): LEFT TO RIGHT >>>>>>>
+    if (row === 3) {
+        if (col < columns - 1) {
+            return { row: 3, col: col + 1 }; // Move right in enemy territory
+        } else {
+            // At end of row 3, move UP to row 2 (rightmost position)
+            return { row: 2, col: columns - 1 };
+        }
+    }
+
+    return null;
+}
+
+// Handle piece selection
+function handlePieceClick(cellIndex) {
+    if (!gameState.gameActive || gameState.diceValue === 0) {
+        updateMessage("Role os dados primeiro!");
+        return;
+    }
+
+    const { row, col } = getRowCol(cellIndex, gameState.boardSize);
+    const piece = findPieceAt(row, col, gameState.currentPlayer);
+
+    if (!piece) return;
+
+    // Check if clicking on already selected piece - DESELECT IT
+    if (gameState.selectedPiece === piece) {
+        clearSelection();
+        makeCurrentPlayerPiecesSelectable();
+        updateMessage("Peça desmarcada. Escolha outra peça ou pule a vez.");
+        return;
+    }
+
+    // Only allow activation with dice value 1
+    if (!piece.active) {
+        if (gameState.diceValue === 1) {
+            piece.active = true;
+            updatePieceDisplay(cellIndex, gameState.currentPlayer, true);
+            updateMessage("Peça ativada! Você pode jogar novamente.");
+
+            // Since 1 gives bonus roll, reset dice for next roll
+            gameState.diceValue = 0;
+            gameState.bonusRoll = false;
+            document.querySelector('.dice-total').textContent = 'Resultado: —';
+        } else {
+            updateMessage(`Esta peça está bloqueada! Você precisa tirar 1 nos dados para ativar (você tirou ${gameState.diceValue}).`);
+        }
+        return;
+    }
+
+    // Select piece and show valid moves
+    gameState.selectedPiece = piece;
+    highlightSelectedPiece(cellIndex);
+
+    const validMoves = getValidMoves(piece, gameState.diceValue, gameState.currentPlayer);
+    gameState.possibleMoves = validMoves;
+
+    if (validMoves.length === 0) {
+        updateMessage("Sem movimentos válidos para esta peça! Escolha outra ou pule a vez.");
+        clearSelection();
+        makeCurrentPlayerPiecesSelectable();
+        return;
+    }
+
+    showPossibleMoves(validMoves);
+    // Keep the piece selectable even when selected
+    const cells = document.querySelectorAll('.cell');
+    cells[cellIndex].classList.add('selectable');
+    updateMessage(`Peça selecionada! Clique nela novamente para desmarcar ou escolha onde mover.`);
+}
+
+// Handle move to a cell
+function handleMoveClick(cellIndex) {
+    if (!gameState.selectedPiece) return;
+
+    const { row, col } = getRowCol(cellIndex, gameState.boardSize);
+    const moveValid = gameState.possibleMoves.some(m => m.row === row && m.col === col);
+
+    if (!moveValid) {
+        updateMessage("Movimento inválido!");
+        return;
+    }
+
+    // Check for capture
+    const enemyColor = gameState.currentPlayer === 'red' ? 'blue' : 'red';
+    const enemyPiece = findPieceAt(row, col, enemyColor);
+
+    if (enemyPiece) {
+        capturePiece(enemyPiece, enemyColor);
+    }
+
+    // Move piece
+    movePiece(gameState.selectedPiece, row, col);
+
+    // Check win condition
+    if (checkWinCondition()) {
+        endGame(gameState.currentPlayer);
+        return;
+    }
+
+    // Check if bonus roll
+    if (gameState.bonusRoll) {
+        gameState.diceValue = 0;
+        gameState.bonusRoll = false;
+        document.querySelector('.dice-total').textContent = 'Resultado: —';
+        updateMessage("Movimento realizado! Você pode jogar novamente. Role os dados!");
+    } else {
+        // Switch turns
+        switchTurn();
+    }
+}
+
+// Move a piece to new position
+function movePiece(piece, newRow, newCol) {
+    const oldCellIndex = getCellIndex(piece.row, piece.col, gameState.boardSize);
+    const newCellIndex = getCellIndex(newRow, newCol, gameState.boardSize);
+
+    // Clear old cell
+    const cells = document.querySelectorAll('.cell');
+    cells[oldCellIndex].innerHTML = '';
+    cells[oldCellIndex].classList.remove('has-piece');
+
+    // Update piece position
+    piece.row = newRow;
+    piece.col = newCol;
+    piece.cellIndex = newCellIndex;
+
+    // Place on new cell
+    placePieceOnCell(newCellIndex, gameState.currentPlayer, true);
+
+    clearSelection();
+}
+
+// Capture an enemy piece
+function capturePiece(piece, color) {
+    const index = gameState.pieces[color].indexOf(piece);
+    if (index > -1) {
+        gameState.pieces[color].splice(index, 1);
+        updateMessage(`Peça ${color === 'red' ? 'vermelha' : 'azul'} capturada!`);
+    }
+}
+
+// Find piece at position
+function findPieceAt(row, col, color) {
+    return gameState.pieces[color].find(p => p.row === row && p.col === col);
+}
+
+// Highlight selected piece
+function highlightSelectedPiece(cellIndex) {
+    clearHighlights();
+    const cells = document.querySelectorAll('.cell');
+    cells[cellIndex].classList.add('selected');
+}
+
+// Show possible moves
+function showPossibleMoves(moves) {
+    const cells = document.querySelectorAll('.cell');
+
+    moves.forEach(move => {
+        const cellIndex = getCellIndex(move.row, move.col, gameState.boardSize);
+        const enemyColor = gameState.currentPlayer === 'red' ? 'blue' : 'red';
+        const hasEnemy = findPieceAt(move.row, move.col, enemyColor);
+
+        if (hasEnemy) {
+            cells[cellIndex].classList.add('capture-move');
+        } else {
+            cells[cellIndex].classList.add('possible-move');
+        }
+    });
+}
+
+// Clear all highlights
+function clearHighlights() {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.classList.remove('selected', 'possible-move', 'capture-move', 'selectable');
+    });
+}
+
+// Clear selection
+function clearSelection() {
+    gameState.selectedPiece = null;
+    gameState.possibleMoves = [];
+    clearHighlights();
+}
+
+// Update piece display
+function updatePieceDisplay(cellIndex, color, isActive) {
+    const cells = document.querySelectorAll('.cell');
+    const cell = cells[cellIndex];
+    const piece = cell.querySelector('.piece');
+
+    if (piece && isActive) {
+        piece.classList.remove('inactive');
+    }
+}
+
+// Switch turn to other player
+function switchTurn() {
+    gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'blue' : 'red';
+    gameState.diceValue = 0;
+    gameState.bonusRoll = false;
+    clearSelection();
+
+    document.querySelector('.dice-total').textContent = 'Resultado: —';
+    updateMessage(`Turno do jogador ${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'}. Role os dados!`);
+}
+
+// Skip turn function
+function skipTurn() {
     if (!gameState.gameActive) {
-        updateMessage('Inicie um novo jogo primeiro!');
+        updateMessage("Inicie um jogo primeiro!");
         return;
     }
 
-    if (gameState.diceRoll === 0) {
-        updateMessage('Lance os dados primeiro!');
+    if (gameState.diceValue === 0) {
+        updateMessage("Você precisa rolar os dados antes de pular a vez!");
         return;
     }
 
-    const clickedPiece = getPieceAt(row, col);
+    clearSelection();
+    const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
+    updateMessage(`Jogador ${currentPlayerName} pulou a vez.`);
 
-    if (!gameState.selectedPiece) {
-        if (!clickedPiece || clickedPiece.color !== gameState.currentPlayer) {
-            updateMessage('Selecione uma de suas peças!');
-            return;
-        }
-
-        const moves = calculatePossibleMoves(clickedPiece.piece, clickedPiece.color, gameState.diceRoll);
-
-        if (moves.length === 0) {
-            if (!clickedPiece.piece.activated && gameState.diceRoll !== 1) {
-                updateMessage('Esta peça precisa de um 1 para ativar!');
-            } else if (!clickedPiece.piece.activated) {
-                if (!canPieceMove(clickedPiece.piece, clickedPiece.color)) {
-                    updateMessage('Aguarde as peças da frente saírem primeiro!');
-                } else {
-                    updateMessage('Caminho bloqueado!');
-                }
-            } else {
-                updateMessage('Esta peça não pode mover exatamente ' + gameState.diceRoll + ' casas!');
-            }
-            return;
-        }
-
-        gameState.selectedPiece = clickedPiece.piece;
-        gameState.possibleMoves = moves;
-        updateMessage(`Peça selecionada! Clique no destino para mover ${gameState.diceRoll} casas.`);
-        renderBoard();
-        return;
-    }
-
-    if (clickedPiece && clickedPiece.color === gameState.currentPlayer) {
-        const moves = calculatePossibleMoves(clickedPiece.piece, clickedPiece.color, gameState.diceRoll);
-
-        if (moves.length === 0) {
-            updateMessage('Esta peça não pode mover!');
-            return;
-        }
-
-        gameState.selectedPiece = clickedPiece.piece;
-        gameState.possibleMoves = moves;
-        updateMessage(`Peça alterada! Clique no destino para mover ${gameState.diceRoll} casas.`);
-        renderBoard();
-        return;
-    }
-
-    const validMove = gameState.possibleMoves.find(m => m.row === row && m.col === col);
-
-    if (!validMove) {
-        updateMessage('Movimento inválido!');
-        return;
-    }
-
-    if (movePieceTo(gameState.selectedPiece, gameState.currentPlayer, row, col, validMove.activates)) {
-        gameState.selectedPiece = null;
-        gameState.possibleMoves = [];
-
-        if (!gameState.repeatTurn) {
-            gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'blue' : 'red';
-        }
-
-        gameState.diceRoll = 0;
-        gameState.repeatTurn = false;
-
-        renderBoard();
-        updateMessage(`Turno de ${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'}. Lance os dados!`);
-    }
+    // Switch to next player
+    setTimeout(() => {
+        switchTurn();
+    }, 1000);
 }
 
-function checkGameOver() {
-    if (gameState.pieces.red.length === 0) {
-        updateMessage('🎉 Azul venceu!');
-        gameState.gameActive = false;
-    } else if (gameState.pieces.blue.length === 0) {
-        updateMessage('🎉 Vermelho venceu!');
-        gameState.gameActive = false;
-    }
+// Check win condition
+function checkWinCondition() {
+    const enemyColor = gameState.currentPlayer === 'red' ? 'blue' : 'red';
+    return gameState.pieces[enemyColor].length === 0;
 }
 
+// End game
+function endGame(winner) {
+    gameState.gameActive = false;
+    clearHighlights();
+
+    const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
+    updateMessage(`🎉 Jogador ${winnerName} venceu! Parabéns!`);
+
+    const messageBox = document.querySelector('.message-box');
+    messageBox.classList.add('game-over');
+
+    document.getElementById('roll-dice').disabled = true;
+}
+
+// Update message
 function updateMessage(text) {
-    const msgElement = document.querySelector('.message p');
-    if (msgElement) {
-        msgElement.textContent = text;
+    const messageElement = document.querySelector('.message p');
+    if (messageElement) {
+        messageElement.textContent = text;
     }
 }
 
-window.createBoard = function(columns, settings) {
-    const board = document.getElementById('game-board');
-    board.innerHTML = '';
-    board.classList.remove('hidden');
-    board.style.gridTemplateRows = `repeat(4, auto)`;
-    board.style.gridTemplateColumns = `repeat(${columns}, auto)`;
+// Make pieces selectable for current player
+function makeCurrentPlayerPiecesSelectable() {
+    if (!gameState.gameActive || gameState.diceValue === 0) return;
 
-    for (let row = 0; row < 4; row++) {
-        for (let col = 0; col < columns; col++) {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.dataset.row = row;
-            cell.dataset.col = col;
-            cell.addEventListener('click', () => handleCellClick(parseInt(row), parseInt(col)));
-            board.appendChild(cell);
-        }
-    }
+    clearHighlights();
 
-    const starter = settings?.starter || 'player';
-    initializeGame(columns, starter);
+    gameState.pieces[gameState.currentPlayer].forEach(piece => {
+        const cellIndex = getCellIndex(piece.row, piece.col, gameState.boardSize);
+        const cells = document.querySelectorAll('.cell');
+        cells[cellIndex].classList.add('selectable');
+    });
+}
+
+// Setup cell click handlers
+function setupCellClickHandlers() {
+    const cells = document.querySelectorAll('.cell');
+
+    cells.forEach((cell, index) => {
+        cell.addEventListener('click', () => {
+            // Always check if it's a piece of current player first
+            const { row, col } = getRowCol(index, gameState.boardSize);
+            const currentPlayerPiece = findPieceAt(row, col, gameState.currentPlayer);
+
+            if (currentPlayerPiece && gameState.diceValue > 0) {
+                // It's a piece from current player - handle selection/deselection
+                handlePieceClick(index);
+            } else if (cell.classList.contains('possible-move') || cell.classList.contains('capture-move')) {
+                // It's a valid move destination
+                handleMoveClick(index);
+            }
+        });
+    });
+}
+
+// Export functions for use in other scripts
+window.gameLogic = {
+    initializePieces,
+    makeCurrentPlayerPiecesSelectable,
+    setupCellClickHandlers,
+    skipTurn,
+    gameState
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-    const skipButton = document.getElementById("skip-button");
-    if (skipButton) {
-        skipButton.addEventListener("click", () => {
-            if (!gameState.gameActive) return;
-            gameState.diceRoll = 0;
-            gameState.selectedPiece = null;
-            gameState.possibleMoves = [];
-            gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'blue' : 'red';
-            updateMessage(`Turno de ${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'}.`);
-            renderBoard();
-        });
-    }
-
-    const forfeitButton = document.getElementById("forfeit-button");
-    if (forfeitButton) {
-        forfeitButton.addEventListener("click", () => {
-            if (!gameState.gameActive) return;
-            const winner = gameState.currentPlayer === 'red' ? 'Azul' : 'Vermelho';
-            updateMessage(`${winner} venceu por desistência!`);
-            gameState.gameActive = false;
-            renderBoard();
-        });
-    }
-
-    const rollButton = document.getElementById("roll-dice");
-    if (rollButton) {
-        const newRollButton = rollButton.cloneNode(true);
-        rollButton.parentNode.replaceChild(newRollButton, rollButton);
-
-        newRollButton.addEventListener("click", () => {
-            if (!gameState.gameActive) {
-                updateMessage('Inicie um novo jogo!');
-                return;
-            }
-
-            if (gameState.diceRoll > 0) {
-                updateMessage('Você já lançou! Mova uma peça.');
-                return;
-            }
-
-            const diceImagesContainer = document.querySelector(".dice-images");
-            const diceTotal = document.querySelector(".dice-total");
-
-            diceImagesContainer.innerHTML = "";
-            let brancos = 0;
-
-            for (let i = 0; i < 4; i++) {
-                const isBranco = Math.random() < 0.5;
-                const img = document.createElement("img");
-                img.src = isBranco ? "media/lightSide.png" : "media/darkSide.png";
-                diceImagesContainer.appendChild(img);
-                if (isBranco) brancos++;
-            }
-
-            let steps, repeat;
-            if (brancos === 0) {
-                steps = 6;
-                repeat = true;
-            } else if (brancos === 1) {
-                steps = 1;
-                repeat = true;
-            } else if (brancos === 2) {
-                steps = 2;
-                repeat = false;
-            } else if (brancos === 3) {
-                steps = 3;
-                repeat = false;
-            } else if (brancos === 4) {
-                steps = 4;
-                repeat = true;
-            }
-
-            gameState.diceRoll = steps;
-            gameState.repeatTurn = repeat;
-            diceTotal.textContent = `Resultado: ${steps}${repeat ? ' (Joga de novo!)' : ''}`;
-
-            updateMessage(`${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'} tirou ${steps}! Selecione uma peça.`);
-            renderBoard();
-        });
-    }
-});

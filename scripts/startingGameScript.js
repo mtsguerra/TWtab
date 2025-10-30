@@ -1,4 +1,5 @@
-// elementos existentes
+// startingGameScript.js - Enhanced with game initialization
+
 const playBtn = document.getElementById('playBtn');
 const overlay = document.getElementById('overlay');
 const dialog = document.getElementById('playDialog');
@@ -33,21 +34,30 @@ cancelBtn.addEventListener('click', (e) => {
     closeDialog();
 });
 
-// Valida e normaliza o tamanho vindo do input type="number"
+// Show/hide PC options based on opponent selection
+document.querySelectorAll('input[name="opponent"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        if (e.target.value === 'pc') {
+            pcOptions.classList.remove('hidden');
+            pcOptions.setAttribute('aria-hidden', 'false');
+        } else {
+            pcOptions.classList.add('hidden');
+            pcOptions.setAttribute('aria-hidden', 'true');
+        }
+    });
+});
+
 function normalizeBoardSize(value) {
     const min = 7;
     const max = 51;
     let n = parseInt(value, 10);
     if (Number.isNaN(n)) n = min;
 
-    // força dentro do intervalo
     if (n < min) n = min;
     if (n > max) n = max;
 
-    // força ímpar (se for par, soma 1)
     if (n % 2 === 0) n = n + 1;
 
-    // garante que está dentro do max depois de ajustar para ímpar
     if (n > max) n = max - (max % 2 === 0 ? 1 : 0);
 
     return n;
@@ -57,14 +67,8 @@ playForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const form = new FormData(playForm);
-    // pega o valor diretamente do input (ex: 7, 9, 11...)
     let boardSize = form.get('boardSize');
-
-    // normaliza/valida
     boardSize = normalizeBoardSize(boardSize);
-
-    // Se o seu backend ainda espera o índice antigo (3,4,5...), converta:
-    // const boardIndex = Math.floor((boardSize - 1) / 2);
 
     const settings = {
         boardSize: boardSize,
@@ -78,10 +82,13 @@ playForm.addEventListener('submit', (e) => {
     console.log('Game settings chosen:', settings);
 
     closeDialog();
-    createBoard(settings.boardSize);
+    createBoard(settings.boardSize, settings.starter);
+
+    // Enable roll button
+    document.getElementById('roll-dice').disabled = false;
 });
 
-function createBoard(columns) {
+function createBoard(columns, starter) {
     const board = document.getElementById('game-board');
     board.innerHTML = '';
     board.classList.remove('hidden');
@@ -89,15 +96,38 @@ function createBoard(columns) {
     board.style.gridTemplateRows = `repeat(4, auto)`;
     board.style.gridTemplateColumns = `repeat(${columns}, auto)`;
 
+    // Create cells
     for (let row = 0; row < 4; row++) {
         for (let col = 0; col < columns; col++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
-
-            if (row === 0) cell.classList.add('red');
-            if (row === 3) cell.classList.add('blue');
-
             board.appendChild(cell);
         }
+    }
+
+    // Initialize game logic
+    if (window.gameLogic) {
+        window.gameLogic.initializePieces(columns);
+        window.gameLogic.setupCellClickHandlers();
+
+        // Set starter
+        let startingPlayer = 'red';
+        if (starter === 'pc') {
+            startingPlayer = 'blue';
+        } else if (starter === 'random') {
+            startingPlayer = Math.random() < 0.5 ? 'red' : 'blue';
+        }
+
+        window.gameLogic.gameState.currentPlayer = startingPlayer;
+
+        const playerName = startingPlayer === 'red' ? 'Vermelho' : 'Azul';
+        updateMessage(`Jogo iniciado! Jogador ${playerName} começa. Role os dados!`);
+    }
+}
+
+function updateMessage(text) {
+    const messageElement = document.querySelector('.message p');
+    if (messageElement) {
+        messageElement.textContent = text;
     }
 }
