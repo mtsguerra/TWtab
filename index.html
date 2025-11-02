@@ -121,7 +121,10 @@
                     <li><a href="#lancamento">Lançamento e valores</a></li>
                     <li><a href="#ativacao">Ativação: o lançamento "tâb"</a></li>
                     <li><a href="#movimento">Movimento normal das peças</a></li>
-                    <li><a href="#caminho">Caminho das peças</a></li>
+                    <li><a href="#caminho-detalhado">Caminho detalhado por cor</a></li>
+                    <li><a href="#territorio-inimigo">Território inimigo</a></li>
+                    <li><a href="#regras-territorio">Regras do território inimigo</a></li>
+                    <li><a href="#congelamento">Congelamento de peças</a></li>
                     <li><a href="#captura">Captura</a></li>
                     <li><a href="#vitoria">Condição de vitória</a></li>
                     <li><a href="#fontes">Fontes</a></li>
@@ -141,16 +144,21 @@
             <section id="tabuleiro">
                 <h3>Tabuleiro</h3>
                 <p>
-                    O tabuleiro padrão possui 4 linhas e um número ímpar de colunas (geralmente entre 7 e 15),
-                    sendo as linhas externas as de cada jogador.
+                    O tabuleiro padrão possui 4 linhas horizontais e um número ímpar de colunas (geralmente entre 7 e 15).
                 </p>
+                <ul>
+                    <li><strong>Linha 0 (superior):</strong> Linha inicial do jogador Vermelho</li>
+                    <li><strong>Linhas 1 e 2 (centrais):</strong> Área neutra de movimentação</li>
+                    <li><strong>Linha 3 (inferior):</strong> Linha inicial do jogador Azul</li>
+                </ul>
             </section>
 
             <section id="pecas">
                 <h3>Peças e colocação inicial</h3>
                 <ul>
                     <li>Cada jogador posiciona suas peças em todas as casas da linha inicial correspondente.</li>
-                    <li>Exemplo: em um tabuleiro 4×7, o jogador A ocupa todas as 7 casas da primeira linha; o jogador B ocupa as 7 da última.</li>
+                    <li>Exemplo: em um tabuleiro 4×7, o jogador Vermelho ocupa todas as 7 casas da linha 0; o jogador Azul ocupa as 7 casas da linha 3.</li>
+                    <li>Todas as peças começam <strong>inativas</strong> (bloqueadas) até serem ativadas.</li>
                 </ul>
             </section>
 
@@ -169,50 +177,159 @@
 
             <section id="lancamento">
                 <h3>Lançamento e valores</h3>
+                <p>O número de passos é determinado pela quantidade de faces planas após o lançamento:</p>
                 <ul>
-                    <li>0 planas (todas arqueadas): 6 passos + jogue novamente</li>
-                    <li>1 plana: 1 passo + jogue novamente</li>
-                    <li>2 planas: 2 passos</li>
-                    <li>3 planas: 3 passos</li>
-                    <li>4 planas: 4 passos + jogue novamente</li>
+                    <li><strong>0 planas</strong> (todas arqueadas): 6 passos + jogue novamente</li>
+                    <li><strong>1 plana:</strong> 1 passo + jogue novamente</li>
+                    <li><strong>2 planas:</strong> 2 passos</li>
+                    <li><strong>3 planas:</strong> 3 passos</li>
+                    <li><strong>4 planas:</strong> 4 passos + jogue novamente</li>
                 </ul>
+                <p><em>Nota:</em> Cada jogador só pode lançar os dados uma vez por turno. O valor obtido deve ser usado antes de passar a vez.</p>
             </section>
 
             <section id="ativacao">
                 <h3>Ativação</h3>
                 <p>
-                    Peças na linha inicial só podem ser ativadas com um lançamento de 1 (uma vareta plana).
-                    Após ativadas, movem uma casa e o jogador lança novamente.
+                    Peças na linha inicial começam <strong>bloqueadas</strong> (inativas) e só podem ser ativadas
+                    com um lançamento de <strong>1</strong> (uma vareta plana).
                 </p>
+                <ul>
+                    <li>Ao ativar, a peça move exatamente 1 casa no caminho correspondente.</li>
+                    <li>Após ativação, o jogador ganha um lançamento adicional (bônus).</li>
+                    <li>Uma peça ativada permanece ativa pelo resto do jogo.</li>
+                </ul>
             </section>
 
             <section id="movimento">
-                <h3>Movimento das peças</h3>
-                <p>
-                    As peças movem-se da direita para a esquerda nas linhas 2 e 4,
-                    e da esquerda para a direita nas linhas 1 e 3.
-                </p>
+                <h3>Movimento normal das peças</h3>
+                <p>As peças movem-se seguindo um padrão específico conforme sua cor:</p>
+                <ul>
+                    <li>Apenas peças <strong>ativas</strong> podem ser movidas (exceto durante ativação).</li>
+                    <li>O movimento segue um caminho contínuo específico para cada cor.</li>
+                    <li>Não é permitido empilhar peças da mesma cor na mesma casa.</li>
+                </ul>
             </section>
 
-            <section id="caminho">
-                <h3>Caminho das peças</h3>
+            <section id="caminho-detalhado">
+                <h3>Caminho detalhado por cor</h3>
+
+                <h4>Caminho do Jogador Vermelho (Linha 0)</h4>
+                <ol>
+                    <li><strong>Linha 0:</strong> Move da direita para esquerda (col n → col 0)</li>
+                    <li><strong>Linha 1:</strong> Move da esquerda para direita (col 0 → col n)</li>
+                    <li><strong>Linha 2:</strong> Move da direita para esquerda (col n → col 0)</li>
+                    <li><strong>Ponto de decisão (linha 2, col 0):</strong>
+                        <ul>
+                            <li>Pode continuar para linha 1 (retorno ao circuito neutro)</li>
+                            <li>Pode entrar na linha 3 (território inimigo azul) se condições forem atendidas</li>
+                        </ul>
+                    </li>
+                    <li><strong>Linha 3 (se entrar):</strong> Move da esquerda para direita (col 0 → col n), depois retorna à linha 2</li>
+                </ol>
+
+                <h4>Caminho do Jogador Azul (Linha 3)</h4>
+                <ol>
+                    <li><strong>Linha 3:</strong> Move da esquerda para direita (col 0 → col n)</li>
+                    <li><strong>Linha 2:</strong> Move da direita para esquerda (col n → col 0)</li>
+                    <li><strong>Linha 1:</strong> Move da esquerda para direita (col 0 → col n)</li>
+                    <li><strong>Ponto de decisão (linha 1, col n):</strong>
+                        <ul>
+                            <li>Pode continuar para linha 2 (retorno ao circuito neutro)</li>
+                            <li>Pode entrar na linha 0 (território inimigo vermelho) se condições forem atendidas</li>
+                        </ul>
+                    </li>
+                    <li><strong>Linha 0 (se entrar):</strong> Move da direita para esquerda (col n → col 0), depois retorna à linha 1</li>
+                </ol>
+            </section>
+
+            <section id="territorio-inimigo">
+                <h3>Território inimigo</h3>
+                <p>O território inimigo é a linha inicial do adversário:</p>
+                <ul>
+                    <li><strong>Para Vermelho:</strong> Linha 3 é território inimigo</li>
+                    <li><strong>Para Azul:</strong> Linha 0 é território inimigo</li>
+                </ul>
+
+                <h4>Condições para entrar no território inimigo</h4>
+                <p>Uma peça só pode entrar no território inimigo se:</p>
+                <ol>
+                    <li>O inimigo ainda possui peças em sua linha inicial, OU</li>
+                    <li>A peça já está no território inimigo (pode continuar movendo dentro dele)</li>
+                </ol>
+                <p><strong>Importante:</strong> Se o inimigo não tiver mais peças em sua linha inicial, peças no território neutro não podem entrar no território inimigo.</p>
+            </section>
+
+            <section id="regras-territorio">
+                <h3>Regras do território inimigo</h3>
+
+                <h4>Restrição de retorno</h4>
                 <p>
-                    Ao fim da linha 3, o jogador pode optar por entrar na linha 4 (território inimigo) ou continuar nas linhas centrais.
-                    A entrada no território inimigo só é permitida se existirem peças adversárias ali.
+                    Uma vez que uma peça <strong>sai completamente</strong> do território inimigo (retorna às linhas neutras),
+                    ela <strong>NÃO PODE MAIS RETORNAR</strong> ao território inimigo pelo resto do jogo.
                 </p>
+                <ul>
+                    <li>Peças que completaram o território inimigo recebem marca especial (visual)</li>
+                    <li>Estas peças só podem circular pelas linhas 1 e 2 (neutras)</li>
+                    <li>Tentativas de retorno ao território inimigo são bloqueadas automaticamente</li>
+                </ul>
+
+                <h4>Exemplo prático</h4>
+                <p><strong>Jogador Vermelho:</strong></p>
+                <ol>
+                    <li>Peça entra na linha 3 (território azul) pela posição (3, 0)</li>
+                    <li>Peça move pela linha 3 até a posição (3, 6)</li>
+                    <li>Peça sai do território inimigo retornando à linha 2</li>
+                    <li><strong>Agora esta peça está marcada e NÃO PODE mais entrar na linha 3</strong></li>
+                    <li>Peça só pode circular entre linhas 0, 1 e 2</li>
+                </ol>
+            </section>
+
+            <section id="congelamento">
+                <h3>Congelamento de peças</h3>
+                <p>Peças que estão no território inimigo ficam <strong>congeladas</strong> sob certas condições:</p>
+
+                <h4>Regra de congelamento</h4>
+                <ul>
+                    <li>Se você possui peças <strong>inativas</strong> (bloqueadas) em sua linha inicial</li>
+                    <li>E possui peças no território inimigo</li>
+                    <li>Então: <strong>as peças no território inimigo NÃO PODEM se mover</strong></li>
+                </ul>
+
+                <h4>Como descongelar</h4>
+                <p>Para que peças no território inimigo possam mover novamente:</p>
+                <ol>
+                    <li>Todas as peças da sua linha inicial devem estar ativas, OU</li>
+                    <li>Todas as peças da sua linha inicial devem ter saído dela</li>
+                </ol>
+
+                <h4>Exemplo prático</h4>
+                <p><strong>Situação:</strong> Jogador Vermelho tem:</p>
+                <ul>
+                    <li>3 peças inativas na linha 0</li>
+                    <li>2 peças circulando nas linhas 1 e 2</li>
+                    <li>1 peça no território inimigo (linha 3)</li>
+                </ul>
+                <p><strong>Resultado:</strong> A peça na linha 3 está CONGELADA e não pode se mover até que todas as peças da linha 0 sejam ativadas.</p>
             </section>
 
             <section id="captura">
                 <h3>Captura</h3>
                 <p>
-                    Ao pousar numa casa ocupada por uma peça inimiga, esta é removida do tabuleiro.
+                    Ao pousar numa casa ocupada por uma peça inimiga, esta é <strong>removida do tabuleiro</strong> permanentemente.
                 </p>
+                <ul>
+                    <li>Capturas são indicadas visualmente com animação especial</li>
+                    <li>Capturas no território inimigo valem pontos estratégicos adicionais</li>
+                    <li>Não é possível capturar peças aliadas</li>
+                </ul>
             </section>
 
             <section id="vitoria">
                 <h3>Condição de vitória</h3>
                 <p>
                     O jogo termina quando todas as peças de um jogador são capturadas.
+                    O jogador com peças restantes no tabuleiro é declarado vencedor.
                 </p>
             </section>
 
