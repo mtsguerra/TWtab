@@ -4,384 +4,309 @@
     <meta charset="utf-8" />
     <title>Tâb</title>
     <link href="sty.css" rel="stylesheet"/>
+
+    <!-- Core Scripts -->
     <script src="scripts/account-panel.js" defer></script>
     <script src="scripts/togglesLeftBarScript.js" defer></script>
-    <script src="scripts/startingGameScript.js" defer></script>
-    <script src="scripts/rollScript.js" defer></script>
+
+    <!-- Game Logic (must load before AI) -->
     <script src="scripts/gameLogicScript.js" defer></script>
+    <script src="scripts/rollScript.js" defer></script>
     <script src="scripts/skipButtonScript.js" defer></script>
+    <script src="scripts/forfeitButtonScript.js" defer></script>
+
+    <!-- AI Scripts (load after game logic) -->
+    <script src="scripts/aiPlayerScript.js" defer></script>
+    <script src="scripts/aiIntegrationScript.js" defer></script>
+
+    <!-- Starting Game Script (must load last) -->
+    <script src="scripts/startingGameScript.js" defer></script>
 
 </head>
 <body>
-    <header id="site-header">
-        <nav class="navbar">
-            <h1 id="header-title">Tâb</h1>
-            <!-- Header actions aligned to the far right -->
-            <!-- Header actions aligned to the far right -->
-            <div class="header-actions" role="group" aria-label="Conta">
-                <h4>Conta</h4>
-                <!-- Icon button: replace img src with your image later -->
-                <button id="account-btn"
-                        class="icon-btn"
-                        aria-haspopup="true"
-                        aria-controls="account-panel"
-                        aria-expanded="false"
-                        title="Entrar / Criar conta">
-                    <img src="media/loginIcon.png" alt="Ícone de conta (substitua)"/>
-                </button>
+<header id="site-header">
+    <nav class="navbar">
+        <h1 id="header-title">Tâb</h1>
+        <div class="header-actions" role="group" aria-label="Conta">
+            <h4>Conta</h4>
+            <button id="account-btn"
+                    class="icon-btn"
+                    aria-haspopup="true"
+                    aria-controls="account-panel"
+                    aria-expanded="false"
+                    title="Entrar / Criar conta">
+                <img src="media/loginIcon.png" alt="Ícone de conta"/>
+            </button>
 
-                <!-- Small dropdown panel that appears below the button -->
-                <div id="account-panel" class="account-panel" role="dialog" aria-modal="false" aria-labelledby="account-panel-title" hidden>
-                    <div class="panel-inner" role="document">
-                        <h3 id="account-panel-title">Entrar</h3>
+            <div id="account-panel" class="account-panel" role="dialog" aria-modal="false" aria-labelledby="account-panel-title" hidden>
+                <div class="panel-inner" role="document">
+                    <h3 id="account-panel-title">Entrar</h3>
 
-                        <form id="login-form" action="/login" method="post" novalidate>
-                            <label for="username">Username</label>
-                            <input id="username" name="username" type="text" autocomplete="username" required />
+                    <form id="login-form" action="/login" method="post" novalidate>
+                        <label for="username">Username</label>
+                        <input id="username" name="username" type="text" autocomplete="username" required />
 
-                            <label for="password">Senha</label>
-                            <input id="password" name="password" type="password" autocomplete="current-password" required />
+                        <label for="password">Senha</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required />
 
-                            <div class="panel-row">
-                                <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
-                            </div>
-
-                            <div class="panel-create">
-                                <a href="/signup" class="create-link" id="create-account">Criar conta</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <!-- changed id -> class "container" so CSS matches -->
-    <div class="container" id="main-content">
-        <aside class="sidebar collapsed" id="left-bar" tabindex="0" aria-labelledby="rules-title" aria-hidden="true">
-            <!-- minimized button shown when collapsed -->
-            <div class="rules-minimized" aria-hidden="false">
-                <h2>Teste</h2>
-                <ul class="rules-list">
-                    <li><button class="left-bar-toggles" id="rules-toggle" aria-controls="left-bar" aria-expanded="false" title="Abrir regras">
-                        Regras
-                    </button></li>
-                    <li><button class="left-bar-toggles" id="class-toggle" aria-controls="left-bar" aria-expanded="false" title="Ver classificação">
-                        Classificação
-                    </button></li>
-                </ul>
-            </div>
-
-            <div class="class-content" id="class-content" hidden>
-                <h2 id="class-title">Classificação</h2>
-                <div class="class-content" id="class-table">
-                    <h3 style="align-self: center">Ranking</h3>
-                    <ol id="class-table-items">
-                        <li id="first-place">player1234 - 1000pts</li>
-                        <li id="second-place">player727 - 900pts</li>
-                        <li id="third-place">player09098 - 800pts</li>
-                        <li id="remaining-place">...</li>
-                    </ol>
-                </div>
-            </div>
-
-            <!-- full content hidden when collapsed -->
-            <div class="rules-content" id="rules-content" hidden>
-                <h2 id="rules-title">Regras completas — Tâb</h2>
-
-                <!-- Sumário (links internos para pular às seções) -->
-                <nav class="rules-toc" aria-label="Sumário das regras">
-                    <strong>Sumário</strong>
-                    <ol>
-                        <li><a href="#introducao">Introdução</a></li>
-                        <li><a href="#tabuleiro">Tabuleiro</a></li>
-                        <li><a href="#pecas">Peças e colocação inicial</a></li>
-                        <li><a href="#objetivo">Objetivo</a></li>
-                        <li><a href="#equipamento">Equipamento (varetas)</a></li>
-                        <li><a href="#lancamento">Lançamento e valores</a></li>
-                        <li><a href="#ativacao">Ativação: o lançamento "tâb"</a></li>
-                        <li><a href="#movimento">Movimento normal das peças</a></li>
-                        <li><a href="#caminho">Caminho das peças</a></li>
-                        <li><a href="#captura">Captura</a></li>
-                        <li><a href="#empilhamento">Empilhamento / deslocamento em grupo</a></li>
-                        <li><a href="#separacao">Separação de pilhas</a></li>
-                        <li><a href="#turno">Sequência de turno</a></li>
-                        <li><a href="#vitoria">Condição de vitória</a></li>
-                        <li><a href="#variacoes">Variações regionais</a></li>
-                        <li><a href="#fontes">Fontes</a></li>
-                    </ol>
-                </nav>
-
-                <!-- Conteúdo detalhado -->
-                <section id="introducao">
-                    <h3>Introdução</h3>
-                    <p>
-                        Tâb é um jogo de corrida / captura tradicional do norte da África e da Península Arábica,
-                        jogado por duas pessoas. As regras variam regionalmente; abaixo segue uma versão
-                        abrangente das regras tradicionais tal como descritas nas fontes históricas e modernas.
-                    </p>
-                </section>
-
-                <section id="tabuleiro">
-                    <h3>Tabuleiro</h3>
-                    <p>
-                        O tabuleiro típico tem 4 linhas (duas linhas exteriores — uma para cada jogador — e duas
-                        linhas do meio) e um número ímpar de colunas, frequentemente entre 7 e 15. As colunas
-                        determinam o percurso que as peças seguem. Em algumas variantes o número de colunas é fixo.
-                    </p>
-                </section>
-
-                <section id="pecas">
-                    <h3>Peças e colocação inicial</h3>
-                    <ul>
-                        <li>Cada jogador tem peças idênticas (normalmente 1 peça por casa) colocadas em cada casa da sua linha inicial (linha exterior mais próxima do jogador).</li>
-                        <li>Assim, numa configuração 4×7, o jogador A ocupa todas as 7 casas da primeira linha; o jogador B ocupa as 7 casas da última linha, em oposição.</li>
-                    </ul>
-                </section>
-
-                <section id="objetivo">
-                    <h3>Objetivo</h3>
-                    <p>O objetivo é capturar todas as peças do adversário, removendo-as do tabuleiro.</p>
-                </section>
-
-                <section id="equipamento">
-                    <h3>Equipamento (varetas)</h3>
-                    <p>
-                        Em vez de dados usa‑se um conjunto de 4 varetas de lançamento (casting sticks). Cada vareta tem dois lados distintos:
-                        um lado 'plano' (geralmente a face clara) e um lado 'arqueado' (a face escura). O resultado do lançamento é o número de faces planas voltadas para cima.
-                    </p>
-                </section>
-
-                <section id="lancamento">
-                    <h3>Lançamento e valores</h3>
-                    <p>
-                        Ao lançar as 4 varetas conta‑se quantas faces planas (ou "caras") ficaram para cima:
-                    </p>
-                    <ul>
-                        <li>0 planas (todas arqueadas): costuma ser chamado de "0" ou ter efeito especial em algumas variantes.</li>
-                        <li>1 plana: movimento de 1 casa.</li>
-                        <li>2 planas: movimento de 2 casas.</li>
-                        <li>3 planas: movimento de 3 casas.</li>
-                        <li>4 planas: movimento de 4 casas (às vezes também chamado "rápido").</li>
-                    </ul>
-                    <p>
-                        Em muitas descrições, alguns resultados (especialmente o lançamento que dá origem ao termo "tâb")
-                        têm efeitos adicionais — ver a seção de ativação e regras especiais.
-                    </p>
-                </section>
-
-                <section id="ativacao">
-                    <h3>Ativação: o lançamento "tâb"</h3>
-                    <p>
-                        Uma regra central é que as peças na linha inicial não podem normalmente mover-se livremente até serem "ativadas".
-                        A ativação costuma exigir um resultado específico no lançamento — tradicionalmente chamado de "tâb".
-                        Dependendo da variante, um "tâb" pode ser:
-                    </p>
-                    <ul>
-                        <li>um resultado particular das varetas (por exemplo, 0 planas ou 4 planas em algumas variantes),</li>
-                        <li>ou uma combinação especial (por exemplo, duas varetas de cada lado) que permite tirar peças da linha inicial.</li>
-                    </ul>
-                    <p>
-                        Quando uma peça é ativada, ela passa a poder entrar no percurso pelo qual as peças circulam.
-                        Em muitas regras, a ativação também permite dividir pilhas ou mover uma peça individualmente.
-                    </p>
-                </section>
-
-                <section id="movimento">
-                    <h3>Movimento normal das peças</h3>
-                    <p>
-                        - O jogador lança as 4 varetas e escolhe uma (ou mais, conforme variantes) peça(s) para mover pelo número obtido.
-                        - O movimento segue um percurso determinado pelo desenho do tabuleiro (veja "Caminho das peças").
-                        - Apenas peças ativadas podem iniciar o percurso a partir da linha inicial; peças no percurso movem-se conforme o resultado do lançamento.
-                        - Se uma peça terminar a jogada em uma casa ocupada pelo adversário, a peça adversária é capturada e removida do tabuleiro.
-                    </p>
-                </section>
-
-                <section id="caminho">
-                    <h3>Caminho das peças</h3>
-                    <p>
-                        As peças geralmente circulam das linhas iniciais, atravessam as duas linhas do meio em forma de circuito e podem, em algumas regras,
-                        entrar na linha inicial do adversário. Regras comuns sobre o percurso:
-                    </p>
-                    <ul>
-                        <li>As peças não voltam à própria linha inicial depois de a deixarem (ou só o podem fazer em variantes específicas).</li>
-                        <li>Ao alcançarem a linha inicial adversária, as peças podem ser capturadas lá ou podem sair do tabuleiro dependendo da variante.</li>
-                        <li>O percurso pode ser serpenteante: por exemplo, da linha inicial vá para a linha intermediária mais próxima, percorra colunas, depois para a outra linha intermediária e finalmente para a linha inicial adversária.</li>
-                    </ul>
-                    <p>Consulte o desenho do seu tabuleiro local para definir o caminho exato; as regras de movimento aplicam‑se ao traçado definido.</p>
-                </section>
-
-                <section id="captura">
-                    <h3>Captura</h3>
-                    <p>
-                        - Pousar numa casa ocupada por uma peça adversária remove a peça adversária do tabuleiro (captura).
-                        - Se houver uma pilha de peças adversárias, regras podem variar: normalmente pousar na mesma casa captura toda a pilha inimiga.
-                        - O jogador captura usando a peça que chega; não há captura por salto (exceto em variantes específicas).
-                    </p>
-                </section>
-
-                <section id="empilhamento">
-                    <h3>Empilhamento / deslocamento em grupo</h3>
-                    <p>
-                        - Se uma peça pousa numa casa onde já existem peças do mesmo jogador, as peças formam uma pilha (stack).
-                        - Pilhas movem‑se como uma unidade: ao mover a peça de cima, toda a pilha desloca‑se pelo número indicado.
-                        - Pilhas são vulneráveis: se uma pilha pousar numa casa com peças adversárias, a pilha adversária é capturada.
-                    </p>
-                </section>
-
-                <section id="separacao">
-                    <h3>Separação de pilhas</h3>
-                    <p>
-                        - Em muitas variantes, a separação (dividir uma pilha em duas) só é permitida se o jogador obtiver um lançamento especial
-                        (por exemplo, o resultado "tâb") ou seguir regra local que permita quebrar a pilha.
-                        - Quando a separação é permitida, o jogador escolhe quantas peças separam do topo para mover independentemente.
-                    </p>
-                </section>
-
-                <section id="turno">
-                    <h3>Sequência de turno</h3>
-                    <ol>
-                        <li>O jogador lança as 4 varetas.</li>
-                        <li>Interpreta o resultado (nº de planas, possíveis efeitos especiais).</li>
-                        <li>Escolhe peça(s) ativadas ou pilha(s) para mover conforme o valor.</li>
-                        <li>Executa o movimento; aplica capturas e regras de empilhamento/separação.</li>
-                        <li>Em variantes, certos resultados concedem jogadas adicionais — aplique conforme a regra local.</li>
-                    </ol>
-                </section>
-
-                <section id="vitoria">
-                    <h3>Condição de vitória</h3>
-                    <p>
-                        O jogo termina quando um jogador captura todas as peças do adversário. Em algumas variantes existem condições alternativas (por exemplo,
-                        expulsar todas as peças do adversário para fora do tabuleiro ou atingir uma posição final).
-                    </p>
-                </section>
-
-                <section id="variacoes">
-                    <h3>Variações regionais</h3>
-                    <p>
-                        Há muitas variantes regionais: diferenças podem incluir o número exato de colunas, o significado exato do lançamento "tâb",
-                        regras para 0 ou 4 planas, se pilhas capturam parcialmente ou totalmente, e se peças podem sair do tabuleiro ao chegar à linha adversária.
-                    </p>
-                    <p>
-                        Recomenda‑se combinar as regras com o adversário antes de começar (por exemplo: qual lançamento ativa peças; 0 planas é penalidade ou bônus; regras para dividir pilhas).
-                    </p>
-                </section>
-
-                <section id="fontes">
-                    <h3>Fontes</h3>
-                    <p>
-                        Resumo baseado em descrições históricas e modernas do jogo (Wikipedia e guias de regras). Consulte:
-                        <a href="https://en.wikipedia.org/wiki/T%C3%A2b" target="_blank" rel="noopener">Wikipedia — Tâb</a>
-                        e adaptações modernas para detalhes e variantes.
-                    </p>
-                </section>
-            </div>
-        </aside>
-
-        <main>
-            <!-- Caixa de mensagens -->
-            <div class="message-box" id="msg-box">
-                <h3>Relátorio de jogo:</h3>
-                <div class="message" id="msg">
-                    <p>Bem-vindo ao Tâb! Clique em "Jogar" para iniciar um novo jogo.</p>
-                </div>
-            </div>
-
-            <!-- 👇 Tabuleiro logo abaixo da message box -->
-            <section id="game-board" class="game-board hidden">teste123</section>
-
-            <!-- Botão para abrir o menu -->
-            <div id="playBtn" class="play-button" role="button" tabindex="0"
-                 aria-haspopup="dialog" aria-controls="playDialog"
-                 aria-expanded="false" title="Play">
-                Jogar
-            </div>
-
-            <!-- Modal dialog / menu -->
-            <div id="overlay" class="overlay hidden" data-hidden="true">
-                <div id="playDialog" class="dialog" role="dialog"
-                     aria-modal="true" aria-labelledby="dialogTitle">
-
-                    <h2 id="dialogTitle">Novo Jogo</h2>
-
-                    <form id="playForm" autocomplete="off">
-
-                        <!-- Tamanho do tabuleiro -->
-                        <label for="boardSize">Tamanho do tabuleiro</label>
-                        <input
-                                id="boardSize"
-                                name="boardSize"
-                                type="number"
-                                min="5"
-                                max="15"
-                                step="2"
-                                value="7"
-                                title="Escolha um tamanho ímpar (7, 9, 11...)"
-                        />
-
-                        <!-- Tipo de adversário -->
-                        <fieldset>
-                            <legend>Adversário</legend>
-                            <label>
-                                <input type="radio" name="opponent" value="human" checked /> Humano
-                            </label>
-                            <label>
-                                <input type="radio" name="opponent" value="pc" /> Computador
-                            </label>
-                        </fieldset>
-
-                        <!-- Opções adicionais para computador -->
-                        <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
-                            <label for="difficulty">Dificuldade</label>
-                            <select id="difficulty" name="difficulty">
-                                <option value="easy">Fácil</option>
-                                <option value="medium" selected>Médio</option>
-                                <option value="hard">Difícil</option>
-                            </select>
+                        <div class="panel-row">
+                            <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
                         </div>
 
-                        <!-- Quem começa -->
-                        <label for="starter">Quem começa</label>
-                        <select id="starter" name="starter">
-                            <option value="player" selected>Vermelho</option>
-                            <option value="pc">Azul</option>
-                            <option value="random">Aleatório</option>
-                        </select>
-
-                        <div class="actions">
-                            <button type="button" id="cancelBtn" class="btn btn-secondary">Cancel</button>
-                            <button type="submit" id="confirmBtn" class="btn btn-primary">Confirm</button>
+                        <div class="panel-create">
+                            <a href="/signup" class="create-link" id="create-account">Criar conta</a>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+    </nav>
+</header>
 
-        </main>
+<div class="container" id="main-content">
+    <aside class="sidebar collapsed" id="left-bar" tabindex="0" aria-labelledby="rules-title" aria-hidden="true">
+        <div class="rules-minimized" aria-hidden="false">
+            <h2>Menu</h2>
+            <ul class="rules-list">
+                <li><button class="left-bar-toggles" id="rules-toggle" aria-controls="left-bar" aria-expanded="false" title="Abrir regras">
+                    Regras
+                </button></li>
+                <li><button class="left-bar-toggles" id="class-toggle" aria-controls="left-bar" aria-expanded="false" title="Ver classificação">
+                    Classificação
+                </button></li>
+            </ul>
+        </div>
 
+        <div class="class-content" id="class-content" hidden>
+            <h2 id="class-title">Classificação</h2>
+            <div class="class-content" id="class-table">
+                <h3 style="align-self: center">Ranking</h3>
+                <ol id="class-table-items">
+                    <li id="first-place">player1234 - 1000pts</li>
+                    <li id="second-place">player727 - 900pts</li>
+                    <li id="third-place">player09098 - 800pts</li>
+                    <li id="remaining-place">...</li>
+                </ol>
+            </div>
+        </div>
 
-        <aside class="sidebar" id="right-bar">
-            <h2>Comandos</h2>
-            <div class="dice-area">
-                <button id="roll-dice">Jogar</button>
-                <div class="dice-result">
-                    <div class="dice-images">
-                        <!-- imagens aparecerão aqui -->
+        <div class="rules-content" id="rules-content" hidden>
+            <h2 id="rules-title">Regras completas — Tâb</h2>
+
+            <nav class="rules-toc" aria-label="Sumário das regras">
+                <strong>Sumário</strong>
+                <ol>
+                    <li><a href="#introducao">Introdução</a></li>
+                    <li><a href="#tabuleiro">Tabuleiro</a></li>
+                    <li><a href="#pecas">Peças e colocação inicial</a></li>
+                    <li><a href="#objetivo">Objetivo</a></li>
+                    <li><a href="#equipamento">Equipamento (varetas)</a></li>
+                    <li><a href="#lancamento">Lançamento e valores</a></li>
+                    <li><a href="#ativacao">Ativação: o lançamento "tâb"</a></li>
+                    <li><a href="#movimento">Movimento normal das peças</a></li>
+                    <li><a href="#caminho">Caminho das peças</a></li>
+                    <li><a href="#captura">Captura</a></li>
+                    <li><a href="#empilhamento">Empilhamento / deslocamento em grupo</a></li>
+                    <li><a href="#separacao">Separação de pilhas</a></li>
+                    <li><a href="#turno">Sequência de turno</a></li>
+                    <li><a href="#vitoria">Condição de vitória</a></li>
+                    <li><a href="#variacoes">Variações regionais</a></li>
+                    <li><a href="#fontes">Fontes</a></li>
+                </ol>
+            </nav>
+
+            <section id="introducao">
+                <h3>Introdução</h3>
+                <p>
+                    Tâb é um jogo de corrida / captura tradicional do norte da África e da Península Arábica,
+                    jogado por duas pessoas. As regras variam regionalmente; abaixo segue uma versão
+                    abrangente das regras tradicionais tal como descritas nas fontes históricas e modernas.
+                </p>
+            </section>
+
+            <section id="tabuleiro">
+                <h3>Tabuleiro</h3>
+                <p>
+                    O tabuleiro típico tem 4 linhas (duas linhas exteriores — uma para cada jogador — e duas
+                    linhas do meio) e um número ímpar de colunas, frequentemente entre 7 e 15.
+                </p>
+            </section>
+
+            <section id="pecas">
+                <h3>Peças e colocação inicial</h3>
+                <ul>
+                    <li>Cada jogador tem peças idênticas colocadas em cada casa da sua linha inicial.</li>
+                    <li>Numa configuração 4×7, o jogador A ocupa todas as 7 casas da primeira linha; o jogador B ocupa as 7 casas da última linha.</li>
+                </ul>
+            </section>
+
+            <section id="objetivo">
+                <h3>Objetivo</h3>
+                <p>O objetivo é capturar todas as peças do adversário, removendo-as do tabuleiro.</p>
+            </section>
+
+            <section id="equipamento">
+                <h3>Equipamento (varetas)</h3>
+                <p>
+                    Usa-se um conjunto de 4 varetas de lançamento. Cada vareta tem dois lados distintos:
+                    um lado 'plano' (face clara) e um lado 'arqueado' (face escura).
+                </p>
+            </section>
+
+            <section id="lancamento">
+                <h3>Lançamento e valores</h3>
+                <ul>
+                    <li>0 planas (todas arqueadas): 6 passos + jogue novamente</li>
+                    <li>1 plana: 1 passo + jogue novamente</li>
+                    <li>2 planas: 2 passos</li>
+                    <li>3 planas: 3 passos</li>
+                    <li>4 planas: 4 passos + jogue novamente</li>
+                </ul>
+            </section>
+
+            <section id="ativacao">
+                <h3>Ativação</h3>
+                <p>
+                    Peças na linha inicial só podem mover-se pela primeira vez quando tirar 1 (uma vareta plana).
+                    Após ativação, a peça move 1 casa e você pode jogar novamente.
+                </p>
+            </section>
+
+            <section id="movimento">
+                <h3>Movimento das peças</h3>
+                <p>
+                    As peças movem-se da direita para esquerda nas linhas 2 e 4, e da esquerda para direita nas linhas 1 e 3
+                    (da perspectiva do jogador).
+                </p>
+            </section>
+
+            <section id="caminho">
+                <h3>Caminho das peças</h3>
+                <p>
+                    No final da linha 3, pode escolher entrar na linha 4 (território inimigo) ou continuar nas linhas 2 e 3.
+                    Só pode entrar no território inimigo se houver peças inimigas lá.
+                    Peças no território inimigo só podem mover se não tiver peças na sua linha inicial.
+                </p>
+            </section>
+
+            <section id="captura">
+                <h3>Captura</h3>
+                <p>
+                    Pousar numa casa ocupada por uma peça adversária remove a peça adversária do tabuleiro.
+                </p>
+            </section>
+
+            <section id="vitoria">
+                <h3>Condição de vitória</h3>
+                <p>
+                    O jogo termina quando um jogador captura todas as peças do adversário.
+                </p>
+            </section>
+
+            <section id="fontes">
+                <h3>Fontes</h3>
+                <p>
+                    Consulte: <a href="https://en.wikipedia.org/wiki/T%C3%A2b" target="_blank" rel="noopener">Wikipedia — Tâb</a>
+                </p>
+            </section>
+        </div>
+    </aside>
+
+    <main>
+        <div class="message-box" id="msg-box">
+            <h3>Relatório de jogo:</h3>
+            <div class="message" id="msg">
+                <p>Bem-vindo ao Tâb! Clique em "Jogar" para iniciar um novo jogo.</p>
+            </div>
+        </div>
+
+        <section id="game-board" class="game-board hidden">tabuleiro</section>
+
+        <div id="playBtn" class="play-button" role="button" tabindex="0"
+             aria-haspopup="dialog" aria-controls="playDialog"
+             aria-expanded="false" title="Play">
+            Jogar
+        </div>
+
+        <div id="overlay" class="overlay hidden" data-hidden="true">
+            <div id="playDialog" class="dialog" role="dialog"
+                 aria-modal="true" aria-labelledby="dialogTitle">
+
+                <h2 id="dialogTitle">Novo Jogo</h2>
+
+                <form id="playForm" autocomplete="off">
+
+                    <label for="boardSize">Tamanho do tabuleiro</label>
+                    <input
+                            id="boardSize"
+                            name="boardSize"
+                            type="number"
+                            min="5"
+                            max="15"
+                            step="2"
+                            value="7"
+                            title="Escolha um tamanho ímpar (7, 9, 11...)"
+                    />
+
+                    <fieldset>
+                        <legend>Adversário</legend>
+                        <label>
+                            <input type="radio" name="opponent" value="human" checked /> Humano
+                        </label>
+                        <label>
+                            <input type="radio" name="opponent" value="pc" /> Computador (IA)
+                        </label>
+                    </fieldset>
+
+                    <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
+                        <label for="difficulty">Dificuldade da IA</label>
+                        <select id="difficulty" name="difficulty">
+                            <option value="easy">Fácil (Aleatório)</option>
+                            <option value="medium" selected>Médio (Balanceado)</option>
+                            <option value="hard">Difícil (Estratégico)</option>
+                        </select>
                     </div>
-                    <div class="dice-total">Resultado: —</div>
+
+                    <label for="starter">Quem começa</label>
+                    <select id="starter" name="starter">
+                        <option value="player" selected>Vermelho (você ou IA)</option>
+                        <option value="pc">Azul</option>
+                        <option value="random">Aleatório</option>
+                    </select>
+
+                    <div class="actions">
+                        <button type="button" id="cancelBtn" class="btn btn-secondary">Cancelar</button>
+                        <button type="submit" id="confirmBtn" class="btn btn-primary">Confirmar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <aside class="sidebar" id="right-bar">
+        <h2>Comandos</h2>
+        <div class="dice-area">
+            <button id="roll-dice">Jogar Dados</button>
+            <div class="dice-result">
+                <div class="dice-images">
+                    <!-- imagens dos dados aparecem aqui -->
                 </div>
+                <div class="dice-total">Resultado: —</div>
             </div>
-            <div class="skip" id="skip-button" role="button" tabindex="0">
-                pular a vez
-            </div>
-            <div class="forfeit" id="forfeit-button" role="button" tabindex="0">
-                desistir
-            </div>
-        </aside>
-    </div>
-    <div class="footer">
-        <h1>footer</h1>
-    </div>
+        </div>
+        <div class="skip" id="skip-button" role="button" tabindex="0">
+            pular a vez
+        </div>
+        <div class="forfeit" id="forfeit-button" role="button" tabindex="0">
+            desistir
+        </div>
+    </aside>
+</div>
+
+<div class="footer">
+    <h1>Tâb - Jogo de Tabuleiro Tradicional</h1>
+</div>
 
 </body>
 </html>
