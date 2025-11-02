@@ -812,7 +812,31 @@ function setupCellClickHandlers() {
     });
 }
 
-// Export functions for use in other scripts
+// Add this at the END of your gameLogicScript.js file
+// This exports necessary functions for other scripts to use
+
+// Make these functions globally accessible
+window.clearSelection = clearSelection;
+window.clearHighlights = clearHighlights;
+window.switchTurn = switchTurn;
+window.getCellIndex = getCellIndex;
+window.getRowCol = getRowCol;
+window.findPieceAt = findPieceAt;
+window.movePiece = movePiece;
+window.capturePiece = capturePiece;
+window.checkWinCondition = checkWinCondition;
+window.endGame = endGame;
+window.updatePieceDisplay = updatePieceDisplay;
+window.highlightSelectedPiece = highlightSelectedPiece;
+window.showPossibleMoves = showPossibleMoves;
+window.canActivatePiece = canActivatePiece;
+window.isInEnemyTerritory = isInEnemyTerritory;
+window.isPositionInEnemyTerritory = isPositionInEnemyTerritory;
+window.enemyHasPiecesInInitialRow = enemyHasPiecesInInitialRow;
+window.hasNoPiecesInInitialRow = hasNoPiecesInInitialRow;
+window.getValidMoves = getValidMoves;
+
+// Keep the existing export
 window.gameLogic = {
     initializePieces,
     makeCurrentPlayerPiecesSelectable,
@@ -820,3 +844,5 @@ window.gameLogic = {
     skipTurn,
     gameState
 };
+
+console.log('Game logic functions exported globally');
