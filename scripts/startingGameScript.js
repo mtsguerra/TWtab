@@ -1,4 +1,4 @@
-// startingGameScript.js - Enhanced with AI game initialization
+// startingGameScript.js - Sistema de inicialização de jogo com suporte a AI
 
 const playBtn = document.getElementById('playBtn');
 const overlay = document.getElementById('overlay');
@@ -34,7 +34,7 @@ cancelBtn.addEventListener('click', (e) => {
     closeDialog();
 });
 
-// Show/hide PC options based on opponent selection
+// Exibe/oculta opções de PC baseado na seleção de oponente
 document.querySelectorAll('input[name="opponent"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
         if (e.target.value === 'pc') {
@@ -84,7 +84,7 @@ playForm.addEventListener('submit', (e) => {
     closeDialog();
     createBoard(settings.boardSize, settings.starter, settings.opponent, settings.difficulty);
 
-    // Enable roll button
+    // Habilita botão de lançamento
     document.getElementById('roll-dice').disabled = false;
 });
 
@@ -96,7 +96,7 @@ function createBoard(columns, starter, opponent, difficulty) {
     board.style.gridTemplateRows = `repeat(4, auto)`;
     board.style.gridTemplateColumns = `repeat(${columns}, auto)`;
 
-    // Create cells
+    // Cria células
     for (let row = 0; row < 4; row++) {
         for (let col = 0; col < columns; col++) {
             const cell = document.createElement('div');
@@ -105,15 +105,15 @@ function createBoard(columns, starter, opponent, difficulty) {
         }
     }
 
-    // Initialize game logic
+    // Inicializa lógica de jogo
     if (window.gameLogic) {
         window.gameLogic.initializePieces(columns);
         window.gameLogic.setupCellClickHandlers();
 
-        // Determine if this is an AI game
+        // Determina se é jogo contra AI
         const isAIGame = opponent === 'pc';
 
-        // Set starter
+        // Define jogador inicial
         let startingPlayer = 'red';
         if (starter === 'pc') {
             startingPlayer = 'blue';
@@ -123,7 +123,7 @@ function createBoard(columns, starter, opponent, difficulty) {
 
         window.gameLogic.gameState.currentPlayer = startingPlayer;
 
-        // Initialize AI if needed
+        // Inicializa AI se necessário
         if (isAIGame) {
             if (window.initAIGame) {
                 window.initAIGame(difficulty || 'medium');
@@ -135,7 +135,7 @@ function createBoard(columns, starter, opponent, difficulty) {
                 updateMessage('Erro ao carregar IA. Jogando como Humano vs Humano.');
             }
         } else {
-            // Disable AI for human vs human
+            // Desabilita AI para jogo humano vs humano
             if (window.disableAIGame) {
                 window.disableAIGame();
             }

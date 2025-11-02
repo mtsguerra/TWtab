@@ -1,13 +1,14 @@
 /* account-panel.js
  *
- * Resolve problema de o painel de "Conta" abrir atrás do container:
- * - Ao abrir, o painel é "teleportado" (portal) para document.body com position:fixed
- *   para escapar de stacking contexts/ordem de empilhamento do container.
- * - Posiciona o painel em relação ao botão (#account-btn).
- * - Mantém acessibilidade: aria-expanded/aria-hidden, foco no primeiro elemento (username),
- *   fechamento ao clicar fora, Escape, e tab-trap.
+ * Módulo de controle do painel de conta com posicionamento absoluto via portal pattern.
+ * Implementa solução para problema de z-index através de movimentação do elemento para document.body.
+ * Funcionalidades:
+ * - Reposicionamento do painel usando position:fixed para escape de stacking context
+ * - Cálculo de posicionamento relativo ao botão disparador (#account-btn)
+ * - Controles de acessibilidade: aria-expanded, aria-hidden, gestão de foco
+ * - Fechamento via clique externo, tecla Escape, e trap de foco via Tab
  *
- * Incluir na página:
+ * Inclusão requerida:
  * <script src="account-panel.js" defer></script>
  */
 
@@ -18,29 +19,29 @@
     const PANEL_ID = 'account-panel';
     const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const PORTAL_ZINDEX = 99999;
-    const GAP = 8; // espaçamento em px entre botão/painel e bordas
+    const GAP = 8; // Espaçamento em pixels entre botão/painel e bordas da viewport
 
     const btn = document.getElementById(BTN_ID);
     const panel = document.getElementById(PANEL_ID);
     if (!btn || !panel) return;
 
-    // Garantir type=button para evitar submissões acidentais
+    // Define type=button para prevenir submissão acidental de formulários
     try { if (!btn.getAttribute('type')) btn.setAttribute('type', 'button'); } catch (e) {}
 
-    // Estado
+    // Variáveis de estado do painel
     let isOpen = !panel.hasAttribute('hidden');
     let isPortalled = false;
     const placeholder = document.createComment('account-panel-placeholder');
     let onDocClick = null;
     let onDocKey = null;
 
-    // util: listagem focusables dentro do painel visível
+    // Retorna array de elementos focáveis visíveis dentro do painel
     function getFocusableElements() {
         return Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR))
             .filter(el => !el.hasAttribute('disabled') && el.offsetParent !== null);
     }
 
-    // Move painel para body (portal) e insere placeholder na posição original
+    // Transfere painel para document.body e insere marcador de posição original
     function portalize() {
         if (isPortalled) return;
         const parent = panel.parentNode;
@@ -49,52 +50,50 @@
         document.body.appendChild(panel);
         isPortalled = true;
 
-        // força estilos que ajudam no posicionamento fixo
+        // Aplica estilos para posicionamento fixo
         panel.style.position = 'fixed';
         panel.style.zIndex = String(PORTAL_ZINDEX);
         panel.style.willChange = 'top, left';
         panel.style.minWidth = panel.style.minWidth || panel.offsetWidth + 'px';
     }
 
-    // Restaura o painel à posição original no DOM e remove estilos inline adicionados
+    // Restaura painel à posição original no DOM e remove estilos inline
     function restoreFromPortal() {
         if (!isPortalled) return;
         placeholder.parentNode.insertBefore(panel, placeholder);
         placeholder.parentNode.removeChild(placeholder);
         isPortalled = false;
 
-        // limpar estilos inline que alteram o comportamento original
+        // Remove estilos inline aplicados durante portal
         panel.style.position = '';
         panel.style.left = '';
         panel.style.top = '';
         panel.style.zIndex = '';
         panel.style.willChange = '';
-        // manter hidden state controlado externamente
     }
 
-    // posiciona o painel (após ter sido mostrado/medido)
+    // Calcula e aplica posicionamento do painel relativo ao botão
     function positionPanelRelativeToButton() {
         const rect = btn.getBoundingClientRect();
 
-        // Garantir que o painel esteja visível ao medir (visibilidade:hidden para evitar "flash")
+        // Torna painel invisível temporariamente para medição sem efeito visual
         const prevVisibility = panel.style.visibility;
         panel.style.visibility = 'hidden';
-        panel.removeAttribute('hidden'); // precisa estar fora do flow para medir corretamente (já portalled)
-        // medir
+        panel.removeAttribute('hidden');
+
+        // Obtém dimensões do painel
         const pW = panel.offsetWidth;
         const pH = panel.offsetHeight;
 
-        // calcular left para alinhar a borda direita do painel com a borda direita do botão
+        // Calcula posição horizontal: alinha borda direita do painel com borda direita do botão
         let left = rect.right - pW;
-        // evitar ir além da borda esquerda da viewport
-        if (left < GAP) left = GAP;
+        if (left < GAP) left = GAP; // Previne overflow à esquerda
 
-        // normalmente abrir abaixo do botão; se extrapolar a viewport inferior, tenta abrir acima
+        // Calcula posição vertical: posiciona abaixo do botão por padrão
         let top = rect.bottom + GAP;
         if (top + pH > window.innerHeight - GAP) {
-            top = rect.top - pH - GAP;
-            // se ainda extrapolar topo, força dentro da viewport
-            if (top < GAP) top = GAP;
+            top = rect.top - pH - GAP; // Posiciona acima se não houver espaço abaixo
+            if (top < GAP) top = GAP; // Garante que não ultrapasse topo da viewport
         }
 
         panel.style.left = Math.round(left) + 'px';
@@ -112,17 +111,18 @@
 
         positionPanelRelativeToButton();
 
-        // foco preferencial: input#username, senão primeiro focusable
+        // Define foco: prioriza input#username, caso contrário primeiro elemento focável
         const prefer = panel.querySelector('#username');
         const firstFocusable = prefer || getFocusableElements()[0] || panel;
         try { firstFocusable.focus(); } catch (e) {}
 
-        // handlers
+        // Registra handler de clique externo para fechamento
         onDocClick = function (ev) {
             if (!panel.contains(ev.target) && !btn.contains(ev.target)) closePanel();
         };
         document.addEventListener('click', onDocClick, { capture: true });
 
+        // Registra handler de teclado para Escape e trap de foco
         onDocKey = function (ev) {
             if (ev.key === 'Escape' || ev.key === 'Esc') {
                 ev.preventDefault();
@@ -131,7 +131,7 @@
                 return;
             }
 
-            // foco preso (tab trap) dentro do painel
+            // Implementa trap de foco: Tab circula entre elementos focáveis do painel
             if (ev.key === 'Tab') {
                 const focusables = getFocusableElements();
                 if (focusables.length === 0) return;
@@ -149,7 +149,7 @@
         };
         document.addEventListener('keydown', onDocKey, true);
 
-        // fechar automaticamente se o usuário redimensionar/scrollar excessivamente
+        // Registra handlers para reposicionamento ou fechamento em mudanças de viewport
         window.addEventListener('resize', handleWindowChange, { passive: true });
         window.addEventListener('scroll', handleWindowChange, { passive: true });
     }
@@ -161,7 +161,7 @@
         btn.setAttribute('aria-expanded', 'false');
         isOpen = false;
 
-        // remover handlers
+        // Remove event listeners
         if (onDocClick) {
             document.removeEventListener('click', onDocClick, { capture: true });
             onDocClick = null;
@@ -173,7 +173,7 @@
         window.removeEventListener('resize', handleWindowChange);
         window.removeEventListener('scroll', handleWindowChange);
 
-        // opcional: restaurar ao DOM original (para manter markup original)
+        // Restaura painel à posição original no DOM
         restoreFromPortal();
     }
 
@@ -183,7 +183,7 @@
     }
 
     function handleWindowChange() {
-        // Se aberto, reposiciona; se a janela mudou drasticamente, fecha (evita painéis "fora")
+        // Reposiciona painel em mudanças de viewport; fecha em caso de erro
         if (!isOpen) return;
         try {
             positionPanelRelativeToButton();
@@ -192,18 +192,18 @@
         }
     }
 
-    // Clique no botão: alterna; evita propagação para que handler global não feche imediatamente
+    // Handler de clique no botão: alterna estado e previne propagação
     btn.addEventListener('click', function (ev) {
         ev.stopPropagation();
         togglePanel();
     });
 
-    // Fecha se foco sair completamente do painel (caso o usuário navegue com teclado)
+    // Handler de focusin: fecha painel quando foco sai completamente
     document.addEventListener('focusin', function (ev) {
         if (!isOpen) return;
         const t = ev.target;
         if (!panel.contains(t) && !btn.contains(t)) {
-            // permitir que foco se estabilize (ex: mudança de foco dentro do painel)
+            // Timeout para permitir estabilização de foco antes de verificação
             setTimeout(function () {
                 const active = document.activeElement;
                 if (!panel.contains(active) && !btn.contains(active)) closePanel();
@@ -211,11 +211,11 @@
         }
     }, true);
 
-    // Inicializa atributos ARIA coerentes
+    // Inicializa atributos ARIA conforme estado inicial
     if (!btn.hasAttribute('aria-expanded')) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     if (!panel.hasAttribute('aria-hidden')) panel.setAttribute('aria-hidden', panel.hasAttribute('hidden') ? 'true' : 'false');
 
-    // expor API para debug se necessário
+    // Expõe API pública para controle programático
     window.__accountPanel = {
         open: openPanel,
         close: closePanel,

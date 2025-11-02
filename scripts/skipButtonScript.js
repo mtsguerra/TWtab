@@ -1,4 +1,4 @@
-// skipButtonScript.js - Fixed skip turn with valid moves check
+// skipButtonScript.js - Sistema de pular turno com verificação de movimentos válidos
 
 document.addEventListener('DOMContentLoaded', () => {
     const skipButton = document.getElementById('skip-button');
@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Main click handler
+    // Handler principal de clique
     skipButton.addEventListener('click', handleSkipTurn);
 
-    // Keyboard support
+    // Suporte a teclado
     skipButton.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function handleSkipTurn() {
-    // Check if game is active
+    // Verifica se jogo está ativo
     if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
         updateMessageSafe("Inicie um jogo primeiro!");
         return;
@@ -29,29 +29,28 @@ function handleSkipTurn() {
 
     const gameState = window.gameLogic.gameState;
 
-    // Check if dice has been rolled
+    // Verifica se dados foram lançados
     if (gameState.diceValue === 0) {
         updateMessageSafe("Você precisa rolar os dados antes de pular a vez!");
         return;
     }
 
-    // Check if it's AI's turn (should not allow skip during AI turn)
+    // Previne pular durante turno da AI
     if (window.isAIGameActive && window.isAIGameActive() && gameState.currentPlayer === 'red') {
         updateMessageSafe("Aguarde a vez da IA!");
         return;
     }
 
-    // NEW: Check if player has any valid moves
+    // Verifica se jogador possui movimentos válidos
     if (hasAnyValidMoves(gameState.currentPlayer, gameState.diceValue)) {
         updateMessageSafe("⚠️ Você ainda tem jogadas possíveis! Você só pode pular a vez se não houver movimentos válidos.");
 
-        // Highlight pieces that can move
+        // Destaca peças que podem mover
         highlightMovablePieces(gameState.currentPlayer, gameState.diceValue);
         return;
     }
 
-    // No valid moves - allow skip
-    // Clear any selection
+    // Sem movimentos válidos - permite pular
     if (window.clearSelection) {
         clearSelection();
     } else {
@@ -66,51 +65,51 @@ function handleSkipTurn() {
     const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
     updateMessageSafe(`Sem jogadas válidas. Jogador ${currentPlayerName} pulou a vez.`);
 
-    // Switch to next player
+    // Executa troca de turno
     setTimeout(() => {
         performTurnSwitch();
     }, 800);
 }
 
 /**
- * Check if current player has any valid moves
+ * Verifica se jogador atual possui movimentos válidos
  */
 function hasAnyValidMoves(playerColor, diceValue) {
     const gameState = window.gameLogic.gameState;
     const pieces = gameState.pieces[playerColor];
 
-    // Function references (try multiple ways to access)
+    // Referências a funções com fallback seguro
     const getValidMovesFunc = window.getValidMoves || (typeof getValidMoves !== 'undefined' ? getValidMoves : null);
     const canActivateFunc = window.canActivatePiece || (typeof canActivatePiece !== 'undefined' ? canActivatePiece : null);
 
     if (!getValidMovesFunc) {
         console.error('getValidMoves function not available');
-        return true; // Assume has moves if function not available (safer)
+        return true; // Assume que possui movimentos se função não disponível
     }
 
-    // Check each piece
+    // Verifica cada peça
     for (let piece of pieces) {
-        // Check activation for inactive pieces with dice value 1
+        // Verifica ativação para peças inativas com dado valor 1
         if (!piece.active && diceValue === 1) {
             if (canActivateFunc && canActivateFunc(piece, playerColor)) {
-                return true; // Can activate this piece
+                return true; // Pode ativar esta peça
             }
         }
 
-        // Check regular moves for active pieces
+        // Verifica movimentos regulares para peças ativas
         if (piece.active) {
             const validMoves = getValidMovesFunc(piece, diceValue, playerColor);
             if (validMoves && validMoves.length > 0) {
-                return true; // Has valid moves
+                return true; // Possui movimentos válidos
             }
         }
     }
 
-    return false; // No valid moves found
+    return false; // Nenhum movimento válido encontrado
 }
 
 /**
- * Highlight pieces that can move to help player
+ * Destaca peças que podem mover para auxiliar jogador
  */
 function highlightMovablePieces(playerColor, diceValue) {
     const gameState = window.gameLogic.gameState;
@@ -124,41 +123,41 @@ function highlightMovablePieces(playerColor, diceValue) {
         return;
     }
 
-    // Clear previous highlights
+    // Limpa destaques anteriores
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
         cell.classList.remove('selectable', 'has-moves');
     });
 
-    // Highlight pieces that can move
+    // Destaca peças que podem mover
     pieces.forEach(piece => {
         let canMove = false;
 
-        // Check activation
+        // Verifica ativação
         if (!piece.active && diceValue === 1 && canActivateFunc) {
             canMove = canActivateFunc(piece, playerColor);
         }
 
-        // Check regular moves
+        // Verifica movimentos regulares
         if (piece.active) {
             const validMoves = getValidMovesFunc(piece, diceValue, playerColor);
             canMove = validMoves && validMoves.length > 0;
         }
 
-        // Highlight if can move
+        // Destaca se pode mover
         if (canMove) {
             const cellIndex = getCellIndexFunc(piece.row, piece.col, gameState.boardSize);
             const cell = cells[cellIndex];
             if (cell) {
                 cell.classList.add('selectable', 'has-moves');
 
-                // Add pulsing effect
+                // Adiciona efeito de pulsação
                 cell.style.animation = 'pulse-hint 1.5s ease-in-out 3';
             }
         }
     });
 
-    // Add pulse animation style if not exists
+    // Adiciona estilo de animação de pulsação se não existir
     if (!document.getElementById('skip-hint-animation')) {
         const style = document.createElement('style');
         style.id = 'skip-hint-animation';
@@ -178,46 +177,46 @@ function highlightMovablePieces(playerColor, diceValue) {
         document.head.appendChild(style);
     }
 
-    // Remove animation after it completes
+    // Remove animação após conclusão
     setTimeout(() => {
         cells.forEach(cell => {
             cell.style.animation = '';
         });
-    }, 4500); // 3 pulses × 1.5s
+    }, 4500); // 3 pulsações × 1.5s
 }
 
 function performTurnSwitch() {
     const gameState = window.gameLogic.gameState;
 
-    // Switch player
+    // Troca jogador
     gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     gameState.diceValue = 0;
     gameState.bonusRoll = false;
 
-    // Clear selection again
+    // Limpa seleção
     gameState.selectedPiece = null;
     gameState.possibleMoves = [];
 
-    // Clear highlights
+    // Limpa destaques
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
         cell.classList.remove('selected', 'possible-move', 'capture-move', 'selectable', 'has-moves');
         cell.style.animation = '';
     });
 
-    // Update dice display
+    // Atualiza exibição de dados
     const diceTotal = document.querySelector('.dice-total');
     if (diceTotal) {
         diceTotal.textContent = 'Resultado: —';
     }
 
-    // Update message
+    // Atualiza mensagem
     const newPlayer = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
 
-    // Check if new turn is AI's turn
+    // Verifica se novo turno é da AI
     if (window.isAIGameActive && window.isAIGameActive() && gameState.currentPlayer === 'red') {
         updateMessageSafe(`Turno da IA (${newPlayer}). Aguarde...`);
-        // Trigger AI turn
+        // Dispara turno da AI
         if (window.AI_PLAYER) {
             setTimeout(() => {
                 window.AI_PLAYER.checkAndPlay();
@@ -229,13 +228,13 @@ function performTurnSwitch() {
 }
 
 function updateMessageSafe(text) {
-    // Try to use global updateMessage if available
+    // Tenta usar updateMessage global se disponível
     if (window.updateMessage && typeof window.updateMessage === 'function') {
         window.updateMessage(text);
         return;
     }
 
-    // Fallback to direct DOM manipulation
+    // Fallback para manipulação direta do DOM
     const messageElement = document.querySelector('.message p');
     if (messageElement) {
         messageElement.textContent = text;
@@ -244,7 +243,7 @@ function updateMessageSafe(text) {
     }
 }
 
-// Make functions globally accessible
+// Exporta funções para acesso global
 window.handleSkipTurn = handleSkipTurn;
 window.hasAnyValidMoves = hasAnyValidMoves;
 

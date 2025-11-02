@@ -1,12 +1,12 @@
-// gameLogicScript.js - Complete Tâb game logic with single dice roll per turn
+// gameLogicScript.js - Lógica completa do jogo Tâb com sistema de lançamento único de dados
 
-// Game state
+// Estado do jogo
 let gameState = {
     boardSize: 7,
     currentPlayer: 'red',
     diceValue: 0,
     bonusRoll: false,
-    diceUsed: false, // NOVO: Rastrear se o valor do dado foi usado
+    diceUsed: false, // Flag de rastreamento de uso do dado
     pieces: {
         red: [],
         blue: []
@@ -20,7 +20,7 @@ let gameState = {
     }
 };
 
-// Board position mapping (row 0-3, col 0-n)
+// Mapeamento de posições do tabuleiro (linha 0-3, coluna 0-n)
 function getCellIndex(row, col, columns) {
     return row * columns + col;
 }
@@ -32,7 +32,7 @@ function getRowCol(index, columns) {
     };
 }
 
-// Initialize pieces on the board
+// Inicializa peças no tabuleiro
 function initializePieces(boardSize) {
     gameState.boardSize = boardSize;
     gameState.pieces.red = [];
@@ -40,13 +40,13 @@ function initializePieces(boardSize) {
 
     const cells = document.querySelectorAll('.cell');
 
-    // Clear all cells first
+    // Limpa todas as células
     cells.forEach(cell => {
         cell.innerHTML = '';
         cell.classList.remove('has-piece', 'selectable', 'possible-move', 'capture-move', 'selected');
     });
 
-    // Place red pieces on row 0 (top row)
+    // Posiciona peças vermelhas na linha 0 (superior)
     for (let col = 0; col < boardSize; col++) {
         const cellIndex = getCellIndex(0, col, boardSize);
         gameState.pieces.red.push({
@@ -60,7 +60,7 @@ function initializePieces(boardSize) {
         placePieceOnCell(cellIndex, 'red', false, false);
     }
 
-    // Place blue pieces on row 3 (bottom row)
+    // Posiciona peças azuis na linha 3 (inferior)
     for (let col = 0; col < boardSize; col++) {
         const cellIndex = getCellIndex(3, col, boardSize);
         gameState.pieces.blue.push({
@@ -78,7 +78,7 @@ function initializePieces(boardSize) {
     updateMessage("Jogo iniciado! Jogador Vermelho começa. Role os dados!");
 }
 
-// Place a visual piece on a cell
+// Posiciona peça visual em célula
 function placePieceOnCell(cellIndex, color, isActive, hasCompleted) {
     const cells = document.querySelectorAll('.cell');
     const cell = cells[cellIndex];
@@ -102,20 +102,20 @@ function placePieceOnCell(cellIndex, color, isActive, hasCompleted) {
     cell.appendChild(piece);
 }
 
-// Check if player has pieces in their initial row
+// Verifica se jogador não possui peças na linha inicial
 function hasNoPiecesInInitialRow(playerColor) {
     const initialRow = playerColor === 'red' ? 0 : 3;
     return !gameState.pieces[playerColor].some(piece => piece.row === initialRow);
 }
 
-// Check if enemy has pieces in their initial row
+// Verifica se inimigo possui peças na linha inicial
 function enemyHasPiecesInInitialRow(playerColor) {
     const enemyColor = playerColor === 'red' ? 'blue' : 'red';
     const enemyInitialRow = enemyColor === 'red' ? 0 : 3;
     return gameState.pieces[enemyColor].some(piece => piece.row === enemyInitialRow);
 }
 
-// Check if piece is in enemy territory
+// Verifica se peça está em território inimigo
 function isInEnemyTerritory(piece, playerColor) {
     if (playerColor === 'red') {
         return piece.row === 3;
@@ -124,7 +124,7 @@ function isInEnemyTerritory(piece, playerColor) {
     }
 }
 
-// Check if a position is in enemy territory
+// Verifica se posição está em território inimigo
 function isPositionInEnemyTerritory(row, playerColor) {
     if (playerColor === 'red') {
         return row === 3;
@@ -133,7 +133,7 @@ function isPositionInEnemyTerritory(row, playerColor) {
     }
 }
 
-// Check if piece is at the exit point of enemy territory
+// Verifica se peça está no ponto de saída do território inimigo
 function isAtEnemyTerritoryExit(piece, playerColor) {
     if (playerColor === 'red' && piece.row === 3 && piece.col === 0) {
         return true;
@@ -144,7 +144,7 @@ function isAtEnemyTerritoryExit(piece, playerColor) {
     return false;
 }
 
-// Check if piece can move (not frozen in enemy territory)
+// Verifica se peça pode mover (não congelada em território inimigo)
 function canPieceMove(piece, playerColor) {
     if (isInEnemyTerritory(piece, playerColor)) {
         return hasNoPiecesInInitialRow(playerColor);
@@ -152,7 +152,7 @@ function canPieceMove(piece, playerColor) {
     return true;
 }
 
-// Get valid moves for a piece based on Tâb rules
+// Obtém movimentos válidos para peça conforme regras do Tâb
 function getValidMoves(piece, diceValue, playerColor) {
     const moves = [];
     const { row, col } = piece;
@@ -198,7 +198,7 @@ function getValidMoves(piece, diceValue, playerColor) {
     return finalMoves;
 }
 
-// Check if piece can be activated
+// Verifica se peça pode ser ativada
 function canActivatePiece(piece, playerColor) {
     const { row, col } = piece;
     const columns = gameState.boardSize;
@@ -238,7 +238,7 @@ function canActivatePiece(piece, playerColor) {
     return finalMoves.length > 0;
 }
 
-// Blue piece movement logic
+// Lógica de movimento de peças azuis
 function getBlueValidMoves(row, col, steps, columns) {
     const moves = [];
     const paths = getBlueAllPaths(row, col, steps, columns);
@@ -316,7 +316,7 @@ function getNextBluePosition(row, col, columns) {
     return null;
 }
 
-// Red piece movement logic
+// Lógica de movimento de peças vermelhas
 function getRedValidMoves(row, col, steps, columns) {
     const moves = [];
     const paths = getRedAllPaths(row, col, steps, columns);
@@ -394,7 +394,7 @@ function getNextRedPosition(row, col, columns) {
     return null;
 }
 
-// Handle piece selection
+// Processa seleção de peça
 function handlePieceClick(cellIndex) {
     if (!gameState.gameActive || gameState.diceValue === 0) {
         updateMessage("Role os dados primeiro!");
@@ -441,14 +441,14 @@ function handlePieceClick(cellIndex) {
                     return;
                 }
 
-                // MODIFICADO: Marcar dado como usado
+                // Marca dado como utilizado
                 gameState.diceUsed = true;
                 updateMessage("Peça ativada e movida 1 casa! Você pode jogar novamente.");
                 gameState.diceValue = 0;
                 gameState.bonusRoll = false;
                 document.querySelector('.dice-total').textContent = 'Resultado: —';
 
-                // Habilitar botão de rolar para jogada bônus
+                // Habilita botão de lançamento para jogada bônus
                 if (window.enableRollButton) {
                     window.enableRollButton();
                 }
@@ -492,7 +492,7 @@ function handlePieceClick(cellIndex) {
     updateMessage(`Peça selecionada! Clique nela novamente para desmarcar ou escolha onde mover.`);
 }
 
-// Handle move to a cell
+// Processa movimento para célula
 function handleMoveClick(cellIndex) {
     if (!gameState.selectedPiece) return;
 
@@ -513,7 +513,7 @@ function handleMoveClick(cellIndex) {
 
     movePiece(gameState.selectedPiece, row, col);
 
-    // MODIFICADO: Marcar dado como usado
+    // Marca dado como utilizado
     gameState.diceUsed = true;
 
     if (checkWinCondition()) {
@@ -524,11 +524,11 @@ function handleMoveClick(cellIndex) {
     if (gameState.bonusRoll) {
         gameState.diceValue = 0;
         gameState.bonusRoll = false;
-        gameState.diceUsed = false; // NOVO: Resetar para permitir nova jogada
+        gameState.diceUsed = false; // Reseta para permitir novo lançamento
         document.querySelector('.dice-total').textContent = 'Resultado: —';
         updateMessage("Movimento realizado! Você pode jogar novamente. Role os dados!");
 
-        // NOVO: Habilitar botão de rolar para jogada bônus
+        // Habilita botão de lançamento para jogada bônus
         if (window.enableRollButton) {
             window.enableRollButton();
         }
@@ -537,7 +537,7 @@ function handleMoveClick(cellIndex) {
     }
 }
 
-// Move a piece to new position
+// Move peça para nova posição
 function movePiece(piece, newRow, newCol) {
     const oldCellIndex = getCellIndex(piece.row, piece.col, gameState.boardSize);
     const newCellIndex = getCellIndex(newRow, newCol, gameState.boardSize);
@@ -563,7 +563,7 @@ function movePiece(piece, newRow, newCol) {
     clearSelection();
 }
 
-// Capture an enemy piece
+// Captura peça inimiga
 function capturePiece(piece, color) {
     const index = gameState.pieces[color].indexOf(piece);
     if (index > -1) {
@@ -572,19 +572,19 @@ function capturePiece(piece, color) {
     }
 }
 
-// Find piece at position
+// Localiza peça em posição
 function findPieceAt(row, col, color) {
     return gameState.pieces[color].find(p => p.row === row && p.col === col);
 }
 
-// Highlight selected piece
+// Destaca peça selecionada
 function highlightSelectedPiece(cellIndex) {
     clearHighlights();
     const cells = document.querySelectorAll('.cell');
     cells[cellIndex].classList.add('selected');
 }
 
-// Show possible moves
+// Exibe movimentos possíveis
 function showPossibleMoves(moves) {
     const cells = document.querySelectorAll('.cell');
 
@@ -601,7 +601,7 @@ function showPossibleMoves(moves) {
     });
 }
 
-// Clear all highlights
+// Remove todos os destaques
 function clearHighlights() {
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
@@ -609,14 +609,14 @@ function clearHighlights() {
     });
 }
 
-// Clear selection
+// Limpa seleção
 function clearSelection() {
     gameState.selectedPiece = null;
     gameState.possibleMoves = [];
     clearHighlights();
 }
 
-// Update piece display
+// Atualiza exibição de peça
 function updatePieceDisplay(cellIndex, color, isActive, hasCompleted) {
     const cells = document.querySelectorAll('.cell');
     const cell = cells[cellIndex];
@@ -637,24 +637,24 @@ function updatePieceDisplay(cellIndex, color, isActive, hasCompleted) {
     cell.appendChild(piece);
 }
 
-// Switch turn to other player
+// Troca turno para outro jogador
 function switchTurn() {
     gameState.currentPlayer = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     gameState.diceValue = 0;
     gameState.bonusRoll = false;
-    gameState.diceUsed = false; // NOVO: Resetar flag de uso do dado
+    gameState.diceUsed = false; // Reseta flag de uso
     clearSelection();
 
     document.querySelector('.dice-total').textContent = 'Resultado: —';
     updateMessage(`Turno do jogador ${gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul'}. Role os dados!`);
 
-    // NOVO: Habilitar botão de rolar para o novo turno
+    // Habilita botão de lançamento para novo turno
     if (window.enableRollButton) {
         window.enableRollButton();
     }
 }
 
-// Skip turn function
+// Função de pular turno
 function skipTurn() {
     if (!gameState.gameActive) {
         updateMessage("Inicie um jogo primeiro!");
@@ -666,7 +666,7 @@ function skipTurn() {
         return;
     }
 
-    // MODIFICADO: Marcar dado como usado ao pular
+    // Marca dado como utilizado ao pular
     gameState.diceUsed = true;
 
     clearSelection();
@@ -678,13 +678,13 @@ function skipTurn() {
     }, 1000);
 }
 
-// Check win condition
+// Verifica condição de vitória
 function checkWinCondition() {
     const enemyColor = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     return gameState.pieces[enemyColor].length === 0;
 }
 
-// End game
+// Finaliza jogo
 function endGame(winner) {
     gameState.gameActive = false;
     clearHighlights();
@@ -698,7 +698,7 @@ function endGame(winner) {
     document.getElementById('roll-dice').disabled = true;
 }
 
-// Update message
+// Atualiza mensagem
 function updateMessage(text) {
     const messageElement = document.querySelector('.message p');
     if (messageElement) {
@@ -706,7 +706,7 @@ function updateMessage(text) {
     }
 }
 
-// Make pieces selectable for current player
+// Torna peças selecionáveis para jogador atual
 function makeCurrentPlayerPiecesSelectable() {
     if (!gameState.gameActive || gameState.diceValue === 0) return;
 
@@ -719,7 +719,7 @@ function makeCurrentPlayerPiecesSelectable() {
     });
 }
 
-// Setup cell click handlers
+// Configura handlers de clique em células
 function setupCellClickHandlers() {
     const cells = document.querySelectorAll('.cell');
 
@@ -737,7 +737,7 @@ function setupCellClickHandlers() {
     });
 }
 
-// Export functions globally
+// Exporta funções globalmente
 window.clearSelection = clearSelection;
 window.clearHighlights = clearHighlights;
 window.switchTurn = switchTurn;

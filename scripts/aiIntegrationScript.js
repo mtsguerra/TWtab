@@ -1,8 +1,8 @@
-// aiIntegrationScript.js - Integrates AI player with existing game logic
+// aiIntegrationScript.js - Integração do jogador AI com lógica de jogo existente
 
 /**
- * This script integrates the AI player with the game
- * Must be loaded AFTER gameLogicScript.js and aiPlayerScript.js
+ * Módulo de integração entre AI player e game logic.
+ * Dependências: gameLogicScript.js e aiPlayerScript.js devem ser carregados previamente.
  */
 
 (function() {
@@ -11,42 +11,42 @@
     let isAIGame = false;
     let aiDifficulty = 'medium';
 
-    // Store original functions to wrap them
+    // Armazena referências às funções originais para wrapping
     const originalSwitchTurn = window.switchTurn;
     const originalEndGame = window.endGame;
 
     /**
-     * Enhanced switchTurn to trigger AI after turn switch
+     * Extensão de switchTurn para disparar AI após troca de turno
      */
     window.switchTurn = function() {
-        // Call original function
+        // Executa função original
         if (originalSwitchTurn) {
             originalSwitchTurn();
         }
 
-        // If it's AI game and AI's turn, trigger AI
+        // Dispara AI se for jogo AI e turno da AI
         if (isAIGame && window.AI_PLAYER) {
             window.AI_PLAYER.checkAndPlay();
         }
     };
 
     /**
-     * Enhanced endGame to handle AI game ending
+     * Extensão de endGame para processamento específico de jogos AI
      */
     window.endGame = function(winner) {
-        // Call original function
+        // Executa função original
         if (originalEndGame) {
             originalEndGame(winner);
         }
 
-        // Additional AI game ending logic if needed
+        // Lógica adicional de finalização para jogo AI
         if (isAIGame && window.AI_PLAYER) {
             window.AI_PLAYER.isProcessing = false;
         }
     };
 
     /**
-     * Initialize AI game
+     * Inicializa jogo contra AI com dificuldade especificada
      */
     window.initAIGame = function(difficulty) {
         isAIGame = true;
@@ -56,11 +56,11 @@
             window.AI_PLAYER.init(difficulty);
             console.log('AI game initialized with difficulty:', difficulty);
 
-            // If AI starts first, trigger it
+            // Dispara AI se for o primeiro jogador
             if (window.gameLogic && window.gameLogic.gameState.currentPlayer === 'red') {
                 setTimeout(() => {
                     window.AI_PLAYER.checkAndPlay();
-                }, 1500); // Give player time to see the board
+                }, 1500); // Delay para visualização inicial do tabuleiro
             }
         } else {
             console.error('AI_PLAYER not loaded');
@@ -68,7 +68,7 @@
     };
 
     /**
-     * Disable AI game (for human vs human)
+     * Desativa modo AI para jogo humano vs humano
      */
     window.disableAIGame = function() {
         isAIGame = false;
@@ -79,37 +79,37 @@
     };
 
     /**
-     * Check if current game is AI game
+     * Verifica se jogo atual é contra AI
      */
     window.isAIGameActive = function() {
         return isAIGame;
     };
 
     /**
-     * Get current AI difficulty
+     * Retorna dificuldade atual da AI
      */
     window.getAIDifficulty = function() {
         return aiDifficulty;
     };
 
-    // Listen for dice rolls in AI games
+    // Event listeners para integração AI em eventos de jogo
     document.addEventListener('DOMContentLoaded', () => {
         const rollButton = document.getElementById('roll-dice');
 
         if (rollButton) {
             rollButton.addEventListener('click', () => {
-                // After human rolls, check if next turn is AI's
+                // Verifica se próximo turno é da AI após jogada humana
                 setTimeout(() => {
                     if (isAIGame && window.gameLogic &&
                         window.gameLogic.gameState.currentPlayer === 'red' &&
                         window.AI_PLAYER) {
-                        // Don't trigger immediately, let the turn switch happen naturally
+                        // Troca de turno natural dispara AI via switchTurn wrapper
                     }
                 }, 100);
             });
         }
 
-        // Listen for skip button in AI games
+        // Listener para botão de pular turno em jogos AI
         const skipButton = document.getElementById('skip-button');
         if (skipButton) {
             const originalSkipHandler = skipButton.onclick;

@@ -1,14 +1,14 @@
-// aiPlayerScript.js - AI opponent for Tâb game with single dice roll per turn support
+// aiPlayerScript.js - Oponente AI para jogo Tâb com suporte a sistema de lançamento único de dados
 
 /**
- * AI Player for Tâb Game - UPDATED for single dice roll system
- * Implements three difficulty levels:
- * - Easy: Random valid moves
- * - Medium: Mix of random and strategic moves (70% strategic, 30% random)
- * - Hard: Always chooses the best possible move
+ * Módulo AI Player para Tâb - Atualizado para sistema de lançamento único
+ * Implementa três níveis de dificuldade:
+ * - Easy: Seleção aleatória de movimentos válidos
+ * - Medium: Combinação de movimentos estratégicos (70%) e aleatórios (30%)
+ * - Hard: Seleção sempre do movimento ótimo
  */
 
-// Helper function to update message
+// Função auxiliar para atualização de mensagens
 function updateMessage(text) {
     const messageElement = document.querySelector('.message p');
     if (messageElement) {
@@ -17,13 +17,13 @@ function updateMessage(text) {
 }
 
 const AI_PLAYER = {
-    color: 'red', // AI plays as red (top player)
-    difficulty: 'medium', // default difficulty
+    color: 'red', // AI controla jogador vermelho (superior)
+    difficulty: 'medium', // Dificuldade padrão
     isProcessing: false,
-    thinkingDelay: 800, // milliseconds to simulate "thinking"
+    thinkingDelay: 800, // Delay em ms para simulação de processamento
 
     /**
-     * Main AI turn handler
+     * Handler principal do turno da AI
      */
     async takeTurn() {
         if (this.isProcessing) return;
@@ -33,15 +33,15 @@ const AI_PLAYER = {
         this.isProcessing = true;
 
         try {
-            // Wait for dice roll if needed
+            // Executa lançamento de dados se necessário
             if (window.gameLogic.gameState.diceValue === 0) {
                 await this.rollDice();
             }
 
-            // Wait for thinking animation
+            // Simula tempo de processamento
             await this.simulateThinking();
 
-            // Make the move
+            // Executa movimento
             await this.makeMove();
 
         } catch (error) {
@@ -51,7 +51,7 @@ const AI_PLAYER = {
     },
 
     /**
-     * Roll dice for AI - UPDATED for single roll system
+     * Lançamento de dados para AI - Atualizado para sistema de lançamento único
      */
     async rollDice() {
         return new Promise((resolve) => {
@@ -60,20 +60,20 @@ const AI_PLAYER = {
             setTimeout(() => {
                 const gameState = window.gameLogic.gameState;
 
-                // NOVO: Verificar se já rolou e não usou
+                // Verifica se já existe valor de dado não utilizado
                 if (gameState.diceValue > 0 && !gameState.diceUsed) {
                     console.log('AI: Dice already rolled, value not used yet');
                     resolve();
                     return;
                 }
 
-                // Simular rolagem de dados
+                // Simula lançamento de 4 dados
                 let lightSides = 0;
                 for (let i = 0; i < 4; i++) {
                     if (Math.random() < 0.5) lightSides++;
                 }
 
-                // Calculate steps and bonus roll
+                // Calcula passos e jogada bônus conforme regras
                 let steps = 0;
                 let bonusRoll = false;
 
@@ -100,12 +100,12 @@ const AI_PLAYER = {
                         break;
                 }
 
-                // Update game state
+                // Atualiza estado do jogo
                 gameState.diceValue = steps;
                 gameState.bonusRoll = bonusRoll;
-                gameState.diceUsed = false; // NOVO: Marcar como não usado
+                gameState.diceUsed = false; // Marca valor como não utilizado
 
-                // Update display
+                // Atualiza exibição
                 const diceTotal = document.querySelector('.dice-total');
                 if (diceTotal) {
                     let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' : ''}`;
@@ -123,7 +123,7 @@ const AI_PLAYER = {
     },
 
     /**
-     * Simulate AI thinking
+     * Simula tempo de processamento da AI
      */
     async simulateThinking() {
         return new Promise((resolve) => {
@@ -139,7 +139,7 @@ const AI_PLAYER = {
     },
 
     /**
-     * Make a move based on difficulty level
+     * Executa movimento baseado no nível de dificuldade
      */
     async makeMove() {
         const gameState = window.gameLogic.gameState;
@@ -150,7 +150,7 @@ const AI_PLAYER = {
             return;
         }
 
-        // Get all possible moves for all AI pieces
+        // Obtém todos os movimentos possíveis para todas as peças da AI
         const allPossibleMoves = this.getAllPossibleMoves();
 
         console.log(`AI: Dice value = ${diceValue}, Found ${allPossibleMoves.length} possible moves`);
@@ -165,10 +165,10 @@ const AI_PLAYER = {
         }
 
         if (allPossibleMoves.length === 0) {
-            // No valid moves - skip turn
+            // Sem movimentos válidos - pula turno
             updateMessage('IA não tem jogadas válidas. Pulando a vez...');
 
-            // MODIFICADO: Marcar dado como usado antes de pular
+            // Marca dado como utilizado antes de pular
             gameState.diceUsed = true;
 
             setTimeout(() => {
@@ -184,7 +184,7 @@ const AI_PLAYER = {
             return;
         }
 
-        // Choose move based on difficulty
+        // Seleciona movimento conforme dificuldade
         let chosenMove;
         switch (this.difficulty) {
             case 'easy':
@@ -206,12 +206,12 @@ const AI_PLAYER = {
             isActivation: chosenMove.isActivation
         });
 
-        // Execute the chosen move
+        // Executa movimento selecionado
         await this.executeMove(chosenMove);
     },
 
     /**
-     * Get all possible moves for all AI pieces
+     * Retorna array de todos os movimentos possíveis para todas as peças da AI
      */
     getAllPossibleMoves() {
         const gameState = window.gameLogic.gameState;
@@ -220,7 +220,7 @@ const AI_PLAYER = {
         const allMoves = [];
 
         pieces.forEach(piece => {
-            // Check for activation (dice value 1 on inactive piece)
+            // Verifica possibilidade de ativação (valor 1 em peça inativa)
             if (!piece.active && diceValue === 1) {
                 const tempPiece = { ...piece, active: true };
 
@@ -269,14 +269,14 @@ const AI_PLAYER = {
     },
 
     /**
-     * EASY: Choose a random move
+     * Modo EASY: Seleção aleatória de movimento
      */
     chooseRandomMove(moves) {
         return moves[Math.floor(Math.random() * moves.length)];
     },
 
     /**
-     * MEDIUM: Mix of strategic and random (70% strategic, 30% random)
+     * Modo MEDIUM: Combinação de estratégico (70%) e aleatório (30%)
      */
     chooseMediumMove(moves) {
         if (Math.random() < 0.3) {
@@ -287,7 +287,7 @@ const AI_PLAYER = {
     },
 
     /**
-     * HARD: Choose the best move using evaluation heuristics
+     * Modo HARD: Seleção do movimento ótimo via heurísticas de avaliação
      */
     chooseBestMove(moves) {
         let bestMove = moves[0];
@@ -305,14 +305,14 @@ const AI_PLAYER = {
     },
 
     /**
-     * Evaluate a move and return a score
+     * Avalia movimento e retorna pontuação heurística
      */
     evaluateMove(move) {
         let score = 0;
         const { piece, destination, isActivation } = move;
         const gameState = window.gameLogic.gameState;
 
-        // Use window or global functions safely
+        // Referências a funções com fallback seguro
         const findPieceAtFunc = window.findPieceAt || (typeof findPieceAt !== 'undefined' ? findPieceAt : null);
         const isInEnemyTerritoryFunc = window.isInEnemyTerritory || (typeof isInEnemyTerritory !== 'undefined' ? isInEnemyTerritory : null);
         const isPositionInEnemyTerritoryFunc = window.isPositionInEnemyTerritory || (typeof isPositionInEnemyTerritory !== 'undefined' ? isPositionInEnemyTerritory : null);
@@ -320,7 +320,7 @@ const AI_PLAYER = {
 
         if (!findPieceAtFunc) return 0;
 
-        // 1. CAPTURE PRIORITY
+        // 1. PRIORIDADE DE CAPTURA
         const enemyPiece = findPieceAtFunc(destination.row, destination.col, 'blue');
         if (enemyPiece) {
             score += 1000;
@@ -329,23 +329,23 @@ const AI_PLAYER = {
             }
         }
 
-        // 2. ACTIVATION PRIORITY
+        // 2. PRIORIDADE DE ATIVAÇÃO
         if (isActivation) {
             score += 500;
         }
 
-        // 3. FORWARD PROGRESS
+        // 3. PROGRESSO PARA FRENTE
         const progressScore = this.calculateProgressScore(piece, destination);
         score += progressScore;
 
-        // 4. ENTERING ENEMY TERRITORY
+        // 4. ENTRADA EM TERRITÓRIO INIMIGO
         if (isPositionInEnemyTerritoryFunc && isPositionInEnemyTerritoryFunc(destination.row, this.color)) {
             if (enemyHasPiecesInInitialRowFunc && enemyHasPiecesInInitialRowFunc(this.color)) {
                 score += 300;
             }
         }
 
-        // 5. LEAVING ENEMY TERRITORY
+        // 5. SAÍDA DE TERRITÓRIO INIMIGO
         if (isInEnemyTerritoryFunc && isPositionInEnemyTerritoryFunc) {
             const wasInEnemyTerritory = isInEnemyTerritoryFunc(piece, this.color);
             const willBeInEnemyTerritory = isPositionInEnemyTerritoryFunc(destination.row, this.color);
@@ -354,27 +354,27 @@ const AI_PLAYER = {
             }
         }
 
-        // 6. AVOID STACKING
+        // 6. PENALIDADE POR EMPILHAMENTO
         const friendlyPiece = findPieceAtFunc(destination.row, destination.col, this.color);
         if (friendlyPiece) {
             score -= 50;
         }
 
-        // 7. PROTECT VULNERABLE PIECES
+        // 7. PROTEÇÃO DE PEÇAS VULNERÁVEIS
         if (this.isPieceVulnerable(piece)) {
             score += 100;
         }
 
-        // 8. STRATEGIC POSITIONING
+        // 8. POSICIONAMENTO ESTRATÉGICO
         const threatenedEnemies = this.countThreatenedEnemies(destination);
         score += threatenedEnemies * 50;
 
-        // 9. COMPLETE PATH BONUS
+        // 9. BÔNUS POR COMPLETAR CAMINHO
         if (piece.hasCompletedEnemyTerritory) {
             score += 80;
         }
 
-        // 10. DISTANCE TO ENEMY PIECES
+        // 10. DISTÂNCIA A PEÇAS INIMIGAS
         const distanceScore = this.calculateDistanceToEnemies(destination);
         score += distanceScore;
 
@@ -447,13 +447,13 @@ const AI_PLAYER = {
     },
 
     /**
-     * Execute the chosen move - UPDATED for single dice roll system
+     * Executa movimento selecionado - Atualizado para sistema de lançamento único
      */
     async executeMove(move) {
         const { piece, destination, isActivation } = move;
         const gameState = window.gameLogic.gameState;
 
-        // Get function references safely
+        // Obtém referências a funções com fallback seguro
         const getCellIndexFunc = window.getCellIndex || (typeof getCellIndex !== 'undefined' ? getCellIndex : null);
         const updatePieceDisplayFunc = window.updatePieceDisplay || (typeof updatePieceDisplay !== 'undefined' ? updatePieceDisplay : null);
         const highlightSelectedPieceFunc = window.highlightSelectedPiece || (typeof highlightSelectedPiece !== 'undefined' ? highlightSelectedPiece : null);
@@ -464,7 +464,7 @@ const AI_PLAYER = {
         const checkWinConditionFunc = window.checkWinCondition || (typeof checkWinCondition !== 'undefined' ? checkWinCondition : null);
         const endGameFunc = window.endGame || (typeof endGame !== 'undefined' ? endGame : null);
 
-        // Activate piece if needed
+        // Ativa peça se necessário
         if (isActivation && updatePieceDisplayFunc && getCellIndexFunc) {
             piece.active = true;
             const cellIndex = getCellIndexFunc(piece.row, piece.col, gameState.boardSize);
@@ -473,7 +473,7 @@ const AI_PLAYER = {
             await this.delay(500);
         }
 
-        // Select the piece visually
+        // Seleciona peça visualmente
         if (getCellIndexFunc && highlightSelectedPieceFunc) {
             const cellIndex = getCellIndexFunc(piece.row, piece.col, gameState.boardSize);
             gameState.selectedPiece = piece;
@@ -481,14 +481,14 @@ const AI_PLAYER = {
             await this.delay(400);
         }
 
-        // Show possible moves
+        // Exibe movimentos possíveis
         if (showPossibleMovesFunc) {
             gameState.possibleMoves = [destination];
             showPossibleMovesFunc([destination]);
             await this.delay(600);
         }
 
-        // Check for capture
+        // Verifica captura
         if (findPieceAtFunc && capturePieceFunc) {
             const enemyPiece = findPieceAtFunc(destination.row, destination.col, 'blue');
             if (enemyPiece) {
@@ -498,18 +498,18 @@ const AI_PLAYER = {
             }
         }
 
-        // Move the piece
+        // Move a peça
         if (movePieceFunc) {
             movePieceFunc(piece, destination.row, destination.col);
             updateMessage('IA moveu uma peça.');
         }
 
-        // MODIFICADO: Marcar dado como usado
+        // Marca dado como utilizado
         gameState.diceUsed = true;
 
         await this.delay(500);
 
-        // Check win condition
+        // Verifica condição de vitória
         if (checkWinConditionFunc && checkWinConditionFunc()) {
             if (endGameFunc) {
                 endGameFunc(this.color);
@@ -518,15 +518,15 @@ const AI_PLAYER = {
             return;
         }
 
-        // Handle bonus roll or switch turn
+        // Processa jogada bônus ou troca de turno
         if (gameState.bonusRoll) {
             gameState.diceValue = 0;
             gameState.bonusRoll = false;
-            gameState.diceUsed = false; // NOVO: Resetar para permitir nova jogada
+            gameState.diceUsed = false; // Reseta para permitir novo lançamento
             document.querySelector('.dice-total').textContent = 'Resultado: —';
             updateMessage('IA ganhou uma jogada extra!');
 
-            // NOVO: Habilitar botão de rolar se disponível
+            // Habilita botão de lançamento se disponível
             if (window.enableRollButton) {
                 window.enableRollButton();
             }
@@ -534,10 +534,10 @@ const AI_PLAYER = {
             await this.delay(1000);
             this.isProcessing = false;
 
-            // Take another turn
+            // Executa novo turno
             setTimeout(() => this.takeTurn(), 500);
         } else {
-            // Switch to human player
+            // Troca para jogador humano
             const switchTurnFunc = window.switchTurn || (typeof switchTurn !== 'undefined' ? switchTurn : null);
             if (switchTurnFunc) {
                 switchTurnFunc();
@@ -547,14 +547,14 @@ const AI_PLAYER = {
     },
 
     /**
-     * Utility: delay promise
+     * Função auxiliar: promise com delay
      */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     },
 
     /**
-     * Initialize AI with difficulty setting
+     * Inicializa AI com configuração de dificuldade
      */
     init(difficulty) {
         this.difficulty = difficulty || 'medium';
@@ -563,19 +563,19 @@ const AI_PLAYER = {
     },
 
     /**
-     * Check if it's AI's turn and trigger move
+     * Verifica se é turno da AI e dispara movimento
      */
     checkAndPlay() {
         if (!window.gameLogic || !window.gameLogic.gameState.gameActive) return;
         if (window.gameLogic.gameState.currentPlayer !== this.color) return;
         if (this.isProcessing) return;
 
-        // Small delay before AI starts its turn
+        // Delay antes de iniciar turno da AI
         setTimeout(() => this.takeTurn(), 800);
     }
 };
 
-// Export AI player FIRST
+// Exporta AI player
 window.AI_PLAYER = AI_PLAYER;
 
 console.log('AI Player loaded successfully (updated for single dice roll system)');

@@ -1,4 +1,4 @@
-// forfeitButtonScript.js - Handle forfeit/surrender functionality
+// forfeitButtonScript.js - Módulo de processamento de desistência/rendição
 
 document.addEventListener('DOMContentLoaded', () => {
     const forfeitButton = document.getElementById('forfeit-button');
@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Main click handler
+    // Handler principal de clique
     forfeitButton.addEventListener('click', handleForfeit);
 
-    // Keyboard support
+    // Suporte a teclado
     forfeitButton.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function handleForfeit() {
-    // Check if game is active
+    // Verifica se jogo está ativo
     if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
         updateMessageSafe("Não há jogo ativo para desistir!");
         return;
@@ -29,13 +29,13 @@ function handleForfeit() {
 
     const gameState = window.gameLogic.gameState;
 
-    // Check if it's AI's turn (prevent forfeit during AI processing)
+    // Previne desistência durante processamento da AI
     if (window.AI_PLAYER && window.AI_PLAYER.isProcessing) {
         updateMessageSafe("Aguarde a IA terminar sua jogada!");
         return;
     }
 
-    // Confirm forfeit with native dialog
+    // Confirmação via diálogo nativo
     const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
     const confirmMessage = `Tem certeza que deseja desistir?\n\nJogador ${currentPlayerName} perderá o jogo.`;
 
@@ -44,7 +44,7 @@ function handleForfeit() {
         return;
     }
 
-    // Determine winner (opposite of current player)
+    // Determina vencedor (oposto ao jogador atual)
     const winner = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     const loser = gameState.currentPlayer;
 
@@ -53,7 +53,7 @@ function handleForfeit() {
 
     updateMessageSafe(`Jogador ${loserName} desistiu! Jogador ${winnerName} vence por desistência!`);
 
-    // Small delay before ending game
+    // Delay antes de finalizar jogo
     setTimeout(() => {
         endGameByForfeit(winner, loser);
     }, 500);
@@ -62,10 +62,10 @@ function handleForfeit() {
 function endGameByForfeit(winner, loser) {
     const gameState = window.gameLogic.gameState;
 
-    // Mark game as inactive
+    // Marca jogo como inativo
     gameState.gameActive = false;
 
-    // Clear any selections and highlights
+    // Limpa seleções e destaques
     if (window.clearSelection) {
         window.clearSelection();
     } else {
@@ -77,7 +77,7 @@ function endGameByForfeit(winner, loser) {
         });
     }
 
-    // Stop AI if it's processing
+    // Interrompe processamento da AI se ativo
     if (window.AI_PLAYER) {
         window.AI_PLAYER.isProcessing = false;
     }
@@ -85,46 +85,46 @@ function endGameByForfeit(winner, loser) {
     const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
 
-    // Update message with forfeit info
+    // Atualiza mensagem com informação de desistência
     updateMessageSafe(`🏳️ Jogo terminado por desistência!\n\nJogador ${loserName} desistiu.\nJogador ${winnerName} VENCEU! 🎉`);
 
-    // Add game-over styling
+    // Adiciona classe de finalização
     const messageBox = document.querySelector('.message-box');
     if (messageBox) {
         messageBox.classList.add('game-over');
     }
 
-    // Disable roll button
+    // Desabilita botão de lançamento
     const rollButton = document.getElementById('roll-dice');
     if (rollButton) {
         rollButton.disabled = true;
     }
 
-    // Disable skip button
+    // Desabilita botão de pular
     const skipButton = document.getElementById('skip-button');
     if (skipButton) {
         skipButton.style.opacity = '0.5';
         skipButton.style.pointerEvents = 'none';
     }
 
-    // Disable forfeit button
+    // Desabilita botão de desistência
     const forfeitButton = document.getElementById('forfeit-button');
     if (forfeitButton) {
         forfeitButton.style.opacity = '0.5';
         forfeitButton.style.pointerEvents = 'none';
     }
 
-    // Add visual indication on board
+    // Adiciona efeitos visuais de desistência
     addForfeitVisualEffects(winner, loser);
 
-    // Show play again prompt after delay
+    // Exibe prompt para novo jogo após delay
     setTimeout(() => {
         showPlayAgainPrompt(winnerName, loserName);
     }, 2000);
 }
 
 function addForfeitVisualEffects(winner, loser) {
-    // Dim loser's pieces
+    // Atenua peças do perdedor
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
         const piece = cell.querySelector(`.${loser}-piece`);
@@ -134,7 +134,7 @@ function addForfeitVisualEffects(winner, loser) {
         }
     });
 
-    // Highlight winner's pieces
+    // Destaca peças do vencedor
     cells.forEach(cell => {
         const piece = cell.querySelector(`.${winner}-piece`);
         if (piece) {
@@ -142,7 +142,7 @@ function addForfeitVisualEffects(winner, loser) {
         }
     });
 
-    // Add pulse animation if not exists
+    // Adiciona animação pulse se não existir
     if (!document.getElementById('forfeit-animation-style')) {
         const style = document.createElement('style');
         style.id = 'forfeit-animation-style';
@@ -169,23 +169,23 @@ function showPlayAgainPrompt(winnerName, loserName) {
 }
 
 function updateMessageSafe(text) {
-    // Try to use global updateMessage if available
+    // Tenta usar updateMessage global se disponível
     if (window.updateMessage && typeof window.updateMessage === 'function') {
         window.updateMessage(text);
         return;
     }
 
-    // Fallback to direct DOM manipulation
+    // Fallback para manipulação direta do DOM
     const messageElement = document.querySelector('.message p');
     if (messageElement) {
-        // Replace \n with <br> for HTML display
+        // Substitui \n por <br> para exibição HTML
         messageElement.innerHTML = text.replace(/\n/g, '<br>');
     } else {
         console.warn('Message element not found:', text);
     }
 }
 
-// Make functions globally accessible
+// Exporta funções para acesso global
 window.handleForfeit = handleForfeit;
 window.endGameByForfeit = endGameByForfeit;
 

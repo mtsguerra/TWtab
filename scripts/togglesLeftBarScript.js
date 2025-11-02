@@ -1,4 +1,5 @@
-/* Painel lateral: controle de Regras e Classificação */
+// togglesLeftBarScript.js - Sistema de controle do painel lateral para Regras e Classificação
+
 (function () {
     const leftBar = document.getElementById('left-bar');
     const rulesToggle = document.getElementById('rules-toggle');
@@ -6,7 +7,7 @@
     const rulesContent = document.getElementById('rules-content');
     const classContent = document.getElementById('class-content');
 
-    // Fecha ambos os painéis
+    // Fecha todos os painéis
     function closeAll() {
         [rulesContent, classContent].forEach(content => content.setAttribute('hidden', ''));
         [rulesToggle, classToggle].forEach(btn => btn.setAttribute('aria-expanded', 'false'));
@@ -14,12 +15,12 @@
         leftBar.setAttribute('aria-hidden', 'true');
     }
 
-    // Abre um painel específico (rules ou class)
+    // Abre painel especificado (rules ou class)
     function openPanel(type) {
         leftBar.classList.remove('collapsed');
         leftBar.setAttribute('aria-hidden', 'false');
 
-        // Oculta ambos antes de abrir o desejado
+        // Oculta ambos antes de abrir o selecionado
         rulesContent.setAttribute('hidden', '');
         classContent.setAttribute('hidden', '');
 
@@ -38,7 +39,7 @@
         }
     }
 
-    // Alterna o painel (abre/fecha)
+    // Alterna estado do painel (abre/fecha)
     function togglePanel(type) {
         const isRules = type === 'rules';
         const toggleBtn = isRules ? rulesToggle : classToggle;
@@ -48,7 +49,7 @@
         else openPanel(type);
     }
 
-    // Eventos dos botões
+    // Registra eventos dos botões
     rulesToggle.addEventListener('click', () => togglePanel('rules'));
     classToggle.addEventListener('click', () => togglePanel('class'));
 

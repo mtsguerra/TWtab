@@ -1,4 +1,4 @@
-// rollScript.js - Enhanced dice rolling with single roll per turn restriction
+// rollScript.js - Sistema de lançamento de dados com restrição de lançamento único por turno
 
 const lightSide = "media/lightSide.png";
 const darkSide = "media/darkSide.png";
@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const diceImagesContainer = document.querySelector(".dice-images");
     const diceTotal = document.querySelector(".dice-total");
 
-    // Initially disable roll button
+    // Desabilita botão de lançamento inicialmente
     rollButton.disabled = true;
 
     rollButton.addEventListener("click", () => {
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // NOVA VALIDAÇÃO: Impedir rolar novamente se já tiver um valor de dado não usado
+        // Validação: previne novo lançamento com valor não utilizado
         if (window.gameLogic.gameState.diceValue > 0 && !window.gameLogic.gameState.diceUsed) {
             updateMessage(`⚠️ Você já rolou os dados (${window.gameLogic.gameState.diceValue} passos)! Use este valor ou pule a vez.`);
             return;
@@ -26,12 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
         diceImagesContainer.innerHTML = "";
         let lightSides = 0;
 
-        // Animate dice rolling
+        // Animação de lançamento
         rollButton.disabled = true;
         diceImagesContainer.style.opacity = '0.5';
 
         setTimeout(() => {
-            // Generate 4 random dice
+            // Gera 4 dados aleatórios
             for (let i = 0; i < 4; i++) {
                 const isLight = Math.random() < 0.5;
                 const img = document.createElement("img");
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             diceImagesContainer.style.opacity = '1';
 
-            // Calculate steps and bonus roll based on light sides
+            // Calcula passos e jogada bônus baseado em lados claros
             let steps = 0;
             let bonusRoll = false;
 
@@ -70,23 +70,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     break;
             }
 
-            // Update result display
+            // Atualiza exibição de resultado
             let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' : ''}`;
             if (bonusRoll) {
                 resultText += " 🎲 (Jogue novamente!)";
             }
             diceTotal.textContent = resultText;
 
-            // Update game state
+            // Atualiza estado do jogo
             if (window.gameLogic) {
                 window.gameLogic.gameState.diceValue = steps;
                 window.gameLogic.gameState.bonusRoll = bonusRoll;
-                window.gameLogic.gameState.diceUsed = false; // NOVO: Marcar que o dado ainda não foi usado
+                window.gameLogic.gameState.diceUsed = false; // Marca dado como não utilizado
 
                 updateMessage(`Você tirou ${steps} passo${steps !== 1 ? 's' : ''}! ${bonusRoll ? 'Pode jogar novamente após mover.' : 'Selecione uma peça para mover.'}`);
                 window.gameLogic.makeCurrentPlayerPiecesSelectable();
 
-                // NOVO: Desabilitar botão de rolar até que o valor seja usado
+                // Desabilita botão até que valor seja utilizado
                 rollButton.disabled = true;
                 rollButton.title = "Você deve usar o valor dos dados antes de rolar novamente";
             }
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// NOVA FUNÇÃO: Habilitar o botão de rolar dados (chamada após usar o valor)
+// Função para habilitar botão de lançamento (chamada após uso do valor)
 function enableRollButton() {
     const rollButton = document.getElementById("roll-dice");
     if (rollButton && window.gameLogic && window.gameLogic.gameState.gameActive) {
@@ -103,7 +103,7 @@ function enableRollButton() {
     }
 }
 
-// NOVA FUNÇÃO: Desabilitar o botão de rolar dados
+// Função para desabilitar botão de lançamento
 function disableRollButton(reason) {
     const rollButton = document.getElementById("roll-dice");
     if (rollButton) {
@@ -112,7 +112,7 @@ function disableRollButton(reason) {
     }
 }
 
-// Helper function to update message
+// Função auxiliar para atualização de mensagem
 function updateMessage(text) {
     const messageElement = document.querySelector('.message p');
     if (messageElement) {
@@ -120,11 +120,11 @@ function updateMessage(text) {
     }
 }
 
-// Exportar funções globalmente
+// Exporta funções globalmente
 window.enableRollButton = enableRollButton;
 window.disableRollButton = disableRollButton;
 
-// Add spin animation
+// Adiciona animação de rotação
 const style = document.createElement('style');
 style.textContent = `
     @keyframes spin {
