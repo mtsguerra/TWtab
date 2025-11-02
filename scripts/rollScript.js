@@ -1,4 +1,4 @@
-// rollScript.js - Enhanced dice rolling with game integration
+// rollScript.js - Enhanced dice rolling with single roll per turn restriction
 
 const lightSide = "media/lightSide.png";
 const darkSide = "media/darkSide.png";
@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", () => {
     rollButton.addEventListener("click", () => {
         if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
             updateMessage("Inicie um jogo primeiro!");
+            return;
+        }
+
+        // NOVA VALIDAÇÃO: Impedir rolar novamente se já tiver um valor de dado não usado
+        if (window.gameLogic.gameState.diceValue > 0 && !window.gameLogic.gameState.diceUsed) {
+            updateMessage(`⚠️ Você já rolou os dados (${window.gameLogic.gameState.diceValue} passos)! Use este valor ou pule a vez.`);
             return;
         }
 
@@ -75,15 +81,36 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.gameLogic) {
                 window.gameLogic.gameState.diceValue = steps;
                 window.gameLogic.gameState.bonusRoll = bonusRoll;
+                window.gameLogic.gameState.diceUsed = false; // NOVO: Marcar que o dado ainda não foi usado
 
                 updateMessage(`Você tirou ${steps} passo${steps !== 1 ? 's' : ''}! ${bonusRoll ? 'Pode jogar novamente após mover.' : 'Selecione uma peça para mover.'}`);
                 window.gameLogic.makeCurrentPlayerPiecesSelectable();
-            }
 
-            rollButton.disabled = false;
+                // NOVO: Desabilitar botão de rolar até que o valor seja usado
+                rollButton.disabled = true;
+                rollButton.title = "Você deve usar o valor dos dados antes de rolar novamente";
+            }
         }, 300);
     });
 });
+
+// NOVA FUNÇÃO: Habilitar o botão de rolar dados (chamada após usar o valor)
+function enableRollButton() {
+    const rollButton = document.getElementById("roll-dice");
+    if (rollButton && window.gameLogic && window.gameLogic.gameState.gameActive) {
+        rollButton.disabled = false;
+        rollButton.title = "Jogar Dados";
+    }
+}
+
+// NOVA FUNÇÃO: Desabilitar o botão de rolar dados
+function disableRollButton(reason) {
+    const rollButton = document.getElementById("roll-dice");
+    if (rollButton) {
+        rollButton.disabled = true;
+        rollButton.title = reason || "Aguarde sua vez";
+    }
+}
 
 // Helper function to update message
 function updateMessage(text) {
@@ -93,21 +120,9 @@ function updateMessage(text) {
     }
 }
 
-// Helper function to switch turn
-function switchTurn() {
-    if (window.gameLogic && window.gameLogic.gameState.gameActive) {
-        const currentPlayer = window.gameLogic.gameState.currentPlayer;
-        window.gameLogic.gameState.currentPlayer = currentPlayer === 'red' ? 'blue' : 'red';
-        window.gameLogic.gameState.diceValue = 0;
-        window.gameLogic.gameState.bonusRoll = false;
-
-        const diceTotal = document.querySelector('.dice-total');
-        diceTotal.textContent = 'Resultado: —';
-
-        const newPlayer = window.gameLogic.gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
-        updateMessage(`Turno do jogador ${newPlayer}. Role os dados!`);
-    }
-}
+// Exportar funções globalmente
+window.enableRollButton = enableRollButton;
+window.disableRollButton = disableRollButton;
 
 // Add spin animation
 const style = document.createElement('style');
