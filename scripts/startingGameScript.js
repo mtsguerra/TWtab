@@ -1,4 +1,4 @@
-// startingGameScript.js - Enhanced with game initialization
+// startingGameScript.js - Enhanced with AI game initialization
 
 const playBtn = document.getElementById('playBtn');
 const overlay = document.getElementById('overlay');
@@ -82,13 +82,13 @@ playForm.addEventListener('submit', (e) => {
     console.log('Game settings chosen:', settings);
 
     closeDialog();
-    createBoard(settings.boardSize, settings.starter);
+    createBoard(settings.boardSize, settings.starter, settings.opponent, settings.difficulty);
 
     // Enable roll button
     document.getElementById('roll-dice').disabled = false;
 });
 
-function createBoard(columns, starter) {
+function createBoard(columns, starter, opponent, difficulty) {
     const board = document.getElementById('game-board');
     board.innerHTML = '';
     board.classList.remove('hidden');
@@ -110,6 +110,9 @@ function createBoard(columns, starter) {
         window.gameLogic.initializePieces(columns);
         window.gameLogic.setupCellClickHandlers();
 
+        // Determine if this is an AI game
+        const isAIGame = opponent === 'pc';
+
         // Set starter
         let startingPlayer = 'red';
         if (starter === 'pc') {
@@ -120,8 +123,26 @@ function createBoard(columns, starter) {
 
         window.gameLogic.gameState.currentPlayer = startingPlayer;
 
-        const playerName = startingPlayer === 'red' ? 'Vermelho' : 'Azul';
-        updateMessage(`Jogo iniciado! Jogador ${playerName} começa. Role os dados!`);
+        // Initialize AI if needed
+        if (isAIGame) {
+            if (window.initAIGame) {
+                window.initAIGame(difficulty || 'medium');
+
+                const playerName = startingPlayer === 'red' ? 'IA (Vermelho)' : 'Você (Azul)';
+                updateMessage(`Jogo contra IA iniciado! ${playerName} começa. ${startingPlayer === 'blue' ? 'Role os dados!' : 'A IA vai jogar...'}`);
+            } else {
+                console.error('AI integration not loaded');
+                updateMessage('Erro ao carregar IA. Jogando como Humano vs Humano.');
+            }
+        } else {
+            // Disable AI for human vs human
+            if (window.disableAIGame) {
+                window.disableAIGame();
+            }
+
+            const playerName = startingPlayer === 'red' ? 'Vermelho' : 'Azul';
+            updateMessage(`Jogo iniciado! Jogador ${playerName} começa. Role os dados!`);
+        }
     }
 }
 
