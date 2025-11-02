@@ -24,15 +24,13 @@
     --font-size: 16px;
     --font-weight: 400;
 
-    /* layout */
     --gap: 1.5%;
     --sidebar-width: 220px;
     --header-height: 80px;
-    --footer-height: 30px; /* adjust as you like (px, vh, etc.) */
+    --footer-height: 30px;
     --border-radius: 15px;
 }
 
-/* base: fix page scrolling and ensure viewport sizing */
 html, body {
     height: 100%;
     margin: 0;
@@ -44,7 +42,6 @@ html, body {
     color: var(--text-color);
     -webkit-font-smoothing: antialiased;
 
-    /* prevent the whole page from scrolling — only internal areas will scroll if needed */
     overflow: hidden;
 }
 
@@ -66,13 +63,13 @@ header{
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center; /* keeps the title centered */
-    position: relative;      /* allows header-actions to be positioned at right */
+    justify-content: center;
+    position: relative;
     padding: 0 20px;
     box-sizing: border-box;
 }
 
-#header-title{
+.header-title{
     font-size: 2em;
     font-weight: bold;
     text-align: center;
@@ -198,15 +195,10 @@ header{
     padding: 1.5%;
     font-size: clamp(0.85rem, 0.8rem + 0.35vw, 1rem);
     box-sizing: border-box;
+    scroll-behavior: smooth;
 
     height: calc(100% - 28px);
     overflow: auto;
-}
-
-#left-bar, #right-bar {
-    overflow: auto;
-    padding: 20px;
-    scroll-behavior: smooth;
 }
 
 .rules-list{
@@ -257,11 +249,11 @@ header{
 #class-table-items {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;     /* alinha os itens à esquerda */
-    gap: 1.2rem;                 /* aumenta o espaçamento entre linhas */
-    width: 100%;                 /* usa toda a largura da caixa verde */
+    align-items: flex-start;
+    gap: 1.2rem;
+    width: 100%;
     margin: 0;
-    padding-left: 2rem;          /* leve recuo da borda esquerda */
+    padding-left: 2rem;
     list-style: decimal;
 }
 
@@ -447,8 +439,8 @@ header{
     background: var(--c6-color);
     color: var(--c7-color);
     box-sizing: border-box;
-    z-index: 1000;              /* between header (1100) and container (900) */
-    font-size: 0.95em;         /* keep text readable while fitting in the height */
+    z-index: 1000;
+    font-size: 0.95em;
 }
 
 main,
@@ -465,7 +457,7 @@ main,
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* 🟢 ensures .message-box stays at top */
+    justify-content: flex-start;
     gap: 24px;
 }
 
@@ -558,11 +550,11 @@ main label, main legend {
 #boardSize {
     background: var(--c8-color);
     color: var(--c3-color);
-    padding: 10px 14px;                /* aumenta o espaçamento interno */
+    padding: 10px 14px;
     border-radius: var(--border-radius);
     border: 1px solid var(--c4-color);
     font-size: 1rem;
-    width: 100%;                       /* opcional, faz ocupar toda a largura do container */
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -620,7 +612,6 @@ fieldset {
     gap: 8px;
 }
 
-/* garantir que o painel do tabuleiro ocupe toda a largura do main */
 .game-board {
     width: 80%;
     box-sizing: border-box;
@@ -629,12 +620,10 @@ fieldset {
     background-color: var(--board-color);
     display: grid;
     gap: 8px;
-    /* não centralizar o conteúdo por conta do flex pai — deixar o grid repartir o espaço */
-    justify-items: stretch; /* cada célula ocupa a sua coluna */
+    justify-items: stretch;
     align-items: stretch;
 }
 
-/* grid das células (mantém comportamento responsivo) */
 #game-board {
     margin-top: 1.5rem;
     display: grid;
@@ -644,9 +633,7 @@ fieldset {
     padding: 2%;
     border-radius: var(--border-radius);
 
-    /* cada coluna cresce igualmente e tem um mínimo de 40px */
     grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-    /* altura das linhas: ajustar para preservar aspecto quadrado da célula */
     grid-auto-rows: 1fr;
 }
 
@@ -692,16 +679,15 @@ fieldset {
 }
 
 .red-piece {
-    background: radial-gradient(circle at 30% 30%, #ff4757, #c1121f);
-    border: 2px solid #8b0000;
+    background: var(--red-pieces-color);
+    border: 2px solid color-mix(in srgb, var(--red-pieces-color) 70%, black);
 }
 
 .blue-piece {
-    background: radial-gradient(circle at 30% 30%, #6c8eff, #4361ee);
-    border: 2px solid #1e3a8a;
+    background: var(--blue-pieces-color);
+    border: 2px solid color-mix(in srgb, var(--blue-pieces-color) 70%, black);
 }
 
-/* Inactive pieces (not yet activated) */
 .piece.inactive {
     opacity: 0.5;
     filter: grayscale(0.4);
@@ -713,14 +699,13 @@ fieldset {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 0.8em;
+    font-size: 1em;
 }
 
 .cell.inactive-piece {
     opacity: 0.6;
 }
 
-/* Interactive cell states */
 .cell.selectable {
     cursor: pointer;
     animation: pulse 1.5s ease-in-out infinite;
@@ -732,7 +717,6 @@ fieldset {
     box-shadow: 0 0 12px rgba(254, 250, 224, 0.5);
 }
 
-/* Possible move indicators */
 .cell.possible-move {
     background: radial-gradient(circle, rgba(163, 177, 138, 0.9), rgba(122, 153, 113, 0.7));
     border: 3px solid var(--c4-color);
@@ -757,7 +741,6 @@ fieldset {
     box-shadow: 0 0 15px rgba(163, 177, 138, 0.8);
 }
 
-/* Capture move indicators */
 .cell.capture-move {
     background: radial-gradient(circle, rgba(255, 69, 0, 0.8), rgba(193, 18, 31, 0.6));
     border: 3px solid #ff4500;
@@ -792,13 +775,11 @@ fieldset {
     justify-content: center;
 }
 
-/* Remove initial red/blue background from cells */
 .cell.red,
 .cell.blue {
     background: var(--c1-color);
 }
 
-/* Animations */
 @keyframes pulse {
     0%, 100% {
         transform: scale(1);
@@ -835,20 +816,17 @@ fieldset {
     }
 }
 
-/* Game over overlay effect */
 .game-board.game-over {
     opacity: 0.6;
     pointer-events: none;
 }
 
-/* Dice roll button states */
 #roll-dice:disabled {
     background: var(--c8-color);
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-/* Message box enhancement for game states */
 .message-box.game-active {
     border: 2px solid var(--c5-color);
 }
@@ -865,16 +843,4 @@ fieldset {
     50% {
         transform: scale(1.02);
     }
-}
-
-.red-piece.completed {
-    background: radial-gradient(circle at 30% 30%, #ff8b94, #ff6b7a) !important;
-    border: 2px solid #b85a5a !important;
-    opacity: 0.85;
-}
-
-.blue-piece.completed {
-    background: radial-gradient(circle at 30% 30%, #8fa5ff, #6c8eff) !important;
-    border: 2px solid #4a67c4 !important;
-    opacity: 0.85;
 }

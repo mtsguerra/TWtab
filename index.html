@@ -26,7 +26,7 @@
 <body>
 <header id="site-header">
     <nav class="navbar">
-        <h1 id="header-title">Tâb</h1>
+        <h1 class="header-title" id="header-title">Tâb</h1>
         <div class="header-actions" role="group" aria-label="Conta">
             <h4>Conta</h4>
             <button id="account-btn"
@@ -254,22 +254,22 @@
                             <input type="radio" name="opponent" value="human" checked /> Humano
                         </label>
                         <label>
-                            <input type="radio" name="opponent" value="pc" /> Computador (IA)
+                            <input type="radio" name="opponent" value="pc" /> Computador
                         </label>
                     </fieldset>
 
                     <div id="pcOptions" class="pc-options hidden" aria-hidden="true">
                         <label for="difficulty">Dificuldade da IA</label>
                         <select id="difficulty" name="difficulty">
-                            <option value="easy">Fácil (Aleatório)</option>
-                            <option value="medium" selected>Médio (Balanceado)</option>
-                            <option value="hard">Difícil (Estratégico)</option>
+                            <option value="easy">Fácil</option>
+                            <option value="medium" selected>Médio</option>
+                            <option value="hard">Difícil</option>
                         </select>
                     </div>
 
                     <label for="starter">Quem começa</label>
                     <select id="starter" name="starter">
-                        <option value="player" selected>Vermelho (você ou IA)</option>
+                        <option value="player" selected>Vermelho</option>
                         <option value="pc">Azul</option>
                         <option value="random">Aleatório</option>
                     </select>
