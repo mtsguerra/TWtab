@@ -22,34 +22,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleForfeit() {
     // Verifica se jogo está ativo
-    if (!window.gameLogic || !window.gameLogic.gameState. gameActive) {
+    if (!window. gameLogic || !window.gameLogic.gameState.gameActive) {
         updateMessageSafe("Não há jogo ativo para desistir!");
         return;
     }
 
     const gameState = window.gameLogic. gameState;
 
-    // Previne desistência durante processamento da AI
-    if (window.AI_PLAYER && window.AI_PLAYER.isProcessing) {
-        updateMessageSafe("Aguarde a IA terminar sua jogada!");
-        return;
+    // **NOVA LÓGICA SIMPLIFICADA:  Determina quem é o jogador humano**
+    const isAIGame = window.isAIGameActive && window.isAIGameActive();
+    let humanColor = null;
+    let loser = null;
+    let winner = null;
+
+    if (isAIGame && window.AI_PLAYER) {
+        // Em jogo contra IA, o humano sempre perde ao desistir
+        humanColor = window.AI_PLAYER.color === 'red' ? 'blue' : 'red';
+        loser = humanColor;
+        winner = window.AI_PLAYER.color;
+    } else {
+        // Em jogo humano vs humano, o jogador atual perde
+        loser = gameState.currentPlayer;
+        winner = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     }
-
-    // Confirmação via diálogo nativo
-    const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
-    const confirmMessage = `Tem certeza que deseja desistir?\n\nJogador ${currentPlayerName} perderá o jogo.`;
-
-    if (! confirm(confirmMessage)) {
-        updateMessageSafe("Desistência cancelada.  Continue jogando!");
-        return;
-    }
-
-    // Determina vencedor (oposto ao jogador atual)
-    const winner = gameState.currentPlayer === 'red' ? 'blue' : 'red';
-    const loser = gameState.currentPlayer;
 
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
     const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
+
+    // Confirmação via diálogo nativo
+    const confirmMessage = `Tem certeza que deseja desistir?\n\nVocê (${loserName}) perderá o jogo.`;
+
+    if (!confirm(confirmMessage)) {
+        updateMessageSafe("Desistência cancelada.  Continue jogando!");
+        return;
+    }
 
     updateMessageSafe(`Jogador ${loserName} desistiu!  Jogador ${winnerName} vence por desistência! `);
 
@@ -84,6 +90,39 @@ function endGameByForfeit(winner, loser) {
 
     const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
+
+    if (window.RankingSystem && window.RankingSystem.isUserLoggedIn()) {
+        const currentUser = window.RankingSystem.getCurrentUser();
+        const isAIGame = window.isAIGameActive && window.isAIGameActive();
+
+        if (window.RankingSystem && window.RankingSystem.isUserLoggedIn()) {
+            const currentUser = window.RankingSystem.getCurrentUser();
+            const isAIGame = window.isAIGameActive && window.isAIGameActive();
+
+            if (isAIGame && window.AI_PLAYER) {
+                // Jogador humano sempre perde ao desistir em jogo contra IA
+                const humanColor = window.AI_PLAYER.color === 'red' ? 'blue' : 'red';
+                const playerWon = false; // Humano sempre perde ao desistir
+                const playerForfeited = true; // Sempre é desistência
+                const difficulty = window.getAIDifficulty ? window.getAIDifficulty() : 'medium';
+
+                // Registra derrota com penalidade de desistência
+                window.RankingSystem.recordGameResult(currentUser, playerWon, difficulty, playerForfeited);
+
+                console.log(`Ranking updated: User ${currentUser}, Won: false, Forfeit: true, Difficulty: ${difficulty}`);
+
+                // Atualiza painel de conta se estiver aberto
+                if (window.__accountPanel) {
+                    window.__accountPanel.updateContent();
+                }
+
+                // Atualiza rankings se painel estiver aberto
+                if (window.__leftBarPanel) {
+                    window.__leftBarPanel.updateRankings();
+                }
+            }
+        }
+    }
 
     // Atualiza mensagem com informação de desistência
     updateMessageSafe(`🏳️ Jogo terminado por desistência!\n\nJogador ${loserName} desistiu.\nJogador ${winnerName} VENCEU!  🎉`);
