@@ -5,6 +5,9 @@
     <title>Tâb</title>
     <link href="sty.css" rel="stylesheet"/>
 
+    <!-- Sistema de Rankings-->
+    <script src="scripts/rankingSystem.js" defer></script>
+
     <!-- Painel de Conta do Usuário -->
     <script src="scripts/account-panel.js" defer></script>
 
@@ -44,27 +47,10 @@
                 <img src="media/loginIcon.png" alt="Ícone de conta"/>
             </button>
 
-            <!-- Painel de autenticação (login/criação de conta) -->
+            <!-- Painel de autenticação (login/estatísticas) -->
             <div id="account-panel" class="account-panel" role="dialog" aria-modal="false" aria-labelledby="account-panel-title" hidden>
                 <div class="panel-inner" role="document">
-                    <h3 id="account-panel-title">Entrar</h3>
-
-                    <!-- Formulário de login -->
-                    <form id="login-form" action="/login" method="post" novalidate>
-                        <label for="username">Usuário</label>
-                        <input id="username" name="username" type="text" autocomplete="username" required />
-
-                        <label for="password">Senha</label>
-                        <input id="password" name="password" type="password" autocomplete="current-password" required />
-
-                        <div class="panel-row">
-                            <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
-                        </div>
-
-                        <div class="panel-create">
-                            <a href="/signup" class="create-link" id="create-account">Criar conta</a>
-                        </div>
-                    </form>
+                    <!-- Conteúdo será gerado dinamicamente pelo JavaScript -->
                 </div>
             </div>
         </div>

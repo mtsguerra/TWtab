@@ -870,3 +870,54 @@ fieldset input[type="radio"] {
         transform: scale(1.02);
     }
 }
+
+/* Estilos para estatísticas do usuário no painel de conta */
+. user-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin:  12px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size:  1.1rem;
+    font-weight:  bold;
+    color: var(--c3-color);
+}
+
+/* Destaque para usuário atual no ranking */
+#class-table-items .current-user {
+    border:  2px solid var(--c3-color);
+    box-shadow: 0 0 10px rgba(254, 250, 224, 0.5);
+}
+
+/* Ajustes para itens do ranking */
+#class-table-items li {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#class-table-items li:hover {
+    transform: translateX(5px);
+}
+
+#class-table-items li small {
+    display: block;
+    margin-top: 4px;
+    font-weight: normal;
+}

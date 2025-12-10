@@ -689,6 +689,28 @@ function endGame(winner) {
     messageBox.classList.add('game-over');
 
     document.getElementById('roll-dice').disabled = true;
+
+    if (window.RankingSystem && window.RankingSystem.isUserLoggedIn()) {
+        const currentUser = window.RankingSystem.getCurrentUser();
+        const isAIGame = window.isAIGameActive && window.isAIGameActive();
+
+        if (isAIGame && window.AI_PLAYER) {
+            const playerWon = winner !== window.AI_PLAYER.color;
+            const difficulty = window.getAIDifficulty ?  window.getAIDifficulty() : 'medium';
+
+            window.RankingSystem.recordGameResult(currentUser, playerWon, difficulty, false);
+
+            // Atualiza painel de conta se estiver aberto
+            if (window.__accountPanel) {
+                window.__accountPanel.updateContent();
+            }
+
+            // Atualiza rankings se painel estiver aberto
+            if (window.__leftBarPanel) {
+                window.__leftBarPanel.updateRankings();
+            }
+        }
+    }
 }
 
 // Atualiza mensagem
