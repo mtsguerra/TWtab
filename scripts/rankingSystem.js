@@ -181,11 +181,34 @@
         return localStorage.getItem(CURRENT_USER_KEY) || null;
     }
 
+    function setCurrentPassword(password) {
+        if (password && password.trim()) {
+            localStorage.setItem('tab_current_password', password.trim());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Obtém senha do usuário atual
+     */
+    function getCurrentPassword() {
+        return localStorage.getItem('tab_current_password') || null;
+    }
+
+    /**
+     * Remove senha do usuário atual
+     */
+    function clearCurrentPassword() {
+        localStorage. removeItem('tab_current_password');
+    }
+
     /**
      * Remove usuário atual (logout)
      */
     function clearCurrentUser() {
-        localStorage. removeItem(CURRENT_USER_KEY);
+        localStorage.removeItem(CURRENT_USER_KEY);
+        clearCurrentPassword();
     }
 
     /**
@@ -219,7 +242,10 @@
         getCurrentUser,
         clearCurrentUser,
         isUserLoggedIn,
-        resetAllRankings
+        resetAllRankings,
+        setCurrentPassword,      // NOVO
+        getCurrentPassword,      // NOVO
+        clearCurrentPassword     // NOVO
     };
 
     console.log('Ranking System loaded successfully');

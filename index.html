@@ -16,6 +16,7 @@
 
     <!-- Lógica do jogo (deve carregar antes da IA) -->
     <script src="scripts/gameLogicScript.js" defer></script>
+    <script src="scripts/onlineGameScript.js" defer></script>
     <script src="scripts/rollScript.js" defer></script>
     <script src="scripts/skipButtonScript.js" defer></script>
     <script src="scripts/forfeitButtonScript.js" defer></script>
@@ -362,12 +363,23 @@
                             id="boardSize"
                             name="boardSize"
                             type="number"
-                            min="5"
+                            min="7"
                             max="15"
                             step="2"
                             value="7"
                             title="Escolha um tamanho ímpar (7, 9, 11...)"
                     />
+
+                    <!-- NOVO: Seleção de modo -->
+                    <fieldset>
+                        <legend>Modo de Jogo</legend>
+                        <label>
+                            <input type="radio" name="mode" value="local" checked /> Local
+                        </label>
+                        <label>
+                            <input type="radio" name="mode" value="online" /> Online
+                        </label>
+                    </fieldset>
 
                     <!-- Seleção de tipo de oponente -->
                     <fieldset>
@@ -416,8 +428,55 @@
                         <button type="submit" id="confirmBtn" class="btn btn-primary">Confirmar</button>
                     </div>
                 </form>
+                <!-- ADICIONAR SCRIPT para ocultar opção PC em modo online -->
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const modeRadios = document.querySelectorAll('input[name="mode"]');
+                        const opponentFieldset = document.getElementById('opponent-fieldset');
+
+                        modeRadios.forEach(radio => {
+                            radio.addEventListener('change', (e) => {
+                                if (e.target.value === 'online') {
+                                    opponentFieldset.classList.add('hidden');
+                                    document.querySelector('input[name="opponent"][value="human"]').checked = true;
+                                } else {
+                                    opponentFieldset.classList.remove('hidden');
+                                }
+                            });
+                        });
+                    });
+                </script>
             </div>
         </div>
+
+        <!-- Modal de espera por adversário -->
+        <div id="waiting-overlay" class="overlay hidden">
+            <div class="waiting-dialog">
+                <div class="spinner"></div>
+                <h2 id="waiting-message">Aguardando adversário...</h2>
+                <p>Você será conectado automaticamente quando outro jogador entrar. </p>
+                <button id="cancel-waiting" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Timer de timeout -->
+        <div id="timeout-timer" class="timeout-display"></div>
+
+        <!-- ADICIONAR SCRIPT para cancelar espera -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const cancelBtn = document.getElementById('cancel-waiting');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', async () => {
+                        if (window.OnlineGame && window.OnlineGame.isOnlineMode()) {
+                            const state = window.OnlineGame.getOnlineState();
+                            await window.OnlineGame.leaveGame(state.myNick, state.myPassword, state.gameId);
+                        }
+                        window.hideWaitingScreen();
+                    });
+                }
+            });
+        </script>
     </main>
 
     <!-- Barra lateral direita (Comandos de jogo) -->

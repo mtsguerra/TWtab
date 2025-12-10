@@ -20,58 +20,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function handleSkipTurn() {
-    // Verifica se jogo está ativo
+async function handleSkipTurn() {
     if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
         updateMessageSafe("Inicie um jogo primeiro!");
         return;
     }
 
-    const gameState = window.gameLogic.gameState;
+    const gameState = window.gameLogic. gameState;
 
-    // Verifica se dados foram lançados
     if (gameState.diceValue === 0) {
         updateMessageSafe("Você precisa rolar os dados antes de pular a vez!");
         return;
     }
 
-    // MODIFICADO: verifica cor dinâmica da IA
-    if (window. isAIGameActive && window.isAIGameActive() &&
-        window.AI_PLAYER && gameState.currentPlayer === window.AI_PLAYER.color) {
+    // MODO ONLINE
+    if (window.OnlineGame && window. OnlineGame.isOnlineMode()) {
+        const state = window.OnlineGame.getOnlineState();
+
+        if (! state.myTurn) {
+            updateMessageSafe("Aguarde sua vez!");
+            return;
+        }
+
+        const result = await window.OnlineGame.passTurn(state.myNick, state.myPassword, state. gameId);
+
+        if (!result.success) {
+            alert(`Erro ao passar a vez: ${result.error}`);
+        }
+
+        // O resultado será processado via UPDATE (SSE)
+        return;
+    }
+
+    // MODO LOCAL (código original)
+    if (window.isAIGameActive && window.isAIGameActive() &&
+        window.AI_PLAYER && gameState.currentPlayer === window.AI_PLAYER. color) {
         updateMessageSafe("Aguarde a vez da IA!");
         return;
     }
 
-    // Verifica se jogador possui movimentos válidos
-    if (hasAnyValidMoves(gameState.currentPlayer, gameState.diceValue)) {
-        updateMessageSafe("⚠️ Você ainda tem jogadas possíveis! Você só pode pular a vez se não houver movimentos válidos.");
-
-        // Destaca peças que podem mover
+    if (hasAnyValidMoves(gameState. currentPlayer, gameState. diceValue)) {
+        updateMessageSafe("⚠️ Você ainda tem jogadas possíveis!  Você só pode pular a vez se não houver movimentos válidos.");
         highlightMovablePieces(gameState.currentPlayer, gameState.diceValue);
         return;
     }
 
-    // Sem movimentos válidos - permite pular
     if (window.clearSelection) {
         clearSelection();
     } else {
         gameState.selectedPiece = null;
         gameState.possibleMoves = [];
-        const cells = document.querySelectorAll('.cell');
+        const cells = document.querySelectorAll('. cell');
         cells.forEach(cell => {
             cell.classList.remove('selected', 'possible-move', 'capture-move', 'selectable');
         });
     }
 
     const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
-    updateMessageSafe(`Sem jogadas válidas. Jogador ${currentPlayerName} pulou a vez.`);
+    updateMessageSafe(`Sem jogadas válidas.  Jogador ${currentPlayerName} pulou a vez. `);
 
-    // Executa troca de turno
     setTimeout(() => {
         performTurnSwitch();
     }, 800);
 }
-
 /**
  * Verifica se jogador atual possui movimentos válidos
  */

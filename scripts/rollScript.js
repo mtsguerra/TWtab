@@ -11,14 +11,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // Desabilita botão de lançamento inicialmente
     rollButton.disabled = true;
 
-    rollButton.addEventListener("click", () => {
-        if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
+    rollButton.addEventListener("click", async () => {
+        if (! window.gameLogic || !window.gameLogic.gameState. gameActive) {
             updateMessage("Inicie um jogo primeiro!");
             return;
         }
 
-        // Validação: previne novo lançamento com valor não utilizado
-        if (window.gameLogic.gameState.diceValue > 0 && !window.gameLogic.gameState.diceUsed) {
+        // MODO ONLINE
+        if (window.OnlineGame && window.OnlineGame.isOnlineMode()) {
+            const state = window.OnlineGame.getOnlineState();
+
+            if (! state.myTurn) {
+                updateMessage("Aguarde sua vez!");
+                return;
+            }
+
+            rollButton.disabled = true;
+            const result = await window.OnlineGame.rollDice(state.myNick, state.myPassword, state.gameId);
+
+            if (! result.success) {
+                alert(`Erro ao lançar dados: ${result.error}`);
+                rollButton.disabled = false;
+            }
+
+            // O resultado será processado via UPDATE (SSE)
+            return;
+        }
+
+        // MODO LOCAL (código original)
+        if (window.gameLogic. gameState. diceValue > 0 && ! window.gameLogic.gameState. diceUsed) {
             updateMessage(`⚠️ Você já rolou os dados (${window.gameLogic.gameState.diceValue} passos)! Use este valor ou pule a vez.`);
             return;
         }
@@ -26,12 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
         diceImagesContainer.innerHTML = "";
         let lightSides = 0;
 
-        // Animação de lançamento
         rollButton.disabled = true;
         diceImagesContainer.style.opacity = '0.5';
 
         setTimeout(() => {
-            // Gera 4 dados aleatórios
             for (let i = 0; i < 4; i++) {
                 const isLight = Math.random() < 0.5;
                 const img = document.createElement("img");
@@ -43,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             diceImagesContainer.style.opacity = '1';
 
-            // Calcula passos e jogada bônus baseado em lados claros
             let steps = 0;
             let bonusRoll = false;
 
@@ -70,23 +88,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     break;
             }
 
-            // Atualiza exibição de resultado
-            let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' : ''}`;
+            let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' :  ''}`;
             if (bonusRoll) {
                 resultText += " 🎲 (Jogue novamente!)";
             }
             diceTotal.textContent = resultText;
 
-            // Atualiza estado do jogo
             if (window.gameLogic) {
                 window.gameLogic.gameState.diceValue = steps;
                 window.gameLogic.gameState.bonusRoll = bonusRoll;
-                window.gameLogic.gameState.diceUsed = false; // Marca dado como não utilizado
+                window.gameLogic.gameState.diceUsed = false;
 
-                updateMessage(`Você tirou ${steps} passo${steps !== 1 ? 's' : ''}! ${bonusRoll ? 'Pode jogar novamente após mover.' : 'Selecione uma peça para mover.'}`);
+                updateMessage(`Você tirou ${steps} passo${steps !== 1 ?  's' : ''}! ${bonusRoll ? 'Pode jogar novamente após mover.' : 'Selecione uma peça para mover.'}`);
                 window.gameLogic.makeCurrentPlayerPiecesSelectable();
 
-                // Desabilita botão até que valor seja utilizado
                 rollButton.disabled = true;
                 rollButton.title = "Você deve usar o valor dos dados antes de rolar novamente";
             }

@@ -135,22 +135,25 @@
             }
         } else {
             panelInner.innerHTML = `
-                <h3 id="account-panel-title">Entrar</h3>
-                <form id="login-form" novalidate>
-                    <label for="username">Usuário</label>
-                    <input id="username" name="username" type="text" autocomplete="username" required />
+        <h3 id="account-panel-title">Entrar</h3>
+        <form id="login-form" novalidate>
+            <label for="username">Usuário</label>
+            <input id="username" name="username" type="text" autocomplete="username" required />
 
-                    <div class="panel-row">
-                        <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
-                    </div>
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
 
-                    <div class="panel-create">
-                        <small style="color: var(--c7-color); text-align: center; display: block; margin-top: 8px;">
-                            Digite seu nome de usuário para começar
-                        </small>
-                    </div>
-                </form>
-            `;
+            <div class="panel-row">
+                <button type="submit" class="btn btn-primary" id="login-submit">Entrar</button>
+            </div>
+
+            <div class="panel-create">
+                <small style="color: var(--c7-color); text-align: center; display: block; margin-top: 8px;">
+                    Digite seu usuário e senha.  Se não existir, será criado automaticamente.
+                </small>
+            </div>
+        </form>
+    `;
 
             // Adiciona listener de login
             const loginForm = panelInner.querySelector('#login-form');
@@ -158,6 +161,52 @@
                 loginForm.addEventListener('submit', handleLogin);
             }
         }
+
+        // SUBSTITUIR a função handleLogin (linhas ~169-183) por:
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const formData = new FormData(e. target);
+            const username = formData.get('username');
+            const password = formData. get('password');
+
+            if (!username || username.trim().length < 3) {
+                alert('O nome de usuário deve ter pelo menos 3 caracteres! ');
+                return;
+            }
+
+            if (!password || password.trim().length < 4) {
+                alert('A senha deve ter pelo menos 4 caracteres!');
+                return;
+            }
+
+            // MODO ONLINE:  Registra no servidor
+            if (window.OnlineGame) {
+                const result = await window.OnlineGame. register(username. trim(), password.trim());
+
+                if (result.success) {
+                    // Salva localmente também
+                    if (window.RankingSystem) {
+                        window.RankingSystem.setCurrentUser(username.trim());
+                        window.RankingSystem.setCurrentPassword(password.trim()); // ADICIONAR este método no rankingSystem. js
+                    }
+
+                    updatePanelContent();
+                    alert(`Bem-vindo, ${username. trim()}!`);
+                } else {
+                    alert(`Erro ao fazer login: ${result.error}`);
+                }
+            } else {
+                // MODO LOCAL (fallback)
+                if (window.RankingSystem) {
+                    window.RankingSystem.setCurrentUser(username. trim());
+                    window.RankingSystem.setCurrentPassword(password.trim());
+                    updatePanelContent();
+                    alert(`Bem-vindo, ${username.trim()}!`);
+                }
+            }
+        }
+
     }
 
     function handleLogin(e) {

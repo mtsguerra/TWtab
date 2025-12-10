@@ -921,3 +921,143 @@ fieldset input[type="radio"] {
     margin-top: 4px;
     font-weight: normal;
 }
+
+/* ================================
+   ESTILOS PARA MODO ONLINE
+   ================================ */
+
+/* Modal de espera por adversário */
+.waiting-dialog {
+    background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
+    padding: 2rem;
+    border-radius:  var(--border-radius);
+    text-align: center;
+    color: var(--c3-color);
+    max-width: 400px;
+}
+
+.waiting-dialog h2 {
+    margin-top: 1rem;
+    font-size:  1.5rem;
+}
+
+.waiting-dialog p {
+    margin: 1rem 0;
+    opacity: 0.9;
+}
+
+/* Spinner de carregamento */
+.spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border: 6px solid rgba(254, 250, 224, 0.2);
+    border-top-color: var(--c3-color);
+    border-radius: 50%;
+    animation:  spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Timer de timeout */
+.timeout-display {
+    position: fixed;
+    top: calc(var(--header-height) + 20px);
+    right: 20px;
+    background: var(--c8-color);
+    color: var(--c3-color);
+    padding: 8px 16px;
+    border-radius:  var(--border-radius);
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+/* Indicador de modo online */
+.online-indicator {
+    position: fixed;
+    top: calc(var(--header-height) + 20px);
+    left: 20px;
+    background: var(--c5-color);
+    color: var(--c3-color);
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+. online-indicator::before {
+    content: '🌐';
+    font-size:  1.2rem;
+}
+
+. online-indicator.waiting::before {
+    content: '⏳';
+}
+
+/* Destaque para mensagens de adversário */
+.opponent-info {
+    background: var(--c7-color);
+    color: var(--c3-color);
+    padding: 8px 12px;
+    border-radius:  var(--border-radius);
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Animação de pulsação para vez do jogador */
+. my-turn-indicator {
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(163, 177, 138, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(163, 177, 138, 1);
+    }
+}
+
+/* Bloqueio de interação quando não é a vez */
+.not-my-turn {
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(0.3);
+}
+
+/* Mensagem de erro de conexão */
+.connection-error {
+    position: fixed;
+    bottom: calc(var(--footer-height) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #c1121f;
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform:  translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}

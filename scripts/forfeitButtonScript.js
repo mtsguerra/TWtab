@@ -20,28 +20,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function handleForfeit() {
-    // Verifica se jogo está ativo
-    if (!window. gameLogic || !window.gameLogic.gameState.gameActive) {
+async function handleForfeit() {
+    if (!window.gameLogic || !window.gameLogic. gameState.gameActive) {
         updateMessageSafe("Não há jogo ativo para desistir!");
         return;
     }
 
-    const gameState = window.gameLogic. gameState;
+    // MODO ONLINE
+    if (window.OnlineGame && window. OnlineGame.isOnlineMode()) {
+        const confirmMessage = 'Tem certeza que deseja desistir?\n\nVocê perderá o jogo e seu adversário vencerá. ';
 
-    // **NOVA LÓGICA SIMPLIFICADA:  Determina quem é o jogador humano**
+        if (! confirm(confirmMessage)) {
+            updateMessageSafe("Desistência cancelada.  Continue jogando!");
+            return;
+        }
+
+        const state = window.OnlineGame.getOnlineState();
+        const result = await window.OnlineGame.leaveGame(state.myNick, state.myPassword, state. gameId);
+
+        if (result.success) {
+            updateMessageSafe("Você desistiu do jogo.  Seu adversário venceu.");
+            disableGameButtons();
+        } else {
+            alert(`Erro ao desistir: ${result.error}`);
+        }
+
+        return;
+    }
+
+    // MODO LOCAL (código original)
+    const gameState = window.gameLogic.gameState;
     const isAIGame = window.isAIGameActive && window.isAIGameActive();
     let humanColor = null;
     let loser = null;
     let winner = null;
 
     if (isAIGame && window.AI_PLAYER) {
-        // Em jogo contra IA, o humano sempre perde ao desistir
         humanColor = window.AI_PLAYER.color === 'red' ? 'blue' : 'red';
         loser = humanColor;
         winner = window.AI_PLAYER.color;
     } else {
-        // Em jogo humano vs humano, o jogador atual perde
         loser = gameState.currentPlayer;
         winner = gameState.currentPlayer === 'red' ? 'blue' : 'red';
     }
@@ -49,17 +67,15 @@ function handleForfeit() {
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
     const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
 
-    // Confirmação via diálogo nativo
-    const confirmMessage = `Tem certeza que deseja desistir?\n\nVocê (${loserName}) perderá o jogo.`;
+    const confirmMessage = `Tem certeza que deseja desistir?\n\nVocê (${loserName}) perderá o jogo. `;
 
     if (!confirm(confirmMessage)) {
-        updateMessageSafe("Desistência cancelada.  Continue jogando!");
+        updateMessageSafe("Desistência cancelada. Continue jogando!");
         return;
     }
 
     updateMessageSafe(`Jogador ${loserName} desistiu!  Jogador ${winnerName} vence por desistência! `);
 
-    // Delay antes de finalizar jogo
     setTimeout(() => {
         endGameByForfeit(winner, loser);
     }, 500);

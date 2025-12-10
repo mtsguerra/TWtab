@@ -63,7 +63,7 @@ function normalizeBoardSize(value) {
     return n;
 }
 
-playForm.addEventListener('submit', (e) => {
+playForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const form = new FormData(playForm);
@@ -71,10 +71,11 @@ playForm.addEventListener('submit', (e) => {
     boardSize = normalizeBoardSize(boardSize);
 
     const settings = {
-        boardSize:  boardSize,
+        boardSize: boardSize,
         opponent: form.get('opponent'),
-        playerColor: form. get('playerColor') || 'blue', // NOVA LINHA:  captura cor escolhida
-        ...(form.get('opponent') === 'pc' ?  {
+        playerColor: form.get('playerColor') || 'blue',
+        mode: form.get('mode') || 'local', // NOVO:  local ou online
+        ...(form.get('opponent') === 'pc' ? {
             difficulty: form.get('difficulty')
         } : {}),
         starter: form.get('starter')
@@ -83,11 +84,77 @@ playForm.addEventListener('submit', (e) => {
     console.log('Game settings chosen:', settings);
 
     closeDialog();
-    // MODIFICADO: passa playerColor como novo parâmetro
-    createBoard(settings. boardSize, settings.starter, settings.opponent, settings.difficulty, settings.playerColor);
 
-    document.getElementById('roll-dice').disabled = false;
+    // MODO ONLINE
+    if (settings.mode === 'online') {
+        await startOnlineGame(settings);
+    } else {
+        // MODO LOCAL
+        createBoard(settings. boardSize, settings.starter, settings.opponent, settings.difficulty, settings.playerColor);
+        document.getElementById('roll-dice').disabled = false;
+    }
 });
+
+// NOVA FUNÇÃO:  Inicia jogo online
+async function startOnlineGame(settings) {
+    if (!window.OnlineGame) {
+        alert('Sistema online não carregado! ');
+        return;
+    }
+
+    if (! window.RankingSystem || !window.RankingSystem. isUserLoggedIn()) {
+        alert('Você precisa fazer login para jogar online!');
+        return;
+    }
+
+    const nick = window.RankingSystem. getCurrentUser();
+    const password = window.RankingSystem.getCurrentPassword();
+
+    if (!password) {
+        alert('Erro: senha não encontrada.  Faça login novamente.');
+        return;
+    }
+
+    // Mostra tela de espera
+    showWaitingScreen('Procurando adversário...');
+
+    // Tenta entrar no jogo
+    const result = await window.OnlineGame.joinGame(nick, password, settings. boardSize);
+
+    if (result.success) {
+        const gameData = result.data;
+
+        // Aguarda emparelhamento via SSE
+        // O jogo será iniciado quando servidor enviar confirmação
+
+    } else {
+        hideWaitingScreen();
+        alert(`Erro ao entrar no jogo: ${result. error}`);
+    }
+}
+
+// NOVA FUNÇÃO: Mostra tela de espera
+function showWaitingScreen(message) {
+    const overlay = document.getElementById('waiting-overlay');
+    const messageEl = document.getElementById('waiting-message');
+
+    if (overlay && messageEl) {
+        messageEl.textContent = message;
+        overlay.classList.remove('hidden');
+    }
+}
+
+// NOVA FUNÇÃO: Esconde tela de espera
+function hideWaitingScreen() {
+    const overlay = document.getElementById('waiting-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+}
+
+// Exporta funções
+window.showWaitingScreen = showWaitingScreen;
+window.hideWaitingScreen = hideWaitingScreen;
 
 function createBoard(columns, starter, opponent, difficulty, playerColor = 'blue') {
     const board = document.getElementById('game-board');
