@@ -4,7 +4,7 @@
  * Módulo AI Player para Tâb - Atualizado para sistema de lançamento único
  * Implementa três níveis de dificuldade:
  * - Easy: Seleção aleatória de movimentos válidos
- * - Medium: Combinação de movimentos estratégicos (70%) e aleatórios (30%)
+ * - Medium:  Combinação de movimentos estratégicos (70%) e aleatórios (30%)
  * - Hard: Seleção sempre do movimento ótimo
  */
 
@@ -17,7 +17,7 @@ function updateMessage(text) {
 }
 
 const AI_PLAYER = {
-    color: 'red', // AI controla jogador vermelho (superior)
+    color: 'red', // Cor padrão da AI (será alterada dinamicamente conforme escolha do jogador)
     difficulty: 'medium', // Dificuldade padrão
     isProcessing: false,
     thinkingDelay: 800, // Delay em ms para simulação de processamento
@@ -27,19 +27,19 @@ const AI_PLAYER = {
      */
     async takeTurn() {
         if (this.isProcessing) return;
-        if (!window.gameLogic || !window.gameLogic.gameState.gameActive) return;
-        if (window.gameLogic.gameState.currentPlayer !== this.color) return;
+        if (! window.gameLogic || !window.gameLogic.gameState. gameActive) return;
+        if (window.gameLogic.gameState. currentPlayer !== this.color) return;
 
         this.isProcessing = true;
 
         try {
             // Executa lançamento de dados se necessário
-            if (window.gameLogic.gameState.diceValue === 0) {
+            if (window.gameLogic.gameState. diceValue === 0) {
                 await this.rollDice();
             }
 
             // Simula tempo de processamento
-            await this.simulateThinking();
+            await this. simulateThinking();
 
             // Executa movimento
             await this.makeMove();
@@ -58,11 +58,11 @@ const AI_PLAYER = {
             updateMessage('IA está jogando os dados...');
 
             setTimeout(() => {
-                const gameState = window.gameLogic.gameState;
+                const gameState = window.gameLogic. gameState;
 
                 // Verifica se já existe valor de dado não utilizado
                 if (gameState.diceValue > 0 && !gameState.diceUsed) {
-                    console.log('AI: Dice already rolled, value not used yet');
+                    console.log('AI:  Dice already rolled, value not used yet');
                     resolve();
                     return;
                 }
@@ -108,14 +108,14 @@ const AI_PLAYER = {
                 // Atualiza exibição
                 const diceTotal = document.querySelector('.dice-total');
                 if (diceTotal) {
-                    let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' : ''}`;
+                    let resultText = `Resultado: ${steps} passo${steps !== 1 ? 's' :  ''}`;
                     if (bonusRoll) {
                         resultText += " 🎲 (Jogue novamente!)";
                     }
                     diceTotal.textContent = resultText;
                 }
 
-                console.log(`AI rolled: ${steps} steps, bonus: ${bonusRoll}`);
+                console.log(`AI rolled:  ${steps} steps, bonus: ${bonusRoll}`);
 
                 setTimeout(resolve, 500);
             }, 400);
@@ -153,11 +153,11 @@ const AI_PLAYER = {
         // Obtém todos os movimentos possíveis para todas as peças da AI
         const allPossibleMoves = this.getAllPossibleMoves();
 
-        console.log(`AI: Dice value = ${diceValue}, Found ${allPossibleMoves.length} possible moves`);
+        console.log(`AI: Dice value = ${diceValue}, Found ${allPossibleMoves. length} possible moves`);
 
-        if (allPossibleMoves.length > 0) {
-            console.log('AI: Available moves:', allPossibleMoves.map(m => ({
-                from: `(${m.piece.row},${m.piece.col})`,
+        if (allPossibleMoves. length > 0) {
+            console.log('AI: Available moves:', allPossibleMoves. map(m => ({
+                from: `(${m.piece.row},${m.piece. col})`,
                 to: `(${m.destination.row},${m.destination.col})`,
                 isActivation: m.isActivation,
                 pieceActive: m.piece.active
@@ -166,7 +166,7 @@ const AI_PLAYER = {
 
         if (allPossibleMoves.length === 0) {
             // Sem movimentos válidos - pula turno
-            updateMessage('IA não tem jogadas válidas. Pulando a vez...');
+            updateMessage('IA não tem jogadas válidas.  Pulando a vez.. .');
 
             // Marca dado como utilizado antes de pular
             gameState.diceUsed = true;
@@ -200,14 +200,14 @@ const AI_PLAYER = {
                 chosenMove = this.chooseRandomMove(allPossibleMoves);
         }
 
-        console.log('AI: Chosen move:', {
-            from: `(${chosenMove.piece.row},${chosenMove.piece.col})`,
-            to: `(${chosenMove.destination.row},${chosenMove.destination.col})`,
+        console.log('AI:  Chosen move:', {
+            from: `(${chosenMove.piece. row},${chosenMove.piece.col})`,
+            to: `(${chosenMove.destination.row},${chosenMove. destination.col})`,
             isActivation: chosenMove.isActivation
         });
 
         // Executa movimento selecionado
-        await this.executeMove(chosenMove);
+        await this. executeMove(chosenMove);
     },
 
     /**
@@ -240,7 +240,7 @@ const AI_PLAYER = {
                     }
 
                     activationMoves.forEach(move => {
-                        allMoves.push({
+                        allMoves. push({
                             piece: piece,
                             destination: move,
                             isActivation: true
@@ -310,21 +310,24 @@ const AI_PLAYER = {
     evaluateMove(move) {
         let score = 0;
         const { piece, destination, isActivation } = move;
-        const gameState = window.gameLogic.gameState;
+        const gameState = window.gameLogic. gameState;
 
         // Referências a funções com fallback seguro
         const findPieceAtFunc = window.findPieceAt || (typeof findPieceAt !== 'undefined' ? findPieceAt : null);
-        const isInEnemyTerritoryFunc = window.isInEnemyTerritory || (typeof isInEnemyTerritory !== 'undefined' ? isInEnemyTerritory : null);
+        const isInEnemyTerritoryFunc = window.isInEnemyTerritory || (typeof isInEnemyTerritory !== 'undefined' ? isInEnemyTerritory :  null);
         const isPositionInEnemyTerritoryFunc = window.isPositionInEnemyTerritory || (typeof isPositionInEnemyTerritory !== 'undefined' ? isPositionInEnemyTerritory : null);
         const enemyHasPiecesInInitialRowFunc = window.enemyHasPiecesInInitialRow || (typeof enemyHasPiecesInInitialRow !== 'undefined' ? enemyHasPiecesInInitialRow : null);
 
-        if (!findPieceAtFunc) return 0;
+        if (! findPieceAtFunc) return 0;
+
+        // Determina cor do inimigo dinamicamente
+        const enemyColor = this.color === 'red' ? 'blue' : 'red';
 
         // 1. PRIORIDADE DE CAPTURA
-        const enemyPiece = findPieceAtFunc(destination.row, destination.col, 'blue');
+        const enemyPiece = findPieceAtFunc(destination. row, destination.col, enemyColor);
         if (enemyPiece) {
             score += 1000;
-            if (isInEnemyTerritoryFunc && isInEnemyTerritoryFunc(enemyPiece, 'blue')) {
+            if (isInEnemyTerritoryFunc && isInEnemyTerritoryFunc(enemyPiece, enemyColor)) {
                 score += 200;
             }
         }
@@ -339,7 +342,7 @@ const AI_PLAYER = {
         score += progressScore;
 
         // 4. ENTRADA EM TERRITÓRIO INIMIGO
-        if (isPositionInEnemyTerritoryFunc && isPositionInEnemyTerritoryFunc(destination.row, this.color)) {
+        if (isPositionInEnemyTerritoryFunc && isPositionInEnemyTerritoryFunc(destination. row, this.color)) {
             if (enemyHasPiecesInInitialRowFunc && enemyHasPiecesInInitialRowFunc(this.color)) {
                 score += 300;
             }
@@ -348,8 +351,8 @@ const AI_PLAYER = {
         // 5. SAÍDA DE TERRITÓRIO INIMIGO
         if (isInEnemyTerritoryFunc && isPositionInEnemyTerritoryFunc) {
             const wasInEnemyTerritory = isInEnemyTerritoryFunc(piece, this.color);
-            const willBeInEnemyTerritory = isPositionInEnemyTerritoryFunc(destination.row, this.color);
-            if (wasInEnemyTerritory && !willBeInEnemyTerritory) {
+            const willBeInEnemyTerritory = isPositionInEnemyTerritoryFunc(destination. row, this.color);
+            if (wasInEnemyTerritory && ! willBeInEnemyTerritory) {
                 score += 150;
             }
         }
@@ -381,31 +384,48 @@ const AI_PLAYER = {
         return score;
     },
 
+    /**
+     * Calcula pontuação de progresso baseado na direção de movimento
+     */
     calculateProgressScore(piece, destination) {
         const rowDiff = destination.row - piece.row;
         const colDiff = Math.abs(destination.col - piece.col);
         let score = 0;
 
-        if (piece.row === 0 && destination.row > 0) score += 100;
-        if (destination.row === 1 || destination.row === 2) score += 50;
-        if (destination.row === 3) score += 80;
+        // Ajusta lógica de progresso baseado na cor da IA
+        if (this.color === 'red') {
+            // Vermelho: progresso é mover para baixo (aumentar row)
+            if (piece.row === 0 && destination.row > 0) score += 100;
+            if (destination.row === 1 || destination.row === 2) score += 50;
+            if (destination.row === 3) score += 80;
+        } else {
+            // Azul: progresso é mover para cima (diminuir row)
+            if (piece.row === 3 && destination.row < 3) score += 100;
+            if (destination.row === 2 || destination.row === 1) score += 50;
+            if (destination.row === 0) score += 80;
+        }
 
         score += colDiff * 10;
         return score;
     },
 
+    /**
+     * Verifica se peça está vulnerável a captura inimiga
+     */
     isPieceVulnerable(piece) {
-        const enemyPieces = window.gameLogic.gameState.pieces['blue'];
+        // Determina cor do inimigo dinamicamente
+        const enemyColor = this.color === 'red' ? 'blue' : 'red';
+        const enemyPieces = window.gameLogic.gameState. pieces[enemyColor];
         const getValidMovesFunc = window.getValidMoves || (typeof getValidMoves !== 'undefined' ? getValidMoves : null);
 
         if (!getValidMovesFunc) return false;
 
         for (let enemyPiece of enemyPieces) {
-            if (!enemyPiece.active) continue;
+            if (! enemyPiece.active) continue;
 
             for (let diceValue = 1; diceValue <= 6; diceValue++) {
-                const enemyMoves = getValidMovesFunc(enemyPiece, diceValue, 'blue');
-                const canCapture = enemyMoves.some(move =>
+                const enemyMoves = getValidMovesFunc(enemyPiece, diceValue, enemyColor);
+                const canCapture = enemyMoves. some(move =>
                     move.row === piece.row && move.col === piece.col
                 );
                 if (canCapture) return true;
@@ -414,13 +434,18 @@ const AI_PLAYER = {
         return false;
     },
 
+    /**
+     * Conta número de peças inimigas ameaçadas por posição
+     */
     countThreatenedEnemies(position) {
-        const enemyPieces = window.gameLogic.gameState.pieces['blue'];
+        // Determina cor do inimigo dinamicamente
+        const enemyColor = this.color === 'red' ?  'blue' : 'red';
+        const enemyPieces = window.gameLogic. gameState.pieces[enemyColor];
         let count = 0;
 
         enemyPieces.forEach(enemyPiece => {
             const rowDiff = Math.abs(position.row - enemyPiece.row);
-            const colDiff = Math.abs(position.col - enemyPiece.col);
+            const colDiff = Math.abs(position. col - enemyPiece. col);
 
             if (rowDiff <= 1 && colDiff <= 2) {
                 count++;
@@ -430,8 +455,13 @@ const AI_PLAYER = {
         return count;
     },
 
+    /**
+     * Calcula pontuação baseada em distância a peças inimigas
+     */
     calculateDistanceToEnemies(position) {
-        const enemyPieces = window.gameLogic.gameState.pieces['blue'];
+        // Determina cor do inimigo dinamicamente
+        const enemyColor = this.color === 'red' ? 'blue' : 'red';
+        const enemyPieces = window.gameLogic.gameState.pieces[enemyColor];
 
         if (enemyPieces.length === 0) return 0;
 
@@ -439,7 +469,7 @@ const AI_PLAYER = {
 
         enemyPieces.forEach(enemyPiece => {
             const distance = Math.abs(position.row - enemyPiece.row) +
-                Math.abs(position.col - enemyPiece.col);
+                Math.abs(position. col - enemyPiece. col);
             minDistance = Math.min(minDistance, distance);
         });
 
@@ -458,17 +488,21 @@ const AI_PLAYER = {
         const updatePieceDisplayFunc = window.updatePieceDisplay || (typeof updatePieceDisplay !== 'undefined' ? updatePieceDisplay : null);
         const highlightSelectedPieceFunc = window.highlightSelectedPiece || (typeof highlightSelectedPiece !== 'undefined' ? highlightSelectedPiece : null);
         const showPossibleMovesFunc = window.showPossibleMoves || (typeof showPossibleMoves !== 'undefined' ? showPossibleMoves : null);
-        const findPieceAtFunc = window.findPieceAt || (typeof findPieceAt !== 'undefined' ? findPieceAt : null);
-        const capturePieceFunc = window.capturePiece || (typeof capturePiece !== 'undefined' ? capturePiece : null);
-        const movePieceFunc = window.movePiece || (typeof movePiece !== 'undefined' ? movePiece : null);
-        const checkWinConditionFunc = window.checkWinCondition || (typeof checkWinCondition !== 'undefined' ? checkWinCondition : null);
+        const findPieceAtFunc = window. findPieceAt || (typeof findPieceAt !== 'undefined' ? findPieceAt : null);
+        const capturePieceFunc = window. capturePiece || (typeof capturePiece !== 'undefined' ? capturePiece : null);
+        const movePieceFunc = window.movePiece || (typeof movePiece !== 'undefined' ?  movePiece : null);
+        const checkWinConditionFunc = window.checkWinCondition || (typeof checkWinCondition !== 'undefined' ? checkWinCondition :  null);
         const endGameFunc = window.endGame || (typeof endGame !== 'undefined' ? endGame : null);
+
+        // Determina cor do inimigo dinamicamente
+        const enemyColor = this.color === 'red' ?  'blue' : 'red';
+        const enemyName = enemyColor === 'red' ?  'vermelha' : 'azul';
 
         // Ativa peça se necessário
         if (isActivation && updatePieceDisplayFunc && getCellIndexFunc) {
             piece.active = true;
-            const cellIndex = getCellIndexFunc(piece.row, piece.col, gameState.boardSize);
-            updatePieceDisplayFunc(cellIndex, this.color, true, piece.hasCompletedEnemyTerritory);
+            const cellIndex = getCellIndexFunc(piece. row, piece.col, gameState.boardSize);
+            updatePieceDisplayFunc(cellIndex, this.color, true, piece. hasCompletedEnemyTerritory);
             updateMessage('IA ativou uma peça!');
             await this.delay(500);
         }
@@ -490,17 +524,17 @@ const AI_PLAYER = {
 
         // Verifica captura
         if (findPieceAtFunc && capturePieceFunc) {
-            const enemyPiece = findPieceAtFunc(destination.row, destination.col, 'blue');
+            const enemyPiece = findPieceAtFunc(destination.row, destination.col, enemyColor);
             if (enemyPiece) {
-                updateMessage('IA capturou uma peça azul!');
-                capturePieceFunc(enemyPiece, 'blue');
-                await this.delay(800);
+                updateMessage(`IA capturou uma peça ${enemyName}! `);
+                capturePieceFunc(enemyPiece, enemyColor);
+                await this. delay(800);
             }
         }
 
         // Move a peça
         if (movePieceFunc) {
-            movePieceFunc(piece, destination.row, destination.col);
+            movePieceFunc(piece, destination. row, destination.col);
             updateMessage('IA moveu uma peça.');
         }
 
@@ -520,7 +554,7 @@ const AI_PLAYER = {
 
         // Processa jogada bônus ou troca de turno
         if (gameState.bonusRoll) {
-            gameState.diceValue = 0;
+            gameState. diceValue = 0;
             gameState.bonusRoll = false;
             gameState.diceUsed = false; // Reseta para permitir novo lançamento
             document.querySelector('.dice-total').textContent = 'Resultado: —';
@@ -547,7 +581,7 @@ const AI_PLAYER = {
     },
 
     /**
-     * Função auxiliar: promise com delay
+     * Função auxiliar:  promise com delay
      */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -558,16 +592,16 @@ const AI_PLAYER = {
      */
     init(difficulty) {
         this.difficulty = difficulty || 'medium';
-        this.isProcessing = false;
-        console.log(`AI initialized with difficulty: ${this.difficulty}`);
+        this. isProcessing = false;
+        console.log(`AI initialized with difficulty: ${this.difficulty}, color: ${this.color}`);
     },
 
     /**
      * Verifica se é turno da AI e dispara movimento
      */
     checkAndPlay() {
-        if (!window.gameLogic || !window.gameLogic.gameState.gameActive) return;
-        if (window.gameLogic.gameState.currentPlayer !== this.color) return;
+        if (!window.gameLogic || !window.gameLogic.gameState. gameActive) return;
+        if (window.gameLogic.gameState. currentPlayer !== this.color) return;
         if (this.isProcessing) return;
 
         // Delay antes de iniciar turno da AI
@@ -578,4 +612,4 @@ const AI_PLAYER = {
 // Exporta AI player
 window.AI_PLAYER = AI_PLAYER;
 
-console.log('AI Player loaded successfully (updated for single dice roll system)');
+console.log('AI Player loaded successfully (updated for single dice roll system with dynamic color support)');

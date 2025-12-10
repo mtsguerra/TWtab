@@ -13,7 +13,7 @@
 
     // Armazena referências às funções originais para wrapping
     const originalSwitchTurn = window.switchTurn;
-    const originalEndGame = window.endGame;
+    const originalEndGame = window. endGame;
 
     /**
      * Extensão de switchTurn para disparar AI após troca de turno
@@ -40,7 +40,7 @@
         }
 
         // Lógica adicional de finalização para jogo AI
-        if (isAIGame && window.AI_PLAYER) {
+        if (isAIGame && window. AI_PLAYER) {
             window.AI_PLAYER.isProcessing = false;
         }
     };
@@ -48,16 +48,16 @@
     /**
      * Inicializa jogo contra AI com dificuldade especificada
      */
-    window.initAIGame = function(difficulty) {
+    window. initAIGame = function(difficulty) {
         isAIGame = true;
         aiDifficulty = difficulty;
 
         if (window.AI_PLAYER) {
             window.AI_PLAYER.init(difficulty);
-            console.log('AI game initialized with difficulty:', difficulty);
+            console.log('AI game initialized with difficulty:', difficulty, 'AI color:', window.AI_PLAYER. color);
 
-            // Dispara AI se for o primeiro jogador
-            if (window.gameLogic && window.gameLogic.gameState.currentPlayer === 'red') {
+            // Dispara AI se for o primeiro jogador (verifica cor dinâmica da IA)
+            if (window. gameLogic && window.gameLogic.gameState.currentPlayer === window.AI_PLAYER.color) {
                 setTimeout(() => {
                     window.AI_PLAYER.checkAndPlay();
                 }, 1500); // Delay para visualização inicial do tabuleiro
@@ -75,7 +75,7 @@
         if (window.AI_PLAYER) {
             window.AI_PLAYER.isProcessing = false;
         }
-        console.log('AI game disabled - Human vs Human mode');
+        console. log('AI game disabled - Human vs Human mode');
     };
 
     /**
@@ -88,20 +88,20 @@
     /**
      * Retorna dificuldade atual da AI
      */
-    window.getAIDifficulty = function() {
+    window. getAIDifficulty = function() {
         return aiDifficulty;
     };
 
     // Event listeners para integração AI em eventos de jogo
-    document.addEventListener('DOMContentLoaded', () => {
+    document. addEventListener('DOMContentLoaded', () => {
         const rollButton = document.getElementById('roll-dice');
 
         if (rollButton) {
             rollButton.addEventListener('click', () => {
-                // Verifica se próximo turno é da AI após jogada humana
+                // Verifica se próximo turno é da AI após jogada humana (usa cor dinâmica)
                 setTimeout(() => {
                     if (isAIGame && window.gameLogic &&
-                        window.gameLogic.gameState.currentPlayer === 'red' &&
+                        window.gameLogic.gameState.currentPlayer === window.AI_PLAYER. color &&
                         window.AI_PLAYER) {
                         // Troca de turno natural dispara AI via switchTurn wrapper
                     }

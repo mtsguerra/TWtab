@@ -181,6 +181,9 @@ function getValidMoves(piece, diceValue, playerColor) {
         const moveIsToEnemyTerritory = isPositionInEnemyTerritory(move.row, playerColor);
 
         if (moveIsToEnemyTerritory) {
+            if (playerColor === 'red') {
+                return false; // ← MUDANÇA: Bloqueia linha 3 para vermelhas
+            }
             if (piece.hasCompletedEnemyTerritory) {
                 return false;
             }
@@ -223,6 +226,9 @@ function canActivatePiece(piece, playerColor) {
         const moveIsToEnemyTerritory = isPositionInEnemyTerritory(move.row, playerColor);
 
         if (moveIsToEnemyTerritory) {
+            if (playerColor === 'red') {
+                return false; // ← MUDANÇA:  Bloqueia durante ativação
+            }
             if (piece.hasCompletedEnemyTerritory) {
                 return false;
             }
@@ -343,10 +349,6 @@ function getRedAllPaths(row, col, steps, columns, currentPath = []) {
     if (row === 2 && col === 0) {
         const path1 = getRedAllPaths(1, 0, steps - 1, columns, [...currentPath, { row: 1, col: 0 }]);
         allPaths.push(...path1);
-
-        const path2 = getRedAllPaths(3, 0, steps - 1, columns, [...currentPath, { row: 3, col: 0 }]);
-        allPaths.push(...path2);
-
         return allPaths;
     }
 
@@ -382,15 +384,6 @@ function getNextRedPosition(row, col, columns) {
             return null;
         }
     }
-
-    if (row === 3) {
-        if (col < columns - 1) {
-            return { row: 3, col: col + 1 };
-        } else {
-            return { row: 2, col: columns - 1 };
-        }
-    }
-
     return null;
 }
 

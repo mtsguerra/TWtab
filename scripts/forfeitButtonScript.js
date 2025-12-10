@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const forfeitButton = document.getElementById('forfeit-button');
 
-    if (!forfeitButton) {
+    if (! forfeitButton) {
         console.error('Forfeit button not found');
         return;
     }
@@ -22,12 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleForfeit() {
     // Verifica se jogo está ativo
-    if (!window.gameLogic || !window.gameLogic.gameState.gameActive) {
+    if (!window.gameLogic || !window.gameLogic.gameState. gameActive) {
         updateMessageSafe("Não há jogo ativo para desistir!");
         return;
     }
 
-    const gameState = window.gameLogic.gameState;
+    const gameState = window.gameLogic. gameState;
 
     // Previne desistência durante processamento da AI
     if (window.AI_PLAYER && window.AI_PLAYER.isProcessing) {
@@ -39,8 +39,8 @@ function handleForfeit() {
     const currentPlayerName = gameState.currentPlayer === 'red' ? 'Vermelho' : 'Azul';
     const confirmMessage = `Tem certeza que deseja desistir?\n\nJogador ${currentPlayerName} perderá o jogo.`;
 
-    if (!confirm(confirmMessage)) {
-        updateMessageSafe("Desistência cancelada. Continue jogando!");
+    if (! confirm(confirmMessage)) {
+        updateMessageSafe("Desistência cancelada.  Continue jogando!");
         return;
     }
 
@@ -51,7 +51,7 @@ function handleForfeit() {
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
     const winnerName = winner === 'red' ? 'Vermelho' : 'Azul';
 
-    updateMessageSafe(`Jogador ${loserName} desistiu! Jogador ${winnerName} vence por desistência!`);
+    updateMessageSafe(`Jogador ${loserName} desistiu!  Jogador ${winnerName} vence por desistência! `);
 
     // Delay antes de finalizar jogo
     setTimeout(() => {
@@ -71,7 +71,7 @@ function endGameByForfeit(winner, loser) {
     } else {
         gameState.selectedPiece = null;
         gameState.possibleMoves = [];
-        const cells = document.querySelectorAll('.cell');
+        const cells = document.querySelectorAll('. cell');
         cells.forEach(cell => {
             cell.classList.remove('selected', 'possible-move', 'capture-move', 'selectable');
         });
@@ -86,14 +86,30 @@ function endGameByForfeit(winner, loser) {
     const loserName = loser === 'red' ? 'Vermelho' : 'Azul';
 
     // Atualiza mensagem com informação de desistência
-    updateMessageSafe(`🏳️ Jogo terminado por desistência!\n\nJogador ${loserName} desistiu.\nJogador ${winnerName} VENCEU! 🎉`);
+    updateMessageSafe(`🏳️ Jogo terminado por desistência!\n\nJogador ${loserName} desistiu.\nJogador ${winnerName} VENCEU!  🎉`);
 
     // Adiciona classe de finalização
-    const messageBox = document.querySelector('.message-box');
+    const messageBox = document.querySelector('. message-box');
     if (messageBox) {
         messageBox.classList.add('game-over');
     }
 
+    // Desabilita botões do jogo
+    disableGameButtons();
+
+    // Adiciona efeitos visuais de desistência
+    addForfeitVisualEffects(winner, loser);
+
+    // Exibe prompt para novo jogo após delay
+    setTimeout(() => {
+        showPlayAgainPrompt(winnerName, loserName);
+    }, 2000);
+}
+
+/**
+ * Desabilita todos os botões de controle do jogo
+ */
+function disableGameButtons() {
     // Desabilita botão de lançamento
     const rollButton = document.getElementById('roll-dice');
     if (rollButton) {
@@ -105,27 +121,60 @@ function endGameByForfeit(winner, loser) {
     if (skipButton) {
         skipButton.style.opacity = '0.5';
         skipButton.style.pointerEvents = 'none';
+        skipButton.setAttribute('aria-disabled', 'true');
     }
 
     // Desabilita botão de desistência
     const forfeitButton = document.getElementById('forfeit-button');
     if (forfeitButton) {
         forfeitButton.style.opacity = '0.5';
-        forfeitButton.style.pointerEvents = 'none';
+        forfeitButton.style. pointerEvents = 'none';
+        forfeitButton.setAttribute('aria-disabled', 'true');
+    }
+}
+
+/**
+ * Reabilita todos os botões de controle do jogo
+ * Chamada ao iniciar um novo jogo
+ */
+function enableGameButtons() {
+    // Habilita botão de lançamento
+    const rollButton = document. getElementById('roll-dice');
+    if (rollButton) {
+        rollButton.disabled = false;
     }
 
-    // Adiciona efeitos visuais de desistência
-    addForfeitVisualEffects(winner, loser);
+    // Habilita botão de pular
+    const skipButton = document.getElementById('skip-button');
+    if (skipButton) {
+        skipButton.style.opacity = '1';
+        skipButton.style.pointerEvents = 'auto';
+        skipButton.removeAttribute('aria-disabled');
+    }
 
-    // Exibe prompt para novo jogo após delay
-    setTimeout(() => {
-        showPlayAgainPrompt(winnerName, loserName);
-    }, 2000);
+    // Habilita botão de desistência
+    const forfeitButton = document.getElementById('forfeit-button');
+    if (forfeitButton) {
+        forfeitButton.style.opacity = '1';
+        forfeitButton.style.pointerEvents = 'auto';
+        forfeitButton.removeAttribute('aria-disabled');
+    }
+
+    // Remove classe de game-over da message-box
+    const messageBox = document.querySelector('.message-box');
+    if (messageBox) {
+        messageBox.classList.remove('game-over');
+    }
+
+    // Limpa efeitos visuais de desistência
+    clearForfeitVisualEffects();
+
+    console.log('Game buttons re-enabled for new game');
 }
 
 function addForfeitVisualEffects(winner, loser) {
     // Atenua peças do perdedor
-    const cells = document.querySelectorAll('.cell');
+    const cells = document.querySelectorAll('. cell');
     cells.forEach(cell => {
         const piece = cell.querySelector(`.${loser}-piece`);
         if (piece) {
@@ -146,7 +195,7 @@ function addForfeitVisualEffects(winner, loser) {
     if (!document.getElementById('forfeit-animation-style')) {
         const style = document.createElement('style');
         style.id = 'forfeit-animation-style';
-        style.textContent = `
+        style. textContent = `
             @keyframes pulse {
                 0%, 100% { transform: scale(1); opacity: 1; }
                 50% { transform: scale(1.1); opacity: 0.8; }
@@ -156,6 +205,21 @@ function addForfeitVisualEffects(winner, loser) {
     }
 }
 
+/**
+ * Remove efeitos visuais de desistência
+ */
+function clearForfeitVisualEffects() {
+    const cells = document. querySelectorAll('.cell');
+    cells.forEach(cell => {
+        const pieces = cell.querySelectorAll('. piece');
+        pieces.forEach(piece => {
+            piece.style. opacity = '';
+            piece.style.filter = '';
+            piece.style.animation = '';
+        });
+    });
+}
+
 function showPlayAgainPrompt(winnerName, loserName) {
     const message = document.querySelector('.message p');
     if (message) {
@@ -163,7 +227,7 @@ function showPlayAgainPrompt(winnerName, loserName) {
             🏳️ <strong>Jogo terminado por desistência!</strong><br><br>
             Jogador ${loserName} desistiu.<br>
             Jogador <strong>${winnerName}</strong> VENCEU! 🎉<br><br>
-            <small>Clique em "Jogar" para iniciar um novo jogo.</small>
+            <small>Clique em "Jogar" para iniciar um novo jogo. </small>
         `;
     }
 }
@@ -188,5 +252,7 @@ function updateMessageSafe(text) {
 // Exporta funções para acesso global
 window.handleForfeit = handleForfeit;
 window.endGameByForfeit = endGameByForfeit;
+window.enableGameButtons = enableGameButtons;
+window. disableGameButtons = disableGameButtons;
 
 console.log('Forfeit button script loaded');

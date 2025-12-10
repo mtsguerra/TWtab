@@ -35,8 +35,9 @@ function handleSkipTurn() {
         return;
     }
 
-    // Previne pular durante turno da AI
-    if (window.isAIGameActive && window.isAIGameActive() && gameState.currentPlayer === 'red') {
+    // MODIFICADO: verifica cor dinâmica da IA
+    if (window. isAIGameActive && window.isAIGameActive() &&
+        window.AI_PLAYER && gameState.currentPlayer === window.AI_PLAYER.color) {
         updateMessageSafe("Aguarde a vez da IA!");
         return;
     }
