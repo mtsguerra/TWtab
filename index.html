@@ -24,6 +24,12 @@
     <script src="scripts/aiPlayerScript.js" defer></script>
     <script src="scripts/aiIntegrationScript.js" defer></script>
 
+    <!-- Biblioteca PeerJS para conexões P2P -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <!-- Sistema de jogo online -->
+    <script src="scripts/onlineGameScript.js" defer></script>
+
     <!-- Script de inicialização(executado por último) -->
     <script src="scripts/startingGameScript.js" defer></script>
 
@@ -373,7 +379,10 @@
                     <fieldset>
                         <legend>Adversário</legend>
                         <label>
-                            <input type="radio" name="opponent" value="human" checked /> Humano
+                            <input type="radio" name="opponent" value="local" checked /> Local
+                        </label>
+                        <label>
+                            <input type="radio" name="opponent" value="online" /> Online
                         </label>
                         <label>
                             <input type="radio" name="opponent" value="pc" /> Computador
@@ -400,6 +409,23 @@
                             <option value="medium" selected>Médio</option>
                             <option value="hard">Difícil</option>
                         </select>
+                    </div>
+
+                    <!-- Opções para jogo online -->
+                    <div id="onlineOptions" class="online-options hidden" aria-hidden="true">
+                        <label for="gameMode">Modo</label>
+                        <select id="gameMode" name="gameMode">
+                            <option value="create">Criar sala</option>
+                            <option value="join">Entrar em sala</option>
+                        </select>
+                        <div id="roomIdField" class="hidden">
+                            <label for="roomId">ID da sala</label>
+                            <input type="text" id="roomId" name="roomId" placeholder="Digite o ID da sala" />
+                        </div>
+                        <div id="connectionStatus" class="connection-status hidden">
+                            <span class="status-indicator"></span>
+                            <span class="status-text">Conectando...</span>
+                        </div>
                     </div>
 
                     <!-- Definição de quem inicia a partida -->

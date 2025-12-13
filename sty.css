@@ -643,6 +643,49 @@ fieldset input[type="radio"] {
     gap: 6px;
 }
 
+.online-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c8-color);
+    animation: pulse-status 2s ease-in-out infinite;
+}
+
+.status-indicator.connected {
+    background: #4ade80;
+    animation: none;
+}
+
+.status-indicator.error {
+    background: #ef4444;
+    animation: none;
+}
+
+@keyframes pulse-status {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
 .game-board {
     width: 80%;
     box-sizing: border-box;
