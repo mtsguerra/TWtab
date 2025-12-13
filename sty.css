@@ -522,6 +522,8 @@ main,
 
 .overlay h2 {
     color: var(--c3-color);
+    font-size: 1.2rem;
+    margin: 8px 0;
 }
 
 .hidden {
@@ -529,31 +531,31 @@ main,
 }
 
 .dialog {
-    width: 320px;
+    width: 280px;
     max-width: 96%;
     background: linear-gradient(180deg, var(--c6-color) 0%, var(--c7-color) 100%);
-    padding: 18px;
+    padding: 12px;
     border-radius: var(--border-radius);
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 main label, main legend {
-    font-size: clamp(1rem, 1rem + 0.35vw, 1.5rem);
+    font-size: clamp(0.85rem, 0.85rem + 0.2vw, 1rem);
     color: var(--c3-color);
 }
 
 #boardSize {
     background: var(--c8-color);
     color: var(--c3-color);
-    padding: 10px 14px;
+    padding: 6px 10px;
     border-radius: var(--border-radius);
     border: 1px solid var(--c4-color);
-    font-size: 1rem;
+    font-size: 0.9rem;
     width: 100%;
     box-sizing: border-box;
 }
@@ -563,11 +565,12 @@ select,
 input[type="text"],
 .pc-options select {
     width: 100%;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border-radius: var(--border-radius);
     border: 1px solid var(--c4-color);
     background: var(--c8-color);
     color: var(--c3-color);
+    font-size: 0.9rem;
 }
 
 fieldset {
@@ -575,13 +578,13 @@ fieldset {
     padding: 0;
     margin: 0;
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
     color: var(--c3-color);
 }
 
 fieldset legend {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 600;
     color: var(--c3-color);
 }
@@ -589,11 +592,12 @@ fieldset legend {
 fieldset label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     cursor: pointer;
-    padding: 6px 10px;
+    padding: 4px 8px;
     border-radius:  8px;
     transition: background 0.2s ease;
+    font-size: 0.9rem;
 }
 
 fieldset label:hover {
@@ -602,23 +606,24 @@ fieldset label:hover {
 
 fieldset input[type="radio"] {
     cursor: pointer;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: flex-end;
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 .btn {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: var(--border-radius);
     border: 0;
     cursor: pointer;
     font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .btn-primary {
@@ -635,7 +640,7 @@ fieldset input[type="radio"] {
 .pc-options {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .game-board {
